@@ -19,6 +19,7 @@ Singleton {
     property bool isLightMode: false
 
     readonly property string dynamic: "dynamic"
+    readonly property string custom : "custom"
 
     readonly property string homeDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.HomeLocation))
     readonly property string configDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.ConfigLocation))
@@ -208,11 +209,11 @@ Singleton {
     function switchTheme(themeName, savePrefs = true) {
         if (themeName === dynamic) {
             currentTheme = dynamic
-            currentThemeCategory = "dynamic"
+            currentThemeCategory = dynamic
             extractColors()
-        } else if (themeName === "custom") {
-            currentTheme = "custom"
-            currentThemeCategory = "custom"
+        } else if (themeName === custom) {
+            currentTheme = custom
+            currentThemeCategory = custom
             if (typeof SettingsData !== "undefined" && SettingsData.customThemeFile) {
                 loadCustomThemeFromFile(SettingsData.customThemeFile)
             }

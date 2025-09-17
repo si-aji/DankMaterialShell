@@ -161,12 +161,16 @@ Item {
 
                         StyledText {
                             text: {
-                                if (Theme.currentTheme === Theme.dynamic)
-                                    return "Wallpaper-based dynamic colors"
-                                else if (Theme.currentThemeCategory === "catppuccin")
-                                    return "Soothing pastel theme inspired by Catppuccin"
-                                else
-                                    return "Material Design inspired color themes"
+                                if (Theme.currentTheme === Theme.dynamic) {
+                                    return "Material colors generated from wallpaper"
+                                }
+                                if (Theme.currentThemeCategory === "catppuccin") {
+                                    return "Soothing pastel theme based on Catppuccin"
+                                }
+                                if (Theme.currentTheme === Theme.custom) {
+                                    return "Custom theme loaded from JSON file"
+                                }
+                                return "Material Design inspired color themes"
                             }
                             font.pixelSize: Theme.fontSizeSmall
                             color: Theme.surfaceVariantText
