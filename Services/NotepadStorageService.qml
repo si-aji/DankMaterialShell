@@ -8,7 +8,13 @@ pragma ComponentBehavior: Bound
 Singleton {
     id: root
 
-    readonly property string baseDir: StandardPaths.writableLocation(StandardPaths.GenericStateLocation) + "/DankMaterialShell"
+    readonly property string baseDir: {
+        var path = StandardPaths.writableLocation(StandardPaths.GenericStateLocation) + "/DankMaterialShell"
+        if (path.startsWith("file://")) {
+            return path.substring(7)
+        }
+        return path
+    }
     readonly property string filesDir: baseDir + "/notepad-files"
     readonly property string metadataPath: baseDir + "/notepad-session.json"
 
@@ -321,13 +327,8 @@ Singleton {
     }
 
     function createEmptyFile(path, callback) {
-        // Ensure path is a local file path, not a URL
         var cleanPath = path.toString()
-        if (cleanPath.startsWith("file://")) {
-            cleanPath = cleanPath.substring(7)
-        }
 
-        // Validate the cleaned path is absolute and in the right location
         if (!cleanPath.startsWith("/")) {
             cleanPath = baseDir + "/" + cleanPath
         }
