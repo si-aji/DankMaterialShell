@@ -22,16 +22,6 @@ Singleton {
     property int currentTabIndex: 0
     property var tabsBeingCreated: ({})
 
-    Component.onCompleted: {
-        ensureDirectoryProcess.running = true
-    }
-
-    Process {
-        id: ensureDirectoryProcess
-        command: ["mkdir", "-p", root.filesDir]
-        onExited: loadMetadata()
-    }
-
     FileView {
         id: metadataFile
         path: root.metadataPath
