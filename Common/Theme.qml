@@ -15,6 +15,7 @@ Singleton {
     id: root
 
     property string currentTheme: "blue"
+    property string currentThemeCategory: "generic"
     property bool isLightMode: false
 
     readonly property string dynamic: "dynamic"
@@ -207,14 +208,22 @@ Singleton {
     function switchTheme(themeName, savePrefs = true) {
         if (themeName === dynamic) {
             currentTheme = dynamic
+            currentThemeCategory = "dynamic"
             extractColors()
         } else if (themeName === "custom") {
             currentTheme = "custom"
+            currentThemeCategory = "custom"
             if (typeof SettingsData !== "undefined" && SettingsData.customThemeFile) {
                 loadCustomThemeFromFile(SettingsData.customThemeFile)
             }
         } else {
             currentTheme = themeName
+            // Determine category based on theme name
+            if (StockThemes.isCatppuccinVariant(themeName)) {
+                currentThemeCategory = "catppuccin"
+            } else {
+                currentThemeCategory = "generic"
+            }
         }
         if (savePrefs && typeof SettingsData !== "undefined")
             SettingsData.setTheme(currentTheme)
@@ -258,6 +267,31 @@ Singleton {
             return customThemeData
         }
         return StockThemes.getThemeByName(themeName, isLightMode)
+    }
+
+    function switchThemeCategory(category, defaultTheme) {
+        currentThemeCategory = category
+        switchTheme(defaultTheme)
+    }
+
+    function getCatppuccinColor(variantName) {
+        const catColors = {
+            "cat-rosewater": "#f5e0dc", "cat-flamingo": "#f2cdcd", "cat-pink": "#f5c2e7", "cat-mauve": "#cba6f7",
+            "cat-red": "#f38ba8", "cat-maroon": "#eba0ac", "cat-peach": "#fab387", "cat-yellow": "#f9e2af",
+            "cat-green": "#a6e3a1", "cat-teal": "#94e2d5", "cat-sky": "#89dceb", "cat-sapphire": "#74c7ec",
+            "cat-blue": "#89b4fa", "cat-lavender": "#b4befe"
+        }
+        return catColors[variantName] || "#cba6f7"
+    }
+
+    function getCatppuccinVariantName(variantName) {
+        const catNames = {
+            "cat-rosewater": "Rosewater", "cat-flamingo": "Flamingo", "cat-pink": "Pink", "cat-mauve": "Mauve",
+            "cat-red": "Red", "cat-maroon": "Maroon", "cat-peach": "Peach", "cat-yellow": "Yellow",
+            "cat-green": "Green", "cat-teal": "Teal", "cat-sky": "Sky", "cat-sapphire": "Sapphire",
+            "cat-blue": "Blue", "cat-lavender": "Lavender"
+        }
+        return catNames[variantName] || "Unknown"
     }
 
     function loadCustomTheme(themeData) {
