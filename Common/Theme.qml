@@ -7,6 +7,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.UPower
+import qs.Common
 import qs.Services
 import "StockThemes.js" as StockThemes
 
@@ -18,15 +19,9 @@ Singleton {
 
     readonly property string dynamic: "dynamic"
 
-    readonly property string homeDir: {
-        const url = StandardPaths.writableLocation(StandardPaths.HomeLocation).toString()
-        return url.startsWith("file://") ? url.substring(7) : url
-    }
-    readonly property string configDir: {
-        const url = StandardPaths.writableLocation(StandardPaths.ConfigLocation).toString()
-        return url.startsWith("file://") ? url.substring(7) : url
-    }
-    readonly property string shellDir: Qt.resolvedUrl(".").toString().replace("file://", "").replace("/Common/", "")
+    readonly property string homeDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.HomeLocation))
+    readonly property string configDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.ConfigLocation))
+    readonly property string shellDir: Paths.strip(Qt.resolvedUrl(".").toString()).replace("/Common/", "")
     readonly property string wallpaperPath: {
         if (typeof SessionData === "undefined") return ""
         
@@ -77,11 +72,7 @@ Singleton {
     property int colorUpdateTrigger: 0
     property var customThemeData: null
 
-    readonly property string stateDir: {
-        const cacheHome = StandardPaths.writableLocation(StandardPaths.CacheLocation).toString()
-        const path = cacheHome.startsWith("file://") ? cacheHome.substring(7) : cacheHome
-        return path + "/dankshell"
-    }
+    readonly property string stateDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.CacheLocation).toString()) + "/dankshell"
 
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", stateDir])

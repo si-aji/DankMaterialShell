@@ -1,11 +1,11 @@
 pragma Singleton
-
 pragma ComponentBehavior: Bound
 
 import QtCore
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.Common
 import qs.Services
 
 Singleton {
@@ -26,7 +26,7 @@ Singleton {
     
     property bool hasTriedDefaultSession: false
     readonly property string _stateUrl: StandardPaths.writableLocation(StandardPaths.GenericStateLocation)
-    readonly property string _stateDir: _stateUrl.startsWith("file://") ? _stateUrl.substring(7) : _stateUrl
+    readonly property string _stateDir: Paths.strip(_stateUrl)
     property int nightModeStartHour: 18
     property int nightModeStartMinute: 0
     property int nightModeEndHour: 6

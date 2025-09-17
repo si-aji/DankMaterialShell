@@ -6,6 +6,7 @@ import QtCore
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.Common
 import qs.Services
 
 Singleton {
@@ -113,7 +114,7 @@ Singleton {
     readonly property string defaultMonoFontFamily: "Fira Code"
     readonly property string _homeUrl: StandardPaths.writableLocation(StandardPaths.HomeLocation)
     readonly property string _configUrl: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
-    readonly property string _configDir: _configUrl.startsWith("file://") ? _configUrl.substring(7) : _configUrl
+    readonly property string _configDir: Paths.strip(_configUrl)
 
     signal forceTopBarLayoutRefresh
     signal widgetDataChanged
@@ -802,7 +803,7 @@ Singleton {
 
     function updateQtIconTheme(themeName) {
         var qtThemeName = (themeName === "System Default") ? "" : themeName
-        var home = _shq(root._homeUrl.replace("file://", ""))
+        var home = _shq(Paths.strip(root._homeUrl))
         if (!qtThemeName) {
             // When "System Default" is selected, don't modify the config files at all
             // This preserves the user's existing qt6ct configuration

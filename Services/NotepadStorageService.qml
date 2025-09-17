@@ -1,20 +1,16 @@
+pragma Singleton
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtCore
 import Quickshell
 import Quickshell.Io
-pragma Singleton
-pragma ComponentBehavior: Bound
+import qs.Common
 
 Singleton {
     id: root
 
-    readonly property string baseDir: {
-        var path = StandardPaths.writableLocation(StandardPaths.GenericStateLocation) + "/DankMaterialShell"
-        if (path.startsWith("file://")) {
-            return path.substring(7)
-        }
-        return path
-    }
+    readonly property string baseDir: Paths.strip(StandardPaths.writableLocation(StandardPaths.GenericStateLocation) + "/DankMaterialShell")
     readonly property string filesDir: baseDir + "/notepad-files"
     readonly property string metadataPath: baseDir + "/notepad-session.json"
 
