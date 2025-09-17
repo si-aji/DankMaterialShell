@@ -1345,12 +1345,18 @@ Item {
                                         }
                     }
 
-                    Row {
+                    Rectangle {
                         width: parent.width
-                        spacing: Theme.spacingM
+                        height: 60
+                        radius: Theme.cornerRadius
+                        color: "transparent"
 
                         Column {
-                            width: parent.width - fontScaleControls.width - Theme.spacingM
+                            anchors.left: parent.left
+                            anchors.right: fontScaleControls.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: Theme.spacingM
+                            anchors.rightMargin: Theme.spacingM
                             spacing: Theme.spacingXS
 
                             StyledText {
@@ -1361,7 +1367,7 @@ Item {
                             }
 
                             StyledText {
-                                text: "Scale all font sizes (" + (SettingsData.fontScale * 100).toFixed(0) + "%)"
+                                text: "Scale all font sizes"
                                 font.pixelSize: Theme.fontSizeSmall
                                 color: Theme.surfaceVariantText
                                 width: parent.width
@@ -1371,8 +1377,12 @@ Item {
                         Row {
                             id: fontScaleControls
 
-                            spacing: Theme.spacingS
+                            width: 180
+                            height: 36
+                            anchors.right: parent.right
+                            anchors.rightMargin: 0
                             anchors.verticalCenter: parent.verticalCenter
+                            spacing: Theme.spacingS
 
                             DankActionButton {
                                 buttonSize: 32
