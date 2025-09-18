@@ -24,6 +24,8 @@ Singleton {
     property bool wifiConnected: false
     property bool wifiEnabled: true
     property string wifiConnectionUuid: ""
+    property string wifiDevicePath: ""
+    property string activeAccessPointPath: ""
 
     property string currentWifiSSID: ""
     property int wifiSignalStrength: 0
@@ -134,7 +136,13 @@ Singleton {
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: line => {
-                if (line.includes("StateChanged") || line.includes("PrimaryConnectionChanged") || line.includes("WirelessEnabled") || line.includes("ActiveConnection") || line.includes("PropertiesChanged")) {
+                if (line.includes("StateChanged") || line.includes("PrimaryConnectionChanged") || line.includes("WirelessEnabled") || line.includes("ActiveConnection")) {
+                    refreshNetworkState()
+                } else if (line.includes("PropertiesChanged") && line.includes("org.freedesktop.NetworkManager.AccessPoint") && line.includes("'Strength'")) {
+                    if (root.activeAccessPointPath && line.includes(root.activeAccessPointPath)) {
+                        parseSignalStrengthFromDbus(line)
+                    }
+                } else if (line.includes("PropertiesChanged") && !line.includes("AccessPoint") && !line.includes("LastSeen")) {
                     refreshNetworkState()
                 }
             }
@@ -164,6 +172,17 @@ Singleton {
 
     function refreshNetworkState() {
         refreshDebounceTimer.restart()
+    }
+
+    function parseSignalStrengthFromDbus(line) {
+        const strengthMatch = line.match(/'Strength': <byte (0x[0-9a-fA-F]+)>/)
+        if (strengthMatch) {
+            const hexValue = strengthMatch[1]
+            const strength = parseInt(hexValue, 16)
+            if (strength >= 0 && strength <= 100) {
+                root.wifiSignalStrength = strength
+            }
+        }
     }
 
     function doRefreshNetworkState() {
@@ -353,11 +372,14 @@ Singleton {
             onStreamFinished: {
                 const match = text.match(/objectpath '([^']+)'/)
                 if (match && match[1] !== '/') {
+                    root.wifiDevicePath = match[1]
                     checkWifiState.command = lowPriorityCmd.concat(["gdbus", "call", "--system", "--dest", "org.freedesktop.NetworkManager", "--object-path", match[1], "--method", "org.freedesktop.DBus.Properties.Get", "org.freedesktop.NetworkManager.Device", "State"])
                     checkWifiState.running = true
                 } else {
                     root.wifiInterface = ""
                     root.wifiConnected = false
+                    root.wifiDevicePath = ""
+                    root.activeAccessPointPath = ""
                 }
             }
         }
@@ -380,6 +402,7 @@ Singleton {
                 if (root.wifiConnected) {
                     getWifiIP.running = true
                     getCurrentWifiInfo.running = true
+                    getActiveAccessPoint.running = true
                     // Ensure SSID is resolved even if scan output lacks ACTIVE marker
                     if (root.currentWifiSSID === "") {
                         if (root.wifiConnectionUuid) {
@@ -393,6 +416,7 @@ Singleton {
                     root.wifiIP = ""
                     root.currentWifiSSID = ""
                     root.wifiSignalStrength = 0
+                    root.activeAccessPointPath = ""
                 }
             }
         }
@@ -408,6 +432,23 @@ Singleton {
                 const match = text.match(/inet (\d+\.\d+\.\d+\.\d+)/)
                 if (match) {
                     root.wifiIP = match[1]
+                }
+            }
+        }
+    }
+
+    Process {
+        id: getActiveAccessPoint
+        command: root.wifiDevicePath ? lowPriorityCmd.concat(["gdbus", "call", "--system", "--dest", "org.freedesktop.NetworkManager", "--object-path", root.wifiDevicePath, "--method", "org.freedesktop.DBus.Properties.Get", "org.freedesktop.NetworkManager.Device.Wireless", "ActiveAccessPoint"]) : []
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const match = text.match(/objectpath '([^']+)'/)
+                if (match && match[1] !== '/') {
+                    root.activeAccessPointPath = match[1]
+                } else {
+                    root.activeAccessPointPath = ""
                 }
             }
         }
