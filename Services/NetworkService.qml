@@ -133,18 +133,30 @@ Singleton {
         command: lowPriorityCmd.concat(["gdbus", "monitor", "--system", "--dest", "org.freedesktop.NetworkManager"])
         running: false
 
+        property var lastRefreshTime: 0
+        property int minRefreshInterval: 1000
+
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: line => {
-                if (line.includes("StateChanged") || line.includes("PrimaryConnectionChanged") || line.includes("WirelessEnabled") || line.includes("ActiveConnection")) {
-                    refreshNetworkState()
-                } else if (line.includes("PropertiesChanged") && line.includes("org.freedesktop.NetworkManager.AccessPoint") && line.includes("'Strength'")) {
-                    if (root.activeAccessPointPath && line.includes(root.activeAccessPointPath)) {
-                        parseSignalStrengthFromDbus(line)
+                const now = Date.now()                    
+                    if (line.includes("PropertiesChanged") && line.includes("org.freedesktop.NetworkManager.AccessPoint")) {
+                        if (line.includes("'Strength'") && root.activeAccessPointPath && line.includes(root.activeAccessPointPath)) {
+                            parseSignalStrengthFromDbus(line)
+                        }
+                        return
                     }
-                } else if (line.includes("PropertiesChanged") && !line.includes("AccessPoint") && !line.includes("LastSeen")) {
-                    refreshNetworkState()
-                }
+                    
+                    if (line.includes("StateChanged") || 
+                        line.includes("PrimaryConnectionChanged") || 
+                        line.includes("WirelessEnabled") || 
+                        (line.includes("ActiveConnection") && line.includes("State"))) {
+                        
+                        if (now - nmStateMonitor.lastRefreshTime > nmStateMonitor.minRefreshInterval) {
+                            nmStateMonitor.lastRefreshTime = now
+                            refreshNetworkState()
+                        }
+                    }
             }
         }
 
@@ -403,7 +415,6 @@ Singleton {
                     getWifiIP.running = true
                     getCurrentWifiInfo.running = true
                     getActiveAccessPoint.running = true
-                    // Ensure SSID is resolved even if scan output lacks ACTIVE marker
                     if (root.currentWifiSSID === "") {
                         if (root.wifiConnectionUuid) {
                             resolveWifiSSID.running = true
@@ -456,7 +467,7 @@ Singleton {
 
     Process {
         id: getCurrentWifiInfo
-        command: root.wifiInterface ? lowPriorityCmd.concat(["nmcli", "-t", "-f", "IN-USE,SIGNAL,SSID", "device", "wifi", "list", "ifname", root.wifiInterface]) : []
+        command: root.wifiInterface ? lowPriorityCmd.concat(["nmcli", "-t", "-f", "IN-USE,SIGNAL,SSID", "device", "wifi", "list", "ifname", root.wifiInterface, "--rescan", "no"]) : []
         running: false
 
         stdout: SplitParser {
