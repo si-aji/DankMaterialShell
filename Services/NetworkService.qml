@@ -467,29 +467,21 @@ Singleton {
 
     Process {
         id: getCurrentWifiInfo
-        command: root.wifiInterface ? lowPriorityCmd.concat(["nmcli", "-t", "-f", "IN-USE,SIGNAL,SSID", "device", "wifi", "list", "ifname", root.wifiInterface, "--rescan", "no"]) : []
+        command: root.wifiInterface ? lowPriorityCmd.concat(["nmcli", "-t", "-f", "ACTIVE,SIGNAL,SSID", "device", "wifi", "list", "ifname", root.wifiInterface, "--rescan", "no"]) : []
         running: false
 
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: line => {
-                if (line.startsWith("*:")) {
+                if (line.startsWith("yes:")) {
                     const rest = line.substring(2)
                     const parts = root.splitNmcliFields(rest)
                     if (parts.length >= 2) {
-                        const signal = parseInt(parts[0])
+                        const signal = parseInt(parts[1])
+                        console.log("Current WiFi signal strength:", signal)
                         root.wifiSignalStrength = isNaN(signal) ? 0 : signal
                         root.currentWifiSSID = parts.slice(1).join(":")
-                    }
-                    return
-                }
-                if (line.startsWith("yes:")) {
-                    const rest = line.substring(4)
-                    const parts = root.splitNmcliFields(rest)
-                    if (parts.length >= 2) {
-                        root.currentWifiSSID = parts[0]
-                        const signal = parseInt(parts[1])
-                        root.wifiSignalStrength = isNaN(signal) ? 0 : signal
+                        console.log("Current WiFi SSID:", root.currentWifiSSID)
                     }
                     return
                 }

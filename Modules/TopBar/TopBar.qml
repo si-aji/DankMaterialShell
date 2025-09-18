@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
@@ -16,11 +17,17 @@ import qs.Widgets
 
 PanelWindow {
     id: root
-    
+
     WlrLayershell.namespace: "quickshell:bar"
 
     property var modelData
     property var notepadVariants: null
+
+    property bool wingtipsEnabled: true
+    property real wingtipsRadius: 12
+    readonly property real _wingR: Math.max(0, Math.min(wingtipsRadius, effectiveBarHeight))
+    readonly property color _bgColor: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, topBarCore.backgroundTransparency)
+    readonly property color _tintColor: Qt.rgba(Theme.surfaceTint.r, Theme.surfaceTint.g, Theme.surfaceTint.b, 0.04)
 
     signal colorPickerRequested()
 
@@ -41,7 +48,7 @@ PanelWindow {
     readonly property real widgetHeight: Math.max(20, 26 + SettingsData.topBarInnerPadding * 0.6)
 
     screen: modelData
-    implicitHeight: effectiveBarHeight + SettingsData.topBarSpacing
+    implicitHeight: effectiveBarHeight + SettingsData.topBarSpacing + (wingtipsEnabled ? _wingR : 0)
     color: "transparent"
     Component.onCompleted: {
         const fonts = Qt.fontFamilies()
@@ -132,7 +139,7 @@ PanelWindow {
     exclusiveZone: (!SettingsData.topBarVisible || topBarCore.autoHide) ? -1 : root.effectiveBarHeight + SettingsData.topBarSpacing + SettingsData.topBarBottomGap
 
     mask: Region {
-        item: topBarMouseArea
+        item: barCanvas
     }
 
     Item {
@@ -248,44 +255,80 @@ PanelWindow {
                     anchors.leftMargin: SettingsData.topBarSpacing
                     anchors.rightMargin: SettingsData.topBarSpacing
 
-                    Rectangle {
+                    Item {
+                        id: barBackground
                         anchors.fill: parent
-                        radius: SettingsData.topBarSquareCorners ? 0 : Theme.cornerRadius
-                        color: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, topBarCore.backgroundTransparency)
-                        layer.enabled: true
+                        anchors.bottomMargin: -(root.wingtipsEnabled ? root._wingR : 0)
 
-                        Rectangle {
+                        Canvas {
+                            id: barCanvas
                             anchors.fill: parent
-                            color: Qt.rgba(Theme.surfaceTint.r, Theme.surfaceTint.g, Theme.surfaceTint.b, 0.04)
-                            radius: parent.radius
+                            antialiasing: true
+                            renderTarget: Canvas.FramebufferObject
 
-                            SequentialAnimation on opacity {
-                                running: false
-                                loops: Animation.Infinite
+                            property real mainHeight: height - (root.wingtipsEnabled ? root._wingR : 0)
+                            property real wingRadius: root.wingtipsEnabled ? root._wingR : 0
+                            property real topRadius: SettingsData.topBarSquareCorners ? 0 : Theme.cornerRadius
 
-                                NumberAnimation {
-                                    to: 0.08
-                                    duration: Theme.extraLongDuration
-                                    easing.type: Theme.standardEasing
+                            onPaint: {
+                                const ctx = getContext("2d")
+                                const W = width, H = barCanvas.mainHeight, R = barCanvas.wingRadius, RT = barCanvas.topRadius
+
+                                ctx.reset()
+                                ctx.clearRect(0, 0, W, height)
+
+                                function tracePath() {
+                                    ctx.beginPath()
+
+                                    ctx.moveTo(RT, 0)
+                                    ctx.lineTo(W - RT, 0)
+                                    ctx.arcTo(W, 0, W, RT, RT)
+                                    ctx.lineTo(W, H)
+
+                                    if (R > 0) {
+                                        ctx.lineTo(W, H + R)
+                                        ctx.arc(W - R, H + R, R, 0, -Math.PI / 2, true)
+                                        ctx.lineTo(R, H)
+
+                                        ctx.arc(R, H + R, R, -Math.PI / 2, -Math.PI, true)
+                                        ctx.lineTo(0, H + R)
+                                    }
+
+                                    ctx.lineTo(0, RT)
+                                    ctx.arcTo(0, 0, RT, 0, RT)
+
+                                    ctx.closePath()
                                 }
 
-                                NumberAnimation {
-                                    to: 0.02
-                                    duration: Theme.extraLongDuration
-                                    easing.type: Theme.standardEasing
-                                }
+                                ctx.fillStyle = root._bgColor
+                                tracePath()
+                                ctx.fill()
+
+                                ctx.fillStyle = root._tintColor
+                                tracePath()
+                                ctx.fill()
+                            }
+
+                            layer.enabled: true
+                            layer.samples: 4
+                            layer.effect: MultiEffect {
+                                shadowEnabled: true
+                                shadowHorizontalOffset: 0
+                                shadowVerticalOffset: 4
+                                shadowBlur: 0.5
+                                shadowColor: Qt.rgba(0, 0, 0, 0.15)
+                                shadowOpacity: 0.15
                             }
                         }
-
-                        layer.effect: MultiEffect {
-                            shadowEnabled: true
-                            shadowHorizontalOffset: 0
-                            shadowVerticalOffset: 4
-                            shadowBlur: 0.5 // radius/32, adjusted for visual match
-                            shadowColor: Qt.rgba(0, 0, 0, 0.15)
-                            shadowOpacity: 0.15
-                        }
                     }
+                }
+
+                Item {
+                    anchors.fill: parent
+                    anchors.topMargin: SettingsData.topBarSpacing
+                    anchors.bottomMargin: 0
+                    anchors.leftMargin: SettingsData.topBarSpacing
+                    anchors.rightMargin: SettingsData.topBarSpacing
 
                     Item {
                         id: topBarContent
@@ -1037,6 +1080,7 @@ PanelWindow {
                 }
             }
         }
+
     }
 
 }
