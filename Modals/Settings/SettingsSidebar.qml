@@ -36,6 +36,9 @@ Rectangle {
         "text": "Theme & Colors",
         "icon": "palette"
     }, {
+        "text": "Power",
+        "icon": "power_settings_new"
+    }, {
         "text": "About",
         "icon": "info"
     }]

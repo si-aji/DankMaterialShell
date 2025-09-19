@@ -18,6 +18,14 @@ Item {
         getSessionPath.running = true
     }
 
+    Connections {
+        target: IdleService
+        function onLockRequested() {
+            console.log("Lock: Received lock request from IdleService")
+            activate()
+        }
+    }
+
     Process {
         id: getSessionPath
         command: ["gdbus", "call", "--system", "--dest", "org.freedesktop.login1", "--object-path", "/org/freedesktop/login1", "--method", "org.freedesktop.login1.Manager.GetSession", sid]

@@ -85,6 +85,10 @@ Singleton {
         Quickshell.execDetached([isElogind ? "loginctl" : "systemctl", "suspend"])
     }
 
+    function hibernate() {
+        Quickshell.execDetached([isElogind ? "loginctl" : "systemctl", "hibernate"])
+    }
+
     function reboot() {
         Quickshell.execDetached([isElogind ? "loginctl" : "systemctl", "reboot"])
     }

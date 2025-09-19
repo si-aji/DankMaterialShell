@@ -438,6 +438,22 @@ Singleton {
                     })
     }
 
+    function powerOffMonitors() {
+        return send({
+                        "Action": {
+                            "PowerOffMonitors": {}
+                        }
+                    })
+    }
+
+    function powerOnMonitors() {
+        return send({
+                        "Action": {
+                            "PowerOnMonitors": {}
+                        }
+                    })
+    }
+
     function getCurrentOutputWorkspaceNumbers() {
         return currentOutputWorkspaces.map(w => w.idx + 1)
     }

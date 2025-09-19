@@ -1,4 +1,5 @@
 # DankMaterialShell (dms)
+*Replace your Waybars, Fuzzels, Swayidles, and Swaylocks with a single Dank shell*
 
 <div align=center>
 

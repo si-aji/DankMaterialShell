@@ -45,6 +45,18 @@ Singleton {
     property string wallpaperCyclingTime: "06:00" // HH:mm format
     property string lastBrightnessDevice: ""
 
+    // Power management settings - AC Power
+    property int acMonitorTimeout: 0 // Never
+    property int acLockTimeout: 0 // Never
+    property int acSuspendTimeout: 0 // Never
+    property int acHibernateTimeout: 0 // Never
+
+    // Power management settings - Battery
+    property int batteryMonitorTimeout: 0 // Never
+    property int batteryLockTimeout: 0 // Never
+    property int batterySuspendTimeout: 0 // Never
+    property int batteryHibernateTimeout: 0 // Never
+
     Component.onCompleted: {
         loadSettings()
     }
@@ -98,6 +110,15 @@ Singleton {
                 wallpaperCyclingInterval = settings.wallpaperCyclingInterval !== undefined ? settings.wallpaperCyclingInterval : 300
                 wallpaperCyclingTime = settings.wallpaperCyclingTime !== undefined ? settings.wallpaperCyclingTime : "06:00"
                 lastBrightnessDevice = settings.lastBrightnessDevice !== undefined ? settings.lastBrightnessDevice : ""
+
+                acMonitorTimeout = settings.acMonitorTimeout !== undefined ? settings.acMonitorTimeout : 0
+                acLockTimeout = settings.acLockTimeout !== undefined ? settings.acLockTimeout : 0
+                acSuspendTimeout = settings.acSuspendTimeout !== undefined ? settings.acSuspendTimeout : 0
+                acHibernateTimeout = settings.acHibernateTimeout !== undefined ? settings.acHibernateTimeout : 0
+                batteryMonitorTimeout = settings.batteryMonitorTimeout !== undefined ? settings.batteryMonitorTimeout : 0
+                batteryLockTimeout = settings.batteryLockTimeout !== undefined ? settings.batteryLockTimeout : 0
+                batterySuspendTimeout = settings.batterySuspendTimeout !== undefined ? settings.batterySuspendTimeout : 0
+                batteryHibernateTimeout = settings.batteryHibernateTimeout !== undefined ? settings.batteryHibernateTimeout : 0
                 
                 // Generate system themes but don't override user's theme choice
                 if (typeof Theme !== "undefined") {
@@ -138,7 +159,15 @@ Singleton {
                                                 "wallpaperCyclingMode": wallpaperCyclingMode,
                                                 "wallpaperCyclingInterval": wallpaperCyclingInterval,
                                                 "wallpaperCyclingTime": wallpaperCyclingTime,
-                                                "lastBrightnessDevice": lastBrightnessDevice
+                                                "lastBrightnessDevice": lastBrightnessDevice,
+                                                "acMonitorTimeout": acMonitorTimeout,
+                                                "acLockTimeout": acLockTimeout,
+                                                "acSuspendTimeout": acSuspendTimeout,
+                                                "acHibernateTimeout": acHibernateTimeout,
+                                                "batteryMonitorTimeout": batteryMonitorTimeout,
+                                                "batteryLockTimeout": batteryLockTimeout,
+                                                "batterySuspendTimeout": batterySuspendTimeout,
+                                                "batteryHibernateTimeout": batteryHibernateTimeout
                                             }, null, 2))
     }
 
@@ -377,6 +406,46 @@ Singleton {
 
     function setLastBrightnessDevice(device) {
         lastBrightnessDevice = device
+        saveSettings()
+    }
+
+    function setAcMonitorTimeout(timeout) {
+        acMonitorTimeout = timeout
+        saveSettings()
+    }
+
+    function setAcLockTimeout(timeout) {
+        acLockTimeout = timeout
+        saveSettings()
+    }
+
+    function setAcSuspendTimeout(timeout) {
+        acSuspendTimeout = timeout
+        saveSettings()
+    }
+
+    function setBatteryMonitorTimeout(timeout) {
+        batteryMonitorTimeout = timeout
+        saveSettings()
+    }
+
+    function setBatteryLockTimeout(timeout) {
+        batteryLockTimeout = timeout
+        saveSettings()
+    }
+
+    function setBatterySuspendTimeout(timeout) {
+        batterySuspendTimeout = timeout
+        saveSettings()
+    }
+
+    function setAcHibernateTimeout(timeout) {
+        acHibernateTimeout = timeout
+        saveSettings()
+    }
+
+    function setBatteryHibernateTimeout(timeout) {
+        batteryHibernateTimeout = timeout
         saveSettings()
     }
 

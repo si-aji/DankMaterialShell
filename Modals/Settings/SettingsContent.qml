@@ -141,10 +141,23 @@ Item {
         }
 
         Loader {
-            id: aboutLoader
+            id: powerLoader
 
             anchors.fill: parent
             active: root.currentIndex === 9
+            visible: active
+            asynchronous: true
+
+            sourceComponent: PowerSettings {
+            }
+
+        }
+
+        Loader {
+            id: aboutLoader
+
+            anchors.fill: parent
+            active: root.currentIndex === 10
             visible: active
             asynchronous: true
 
