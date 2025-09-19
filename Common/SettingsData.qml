@@ -104,7 +104,7 @@ Singleton {
     property real topBarInnerPadding: 8
     property bool topBarSquareCorners: false
     property bool topBarNoBackground: false
-    property bool topBarGothCornersEnabled: true
+    property bool topBarGothCornersEnabled: false
     property bool lockScreenShowPowerActions: true
     property bool hideBrightnessSlider: false
     property int notificationTimeoutLow: 5000
@@ -281,7 +281,7 @@ Singleton {
                 topBarInnerPadding = settings.topBarInnerPadding !== undefined ? settings.topBarInnerPadding : 8
                 topBarSquareCorners = settings.topBarSquareCorners !== undefined ? settings.topBarSquareCorners : false
                 topBarNoBackground = settings.topBarNoBackground !== undefined ? settings.topBarNoBackground : false
-                topBarGothCornersEnabled = settings.topBarGothCornersEnabled !== undefined ? settings.topBarGothCornersEnabled : true
+                topBarGothCornersEnabled = settings.topBarGothCornersEnabled !== undefined ? settings.topBarGothCornersEnabled : false
                 lockScreenShowPowerActions = settings.lockScreenShowPowerActions !== undefined ? settings.lockScreenShowPowerActions : true
                 hideBrightnessSlider = settings.hideBrightnessSlider !== undefined ? settings.hideBrightnessSlider : false
                 screenPreferences = settings.screenPreferences !== undefined ? settings.screenPreferences : ({})
