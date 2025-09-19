@@ -70,6 +70,7 @@ Item {
                             model: ["AC Power", "Battery"]
                             currentIndex: 0
                             selectionMode: "single"
+                            checkEnabled: false
                         }
                     }
 
