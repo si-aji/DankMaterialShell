@@ -4,6 +4,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.UPower
 
 Singleton {
@@ -24,9 +25,8 @@ Singleton {
             return `${Math.round(device.healthPercentage)}%`
         }
 
-        if (device.energyCapacity > 0 && device.energy > 0) {
-            const healthPercent = (device.energyCapacity / 90.0045) * 100
-            return `${Math.round(healthPercent)}%`
+        if (batteryHealthUpower > 0) {
+            return `${batteryHealthUpower}%`
         }
 
         return "N/A"
@@ -60,6 +60,39 @@ Singleton {
             }
         }
         return btDevices
+    }
+
+    readonly property string capacityBaseCmd: `upower -i /org/freedesktop/UPower/devices/battery_DEVICE_REPLACE_ME | awk -F': *' '/^\\s*capacity:/ {gsub(/%/,"",$2); print $2; exit}'`
+    property var batteryHealthUpower: -1
+
+    Component.onCompleted: {
+        // ! TODO - quickshell doesnt seem to expose health correctly all the time, so this is a janky workaround
+        for (const device of UPower.devices.values) {
+            if (device.isLaptopBattery) {
+                batteryCapacityProcess.command = ["sh", "-c", capacityBaseCmd.replace("DEVICE_REPLACE_ME", device.nativePath)]
+                console.log("Executing battery capacity command: " + batteryCapacityProcess.command)
+            batteryCapacityProcess.running = true
+                break                
+            }
+        }
+    }
+
+    Process {
+        id: batteryCapacityProcess
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                console.log("Battery capacity (upower) raw: " + text)
+                const capacity = parseFloat(text.trim())
+                if (!isNaN(capacity) && capacity > 0 && capacity <= 100) {
+                    root.batteryHealthUpower = Math.round(capacity)
+                    console.log("Battery health (upower): " + root.batteryHealthUpower + "%")
+                } else {
+                    root.batteryHealthUpower = -1
+                }
+            }
+        }
     }
 
     function formatTimeRemaining() {
