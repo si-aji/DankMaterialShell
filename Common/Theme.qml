@@ -206,7 +206,12 @@ Singleton {
     property real widgetTransparency: typeof SettingsData !== "undefined" && SettingsData.topBarWidgetTransparency !== undefined ? SettingsData.topBarWidgetTransparency : 0.85
     property real popupTransparency: typeof SettingsData !== "undefined" && SettingsData.popupTransparency !== undefined ? SettingsData.popupTransparency : 0.92
 
+    function screenTransition() {
+        CompositorService.isNiri && NiriService.doScreenTransition()
+    }
+
     function switchTheme(themeName, savePrefs = true) {
+        screenTransition()
         if (themeName === dynamic) {
             currentTheme = dynamic
             currentThemeCategory = dynamic
@@ -233,6 +238,7 @@ Singleton {
     }
 
     function setLightMode(light, savePrefs = true) {
+        screenTransition()
         isLightMode = light
         if (savePrefs && typeof SessionData !== "undefined")
             SessionData.setLightMode(isLightMode)
@@ -245,6 +251,7 @@ Singleton {
     }
 
     function forceGenerateSystemThemes() {
+        screenTransition()
         if (!matugenAvailable) {
             if (typeof ToastService !== "undefined") {
                 ToastService.showWarning("matugen not available - cannot generate system themes")
@@ -296,6 +303,7 @@ Singleton {
     }
 
     function loadCustomTheme(themeData) {
+        screenTransition()
         if (themeData.dark || themeData.light) {
             const colorMode = (typeof SessionData !== "undefined" && SessionData.isLightMode) ? "light" : "dark"
             const selectedTheme = themeData[colorMode] || themeData.dark || themeData.light
@@ -453,8 +461,6 @@ Singleton {
         if (currentTheme === "custom" && customThemeFileView.path) {
             customThemeFileView.reload()
         }
-
-        generateSystemThemesFromCurrentTheme()
     }
 
     function setDesiredTheme(kind, value, isLight, iconTheme) {

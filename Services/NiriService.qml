@@ -406,6 +406,16 @@ Singleton {
         return true
     }
 
+    function doScreenTransition() {
+        return send({
+                        "Action": {
+                            "DoScreenTransition": {
+                                "delay_ms": 100,
+                            }
+                        }
+                    })
+    }
+
     function switchToWorkspace(workspaceIndex) {
         return send({
                         "Action": {

@@ -220,6 +220,7 @@ Singleton {
         saveSettings()
 
         if (typeof Theme !== "undefined") {
+            Theme.screenTransition()
             if (Theme.currentTheme === Theme.dynamic) {
                 Theme.extractColors()
             }
