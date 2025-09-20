@@ -82,8 +82,6 @@ curl -fsSL https://install.danklinux.com | sh
 
 <details><summary><strong>Features</strong></summary>
 
-**tl;dr** dms can serve as AIO replacement for lock screen, notification daemon, wallpaper service, app launchers, dock, and more.
-
 **Core Widgets:**
 - **TopBar**: fully customizable bar where widgets can be added, removed, and re-arranged.
   - **App Launcher** with fuzzy search, categories, and auto-sorting by most used apps.
@@ -109,7 +107,9 @@ curl -fsSL https://install.danklinux.com | sh
 - **Lock Screen** Using quickshell's WlSessionLock with embedded virtual keyboard for Niri (Niri doesn't support placing virtual keyboard above lockscreen natively: [issue](https://github.com/YaLTeR/niri/issues/2201))
 - **Notepad** A simple text notepad/scratchpad with auto-save to session data and file export/import functionality.
 
-**Highlights:**
+</details>
+
+## Highlights
 
 - Auto-theming GTK, QT, Terminal apps, and more with [matugen](https://github.com/InioX/matugen) + optional theme generation from wallpaper.
 - 20+ widgets that can be added and re-arranged on the bar.
@@ -124,8 +124,6 @@ curl -fsSL https://install.danklinux.com | sh
 - Idle monitoring - configure auto lock, screen off, suspend, and hibernate with different knobs for battery + AC power.
 
 **TL;DR** *dms replaces your waybar, swaylock, swayidle, hypridle, hyprlock, fuzzels, walker, mako, and basically everything you use to stitch a desktop together*
-
-</details>
 
 ## Installation
 
