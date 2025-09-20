@@ -115,14 +115,14 @@ Item {
         }
 
         Loader {
-            id: recentAppsLoader
+            id: launcherLoader
 
             anchors.fill: parent
             active: root.currentIndex === 7
             visible: active
             asynchronous: true
 
-            sourceComponent: RecentAppsTab {
+            sourceComponent: LauncherTab {
             }
 
         }

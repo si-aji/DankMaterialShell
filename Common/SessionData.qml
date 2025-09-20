@@ -44,6 +44,7 @@ Singleton {
     property int wallpaperCyclingInterval: 300 // seconds (5 minutes)
     property string wallpaperCyclingTime: "06:00" // HH:mm format
     property string lastBrightnessDevice: ""
+    property string launchPrefix: ""
 
     // Power management settings - AC Power
     property int acMonitorTimeout: 0 // Never
@@ -110,6 +111,7 @@ Singleton {
                 wallpaperCyclingInterval = settings.wallpaperCyclingInterval !== undefined ? settings.wallpaperCyclingInterval : 300
                 wallpaperCyclingTime = settings.wallpaperCyclingTime !== undefined ? settings.wallpaperCyclingTime : "06:00"
                 lastBrightnessDevice = settings.lastBrightnessDevice !== undefined ? settings.lastBrightnessDevice : ""
+                launchPrefix = settings.launchPrefix !== undefined ? settings.launchPrefix : ""
 
                 acMonitorTimeout = settings.acMonitorTimeout !== undefined ? settings.acMonitorTimeout : 0
                 acLockTimeout = settings.acLockTimeout !== undefined ? settings.acLockTimeout : 0
@@ -160,6 +162,7 @@ Singleton {
                                                 "wallpaperCyclingInterval": wallpaperCyclingInterval,
                                                 "wallpaperCyclingTime": wallpaperCyclingTime,
                                                 "lastBrightnessDevice": lastBrightnessDevice,
+                                                "launchPrefix": launchPrefix,
                                                 "acMonitorTimeout": acMonitorTimeout,
                                                 "acLockTimeout": acLockTimeout,
                                                 "acSuspendTimeout": acSuspendTimeout,
@@ -406,6 +409,11 @@ Singleton {
 
     function setLastBrightnessDevice(device) {
         lastBrightnessDevice = device
+        saveSettings()
+    }
+
+    function setLaunchPrefix(prefix) {
+        launchPrefix = prefix
         saveSettings()
     }
 

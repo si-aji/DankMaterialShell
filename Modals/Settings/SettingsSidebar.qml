@@ -30,8 +30,8 @@ Rectangle {
         "text": "Displays",
         "icon": "monitor"
     }, {
-        "text": "Recent Apps",
-        "icon": "history"
+        "text": "Launcher",
+        "icon": "apps"
     }, {
         "text": "Theme & Colors",
         "icon": "palette"

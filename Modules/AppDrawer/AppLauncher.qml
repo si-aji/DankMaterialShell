@@ -131,7 +131,7 @@ Item {
             return
         }
         suppressUpdatesWhileLaunching = true
-        appData.desktopEntry.execute()
+        SessionService.launchDesktopEntry(appData.desktopEntry)
         appLaunched(appData)
         AppUsageHistoryData.addAppUsage(appData.desktopEntry)
     }
