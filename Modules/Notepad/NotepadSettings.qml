@@ -143,6 +143,18 @@ Item {
                 }
             }
 
+            DankToggle {
+                anchors.left: parent.left
+                anchors.leftMargin: -Theme.spacingM
+                width: parent.width + Theme.spacingM
+                text: "Show Line Numbers"
+                description: "Display line numbers in editor"
+                checked: SettingsData.notepadShowLineNumbers
+                onToggled: checked => {
+                    SettingsData.notepadShowLineNumbers = checked
+                }
+            }
+
             Rectangle {
                 width: parent.width
                 height: visible ? (fontDropdown.height + Theme.spacingS) : 0
