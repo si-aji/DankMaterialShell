@@ -1,5 +1,4 @@
 # DankMaterialShell (dms)
-*Replace your Waybars, Fuzzels, Swayidles, and Swaylocks with a single Dank shell*
 
 <div align=center>
 
@@ -112,14 +111,19 @@ curl -fsSL https://install.danklinux.com | sh
 
 **Highlights:**
 
-- Dynamic wallpaper-based theming with matugen integration
-- Numerous IPCs to trigger actions and open various modals.
-- Calendar integration with [khal](https://github.com/pimutils/khal)
-- Audio/media controls
-- Grouped notifications
-- Brightness control for internal and external displays
-- Automated night mode with time-based and location-based scheduling
-- Qt and GTK app theming synchronization, as well as [Ghostty](https://ghostty.org/) auto-theme support.
+- Auto-theming GTK, QT, Terminal apps, and more with [matugen](https://github.com/InioX/matugen) + optional theme generation from wallpaper.
+- 20+ widgets that can be added and re-arranged on the bar.
+- Process list, temperature monitoring, and resource monitoring with [dgop](https://github.com/AvengeMedia/dgop)
+- Notification service with support for grouping and richtext
+- App launcher + Spotlighht launcher with fuzzy search
+- Control center with mpris player, weather, and calendar integration.
+- Clipboard history view with image previews.
+- A dock for running apps + pinned apps
+- Configure bluetooth, wifi, and audio input+output devices.
+- A lock screen
+- Idle monitoring - configure auto lock, screen off, suspend, and hibernate with different knobs for battery + AC power.
+
+**TL;DR** *dms replaces your waybar, swaylock, swayidle, hypridle, hyprlock, fuzzels, walker, mako, and basically everything you use to stitch a desktop together*
 
 </details>
 
