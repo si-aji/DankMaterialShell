@@ -18,6 +18,10 @@ Item {
         getSessionPath.running = true
     }
 
+    Component.onDestruction: {
+        lockStateMonitor.running = false
+    }
+
     Connections {
         target: IdleService
         function onLockRequested() {

@@ -109,6 +109,10 @@ Singleton {
         initializeDBusMonitors()
     }
 
+    Component.onDestruction: {
+        nmStateMonitor.running = false
+    }
+
     function addRef() {
         refCount++
         if (refCount === 1) {
