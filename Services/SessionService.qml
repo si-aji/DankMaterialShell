@@ -73,11 +73,6 @@ Singleton {
             cmd = launchPrefix.concat(cmd)
         }
 
-        // For niri spawn with niri msg action spawn --
-        if (CompositorService.isNiri) {
-            cmd = ["niri", "msg", "action", "spawn", "--"].concat(cmd)
-        }
-
         Quickshell.execDetached({
             command: cmd,
             workingDirectory: desktopEntry.workingDirectory,
