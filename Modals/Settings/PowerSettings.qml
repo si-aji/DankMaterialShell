@@ -223,6 +223,14 @@ Item {
                         }
                     }
 
+                    DankToggle {
+                        width: parent.width
+                        text: "Lock before suspend"
+                        description: "Automatically lock the screen when the system prepares to suspend"
+                        checked: SessionData.lockBeforeSuspend
+                        onToggled: checked => SessionData.setLockBeforeSuspend(checked)
+                    }
+
                     StyledText {
                         text: "Idle monitoring not supported - requires newer Quickshell version"
                         font.pixelSize: Theme.fontSizeSmall

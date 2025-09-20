@@ -58,6 +58,8 @@ Singleton {
     property int batterySuspendTimeout: 0 // Never
     property int batteryHibernateTimeout: 0 // Never
 
+    property bool lockBeforeSuspend: false
+
     Component.onCompleted: {
         loadSettings()
     }
@@ -121,6 +123,7 @@ Singleton {
                 batteryLockTimeout = settings.batteryLockTimeout !== undefined ? settings.batteryLockTimeout : 0
                 batterySuspendTimeout = settings.batterySuspendTimeout !== undefined ? settings.batterySuspendTimeout : 0
                 batteryHibernateTimeout = settings.batteryHibernateTimeout !== undefined ? settings.batteryHibernateTimeout : 0
+                lockBeforeSuspend = settings.lockBeforeSuspend !== undefined ? settings.lockBeforeSuspend : false
                 
                 // Generate system themes but don't override user's theme choice
                 if (typeof Theme !== "undefined") {
@@ -170,7 +173,8 @@ Singleton {
                                                 "batteryMonitorTimeout": batteryMonitorTimeout,
                                                 "batteryLockTimeout": batteryLockTimeout,
                                                 "batterySuspendTimeout": batterySuspendTimeout,
-                                                "batteryHibernateTimeout": batteryHibernateTimeout
+                                                "batteryHibernateTimeout": batteryHibernateTimeout,
+                                                "lockBeforeSuspend": lockBeforeSuspend
                                             }, null, 2))
     }
 
@@ -454,6 +458,11 @@ Singleton {
 
     function setBatteryHibernateTimeout(timeout) {
         batteryHibernateTimeout = timeout
+        saveSettings()
+    }
+
+    function setLockBeforeSuspend(enabled) {
+        lockBeforeSuspend = enabled
         saveSettings()
     }
 

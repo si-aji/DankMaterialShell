@@ -79,25 +79,39 @@ Item {
 
     Process {
         id: lockStateMonitor
-        command: root.sessionPath ? ["gdbus", "monitor", "--system", "--dest", "org.freedesktop.login1", "--object-path", root.sessionPath] : []
+        command: root.sessionPath ? ["gdbus", "monitor", "--system", "--dest", "org.freedesktop.login1"] : []
         running: false
 
         stdout: SplitParser {
             splitMarker: "\n"
 
             onRead: line => {
-                        if (line.includes("org.freedesktop.login1.Session.Lock")) {
-                            console.log("login1: Lock signal received -> show lock")
+                        if (line.includes(root.sessionPath)) {
+                            if (line.includes("org.freedesktop.login1.Session.Lock")) {
+                                console.log("login1: Lock signal received -> show lock")
+                                loader.activeAsync = true
+                                return
+                            }
+                            if (line.includes("org.freedesktop.login1.Session.Unlock")) {
+                                console.log("login1: Unlock signal received -> hide lock")
+                                loader.active = false
+                                return
+                            }
+                            if (line.includes("LockedHint") && line.includes("true")) {
+                                console.log("login1: LockedHint=true -> show lock")
+                                loader.activeAsync = true
+                                return
+                            }
+                            if (line.includes("LockedHint") && line.includes("false")) {
+                                console.log("login1: LockedHint=false -> hide lock")
+                                loader.active = false
+                                return
+                            }
+                        }
+                        if (line.includes("PrepareForSleep") && 
+                            line.includes("true") &&
+                            SessionData.lockBeforeSuspend) {
                             loader.activeAsync = true
-                        } else if (line.includes("org.freedesktop.login1.Session.Unlock")) {
-                            console.log("login1: Unlock signal received -> hide lock")
-                            loader.active = false
-                        } else if (line.includes("LockedHint") && line.includes("true")) {
-                            console.log("login1: LockedHint=true -> show lock")
-                            loader.activeAsync = true
-                        } else if (line.includes("LockedHint") && line.includes("false")) {
-                            console.log("login1: LockedHint=false -> hide lock")
-                            loader.active = false
                         }
                     }
         }
