@@ -33,11 +33,11 @@ PanelWindow {
 
     function getNotepadInstanceForScreen() {
         if (!notepadVariants || !notepadVariants.instances) return null
-        
+
         for (var i = 0; i < notepadVariants.instances.length; i++) {
-            var loader = notepadVariants.instances[i]
-            if (loader.modelData && loader.modelData.name === root.screen?.name) {
-                return loader.ensureLoaded()
+            var slideout = notepadVariants.instances[i]
+            if (slideout.modelData && slideout.modelData.name === root.screen?.name) {
+                return slideout
             }
         }
         return null
@@ -157,7 +157,7 @@ PanelWindow {
         }
 
         property var notepadInstance: null
-        property bool notepadInstanceVisible: notepadInstance?.notepadVisible ?? false
+        property bool notepadInstanceVisible: notepadInstance?.isVisible ?? false
         
         readonly property bool hasActivePopout: {
             const loaders = [{
@@ -1065,7 +1065,7 @@ PanelWindow {
 
                             NotepadButton {
                                 property var notepadInstance: topBarCore.notepadInstance
-                                isActive: notepadInstance?.notepadVisible ?? false
+                                isActive: notepadInstance?.isVisible ?? false
                                 widgetHeight: root.widgetHeight
                                 barHeight: root.effectiveBarHeight
                                 section: topBarContent.getWidgetSection(parent) || "right"
