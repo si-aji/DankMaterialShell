@@ -67,14 +67,6 @@ PanelWindow {
         border.color: Theme.outlineMedium
         border.width: 1
         visible: isVisible
-        opacity: isVisible ? (customTransparency >= 0 ? customTransparency : SettingsData.popupTransparency) : 0
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: 700
-                easing.type: Easing.OutCubic
-            }
-        }
 
         transform: Translate {
             id: slideTransform
