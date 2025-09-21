@@ -80,6 +80,24 @@ Rectangle {
                 font.weight: Font.Medium
                 color: Theme.surfaceText
                 anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignLeft
+                elide: Text.ElideNone
+
+                StyledTextMetrics {
+                    id: rxBaseline
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Font.Medium
+                    text: "88.8 MB/s"
+                }
+
+                width: Math.max(rxBaseline.width, paintedWidth)
+
+                Behavior on width {
+                    NumberAnimation {
+                        duration: 120
+                        easing.type: Easing.OutCubic
+                    }
+                }
             }
 
         }
@@ -100,6 +118,24 @@ Rectangle {
                 font.weight: Font.Medium
                 color: Theme.surfaceText
                 anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignLeft
+                elide: Text.ElideNone
+
+                StyledTextMetrics {
+                    id: txBaseline
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Font.Medium
+                    text: "88.8 MB/s"
+                }
+
+                width: Math.max(txBaseline.width, paintedWidth)
+
+                Behavior on width {
+                    NumberAnimation {
+                        duration: 120
+                        easing.type: Easing.OutCubic
+                    }
+                }
             }
 
         }

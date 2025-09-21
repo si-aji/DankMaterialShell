@@ -92,6 +92,24 @@ Rectangle {
             font.weight: Font.Medium
             color: Theme.surfaceText
             anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignLeft
+            elide: Text.ElideNone
+
+            StyledTextMetrics {
+                id: tempBaseline
+                font.pixelSize: Theme.fontSizeSmall
+                font.weight: Font.Medium
+                text: "100°"
+            }
+
+            width: Math.max(tempBaseline.width, paintedWidth)
+
+            Behavior on width {
+                NumberAnimation {
+                    duration: 120
+                    easing.type: Easing.OutCubic
+                }
+            }
         }
 
     }
