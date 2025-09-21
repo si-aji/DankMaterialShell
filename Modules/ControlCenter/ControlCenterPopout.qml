@@ -250,11 +250,7 @@ DankPopout {
                                                                        Theme.primary.r,
                                                                        Theme.primary.g,
                                                                        Theme.primary.b,
-                                                                       0.12) : Qt.rgba(
-                                                                       Theme.surfaceVariant.r,
-                                                                       Theme.surfaceVariant.g,
-                                                                       Theme.surfaceVariant.b,
-                                                                       0.5)
+                                                                       0.12) : "transparent"
                             visible: BatteryService.batteryAvailable
 
                             Row {
@@ -326,11 +322,7 @@ DankPopout {
                             iconName: "lock"
                             iconSize: Theme.iconSize - 2
                             iconColor: Theme.surfaceText
-                            backgroundColor: Qt.rgba(
-                                                 Theme.surfaceVariant.r,
-                                                 Theme.surfaceVariant.g,
-                                                 Theme.surfaceVariant.b,
-                                                 0.5)
+                            backgroundColor: "transparent"
                             onClicked: {
                                 root.close()
                                 root.lockRequested()
@@ -342,11 +334,7 @@ DankPopout {
                             iconName: root.powerOptionsExpanded ? "expand_less" : "power_settings_new"
                             iconSize: Theme.iconSize - 2
                             iconColor: Theme.surfaceText
-                            backgroundColor: Qt.rgba(
-                                                 Theme.surfaceVariant.r,
-                                                 Theme.surfaceVariant.g,
-                                                 Theme.surfaceVariant.b,
-                                                 0.5)
+                            backgroundColor: "transparent"
                             onClicked: {
                                 root.powerOptionsExpanded = !root.powerOptionsExpanded
                             }
@@ -358,11 +346,7 @@ DankPopout {
                             iconName: "settings"
                             iconSize: Theme.iconSize - 2
                             iconColor: Theme.surfaceText
-                            backgroundColor: Qt.rgba(
-                                                 Theme.surfaceVariant.r,
-                                                 Theme.surfaceVariant.g,
-                                                 Theme.surfaceVariant.b,
-                                                 0.5)
+                            backgroundColor: "transparent"
                             onClicked: {
                                 root.close()
                                 settingsModal.show()

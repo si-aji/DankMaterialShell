@@ -52,7 +52,7 @@ Rectangle {
 
     property int _padH: Theme.spacingS
     property int _tileSize: 48
-    property int _tileRadius: 14
+    property int _tileRadius: Theme.cornerRadius
 
     Rectangle {
         id: rightHoverOverlay
