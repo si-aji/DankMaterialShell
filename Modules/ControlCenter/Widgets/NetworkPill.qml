@@ -33,7 +33,7 @@ CompoundPill {
             return NetworkService.wifiSignalIcon
         }
         if (NetworkService.wifiEnabled) {
-            return "signal_wifi_off"
+            return "wifi_off"
         }
         return "wifi_off"
     }
