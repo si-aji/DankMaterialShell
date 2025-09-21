@@ -140,8 +140,16 @@ Singleton {
     property color background: currentThemeData.background
     property color backgroundText: currentThemeData.backgroundText
     property color outline: currentThemeData.outline
+    property color outlineVariant: currentThemeData.outlineVariant || Qt.rgba(outline.r, outline.g, outline.b, 0.6)
     property color surfaceContainer: currentThemeData.surfaceContainer
     property color surfaceContainerHigh: currentThemeData.surfaceContainerHigh
+
+    property color onSurface: surfaceText
+    property color onSurfaceVariant: surfaceVariantText
+    property color onPrimary: primaryText
+    property color onSurface_12: Qt.rgba(onSurface.r, onSurface.g, onSurface.b, 0.12)
+    property color onSurface_38: Qt.rgba(onSurface.r, onSurface.g, onSurface.b, 0.38)
+    property color onSurfaceVariant_30: Qt.rgba(onSurfaceVariant.r, onSurfaceVariant.g, onSurfaceVariant.b, 0.30)
 
     property color error: currentThemeData.error || "#F2B8B5"
     property color warning: currentThemeData.warning || "#FF9800"

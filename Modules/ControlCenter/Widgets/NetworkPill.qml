@@ -6,7 +6,7 @@ import qs.Services
 import qs.Widgets
 import qs.Modules.ControlCenter.Widgets
 
-BasePill {
+CompoundPill {
     id: root
 
     isActive: {
@@ -21,7 +21,7 @@ BasePill {
         }
         return NetworkService.wifiEnabled
     }
-    
+
     iconName: {
         if (NetworkService.wifiToggling) {
             return "sync"
@@ -67,6 +67,12 @@ BasePill {
         if (NetworkService.wifiEnabled) {
             return "Select network"
         }
-        return "Tap to enable"
+        return ""
+    }
+
+    onToggled: {
+        if (NetworkService.networkStatus !== "ethernet" && !NetworkService.wifiToggling) {
+            NetworkService.toggleWifiRadio()
+        }
     }
 }

@@ -23,6 +23,8 @@ DankPopout {
     property string triggerSection: "right"
     property var triggerScreen: null
 
+    readonly property color _containerBg: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
+
     function setTriggerPosition(x, y, width, section, screen) {
         triggerX = x
         triggerY = y
@@ -240,20 +242,81 @@ DankPopout {
                         anchors.rightMargin: Theme.spacingL
                         spacing: Theme.spacingS
 
-                        Battery {
-                            widgetHeight: 40
-                            popupTarget: controlCenterBatteryPopout
-                            parentScreen: root.triggerScreen
-                            section: "right"
-                            barHeight: 123
-                            batteryPopupVisible: controlCenterBatteryPopout.shouldBeVisible
+                        Rectangle {
+                            width: batteryContentRow.implicitWidth + Theme.spacingS * 2
+                            height: 40
+                            radius: 20
+                            color: batteryMouseArea.containsMouse ? Qt.rgba(
+                                                                       Theme.primary.r,
+                                                                       Theme.primary.g,
+                                                                       Theme.primary.b,
+                                                                       0.12) : Qt.rgba(
+                                                                       Theme.surfaceVariant.r,
+                                                                       Theme.surfaceVariant.g,
+                                                                       Theme.surfaceVariant.b,
+                                                                       0.5)
                             visible: BatteryService.batteryAvailable
 
-                            onToggleBatteryPopup: {
-                                if (controlCenterBatteryPopout.shouldBeVisible) {
-                                    controlCenterBatteryPopout.close()
-                                } else {
-                                    controlCenterBatteryPopout.open()
+                            Row {
+                                id: batteryContentRow
+                                anchors.centerIn: parent
+                                spacing: Theme.spacingXS
+
+                                DankIcon {
+                                    name: Theme.getBatteryIcon(BatteryService.batteryLevel, BatteryService.isCharging, BatteryService.batteryAvailable)
+                                    size: Theme.iconSize - 2
+                                    color: {
+                                        if (batteryMouseArea.containsMouse) {
+                                            return Theme.primary
+                                        }
+                                        if (BatteryService.isLowBattery && !BatteryService.isCharging) {
+                                            return Theme.error
+                                        }
+                                        if (BatteryService.isCharging || BatteryService.isPluggedIn) {
+                                            return Theme.primary
+                                        }
+                                        return Theme.surfaceText
+                                    }
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                StyledText {
+                                    text: `${BatteryService.batteryLevel}%`
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.weight: Font.Medium
+                                    color: {
+                                        if (batteryMouseArea.containsMouse) {
+                                            return Theme.primary
+                                        }
+                                        if (BatteryService.isLowBattery && !BatteryService.isCharging) {
+                                            return Theme.error
+                                        }
+                                        if (BatteryService.isCharging) {
+                                            return Theme.primary
+                                        }
+                                        return Theme.surfaceText
+                                    }
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                id: batteryMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    const globalPos = mapToGlobal(0, 0)
+                                    const currentScreen = root.triggerScreen || Screen
+                                    const screenX = currentScreen.x || 0
+                                    const relativeX = globalPos.x - screenX
+                                    controlCenterBatteryPopout.setTriggerPosition(relativeX, 123 + Theme.spacingXS, width, "right", currentScreen)
+
+                                    if (controlCenterBatteryPopout.shouldBeVisible) {
+                                        controlCenterBatteryPopout.close()
+                                    } else {
+                                        controlCenterBatteryPopout.open()
+                                    }
                                 }
                             }
                         }
@@ -548,7 +611,8 @@ DankPopout {
                         spacing: Theme.spacingM
 
                         AudioSliderRow {
-                            width: SettingsData.hideBrightnessSlider ? parent.width - Theme.spacingM : (parent.width - Theme.spacingM) / 2
+                            width: SettingsData.hideBrightnessSlider ? parent.width - Theme.spacingS : (parent.width - Theme.spacingM) / 2
+                            property color sliderTrackColor: root._containerBg
                         }
 
                         Item {
@@ -572,45 +636,12 @@ DankPopout {
                     NetworkPill {
                         width: (parent.width - Theme.spacingM) / 2
                         expanded: root.expandedSection === "network"
-                        onClicked: {
-                            if (NetworkService.wifiToggling) {
-                                return
-                            }
-                            if (NetworkService.networkStatus === "ethernet") {
-                                if (NetworkService.ethernetConnected && !NetworkService.wifiEnabled) {
-                                    NetworkService.toggleWifiRadio()
-                                    return
-                                }
-                                root.toggleSection("network")
-                                return
-                            }
-                            if (NetworkService.networkStatus === "wifi") {
-                                if (NetworkService.ethernetConnected) {
-                                    NetworkService.toggleWifiRadio()
-                                    return
-                                }
-                                NetworkService.disconnectWifi()
-                                return
-                            }
-                            if (!NetworkService.wifiEnabled) {
-                                NetworkService.toggleWifiRadio()
-                                return
-                            }
-                            if (NetworkService.wifiEnabled && NetworkService.networkStatus === "disconnected") {
-                                root.toggleSection("network")
-                            }
-                        }
                         onExpandClicked: root.toggleSection("network")
                     }
 
                     BluetoothPill {
                         width: (parent.width - Theme.spacingM) / 2
                         expanded: root.expandedSection === "bluetooth"
-                        onClicked: {
-                            if (!BluetoothService.available) return
-                            if (BluetoothService.adapter)
-                                BluetoothService.adapter.enabled = !BluetoothService.adapter.enabled
-                        }
                         onExpandClicked: {
                             if (!BluetoothService.available) return
                             root.toggleSection("bluetooth")
@@ -650,22 +681,12 @@ DankPopout {
                     AudioOutputPill {
                         width: (parent.width - Theme.spacingM) / 2
                         expanded: root.expandedSection === "audio_output"
-                        onClicked: {
-                            if (AudioService.sink) {
-                                AudioService.sink.audio.muted = !AudioService.sink.audio.muted
-                            }
-                        }
                         onExpandClicked: root.toggleSection("audio_output")
                     }
 
                     AudioInputPill {
                         width: (parent.width - Theme.spacingM) / 2
                         expanded: root.expandedSection === "audio_input"
-                        onClicked: {
-                            if (AudioService.source) {
-                                AudioService.source.audio.muted = !AudioService.source.audio.muted
-                            }
-                        }
                         onExpandClicked: root.toggleSection("audio_input")
                     }
                 }

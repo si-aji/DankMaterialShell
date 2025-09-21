@@ -59,6 +59,7 @@ Rectangle {
         showValue: true
         valueOverride: actualVolumePercent
         visible: AudioService.source && AudioService.source.audio
+        thumbOutlineColor: Theme.surfaceContainer
 
         onSliderValueChanged: function(newValue) {
             if (AudioService.source && AudioService.source.audio) {

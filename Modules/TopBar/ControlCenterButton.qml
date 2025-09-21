@@ -63,13 +63,6 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             visible: root.showNetworkIcon
 
-            RotationAnimation on rotation {
-                running: NetworkService.wifiToggling
-                loops: Animation.Infinite
-                from: 0
-                to: 360
-                duration: 1000
-            }
 
         }
 

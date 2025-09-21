@@ -757,6 +757,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainer
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setTopBarSpacing(
                                                           newValue)
@@ -784,6 +785,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainer
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setTopBarBottomGap(
                                                           newValue)
@@ -811,6 +813,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainer
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setTopBarInnerPadding(
                                                           newValue)
@@ -838,6 +841,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainer
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setCornerRadius(
                                                           newValue)
