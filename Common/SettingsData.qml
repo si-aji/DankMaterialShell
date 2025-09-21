@@ -88,10 +88,20 @@ Singleton {
     property string notepadFontFamily: ""
     property real notepadFontSize: 14
     property bool notepadShowLineNumbers: false
+    property real notepadTransparencyOverride: -1
+    property real notepadLastCustomTransparency: 0.7
+
     onNotepadUseMonospaceChanged: saveSettings()
     onNotepadFontFamilyChanged: saveSettings()
     onNotepadFontSizeChanged: saveSettings()
     onNotepadShowLineNumbersChanged: saveSettings()
+    onNotepadTransparencyOverrideChanged: {
+        if (notepadTransparencyOverride > 0) {
+            notepadLastCustomTransparency = notepadTransparencyOverride
+        }
+        saveSettings()
+    }
+    onNotepadLastCustomTransparencyChanged: saveSettings()
     property bool gtkThemingEnabled: false
     property bool qtThemingEnabled: false
     property bool showDock: false
@@ -267,6 +277,8 @@ Singleton {
                 notepadFontFamily = settings.notepadFontFamily !== undefined ? settings.notepadFontFamily : ""
                 notepadFontSize = settings.notepadFontSize !== undefined ? settings.notepadFontSize : 14
                 notepadShowLineNumbers = settings.notepadShowLineNumbers !== undefined ? settings.notepadShowLineNumbers : false
+                notepadTransparencyOverride = settings.notepadTransparencyOverride !== undefined ? settings.notepadTransparencyOverride : -1
+                notepadLastCustomTransparency = settings.notepadLastCustomTransparency !== undefined ? settings.notepadLastCustomTransparency : 0.95
                 gtkThemingEnabled = settings.gtkThemingEnabled !== undefined ? settings.gtkThemingEnabled : false
                 qtThemingEnabled = settings.qtThemingEnabled !== undefined ? settings.qtThemingEnabled : false
                 showDock = settings.showDock !== undefined ? settings.showDock : false
@@ -374,6 +386,8 @@ Singleton {
                                                 "notepadFontFamily": notepadFontFamily,
                                                 "notepadFontSize": notepadFontSize,
                                                 "notepadShowLineNumbers": notepadShowLineNumbers,
+                                                "notepadTransparencyOverride": notepadTransparencyOverride,
+                                                "notepadLastCustomTransparency": notepadLastCustomTransparency,
                                                 "gtkThemingEnabled": gtkThemingEnabled,
                                                 "qtThemingEnabled": qtThemingEnabled,
                                                 "showDock": showDock,

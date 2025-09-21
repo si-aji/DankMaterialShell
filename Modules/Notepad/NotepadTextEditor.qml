@@ -88,7 +88,7 @@ Column {
     StyledRect {
         width: parent.width
         height: parent.height - bottomControls.height - Theme.spacingM
-        color: Theme.surface
+        color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, Theme.notepadTransparency)
         border.color: Theme.outlineMedium
         border.width: 1
         radius: Theme.cornerRadius
@@ -329,6 +329,7 @@ Column {
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.surfaceTextMedium
                 visible: textArea.text.length > 0
+                opacity: 1.0
             }
 
             StyledText {
@@ -359,7 +360,7 @@ Column {
                         return Theme.success
                     }
                 }
-                opacity: textArea.text.length > 0 ? 1 : 0
+                opacity: textArea.text.length > 0 ? 1.0 : 0.0
             }
         }
     }
