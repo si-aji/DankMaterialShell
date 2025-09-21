@@ -150,9 +150,27 @@ PanelWindow {
 
         property real backgroundTransparency: SettingsData.topBarTransparency
         property bool autoHide: SettingsData.topBarAutoHide
+        property bool isFullscreenWindow: {
+            const activeWindow = ToplevelManager.activeToplevel
+            if (!activeWindow || !root.screen) return false
+            
+            if (activeWindow.fullscreen !== undefined) {
+                return activeWindow.fullscreen
+            }
+            
+            const screenGeometry = root.screen.geometry
+            if (!screenGeometry || !activeWindow.geometry) return false
+            
+            return activeWindow.geometry.width >= screenGeometry.width &&
+                   activeWindow.geometry.height >= screenGeometry.height
+        }
         property bool reveal: {
             if (CompositorService.isNiri && NiriService.inOverview) {
                 return SettingsData.topBarOpenOnOverview
+            }
+
+            if (isFullscreenWindow) {
+                return topBarMouseArea.containsMouse || hasActivePopout
             }
             return SettingsData.topBarVisible && (!autoHide || topBarMouseArea.containsMouse || hasActivePopout)
         }
