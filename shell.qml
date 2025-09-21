@@ -296,6 +296,7 @@ ShellRoot {
             slideoutWidth: 480
             expandable: true
             expandedWidthValue: 960
+            customTransparency: SettingsData.notepadTransparencyOverride
 
             content: Component {
                 Notepad {

@@ -20,6 +20,7 @@ PanelWindow {
     property Component content: null
     property string title: ""
     property alias container: contentContainer
+    property real customTransparency: -1
 
     function show() {
         visible = true
@@ -61,10 +62,12 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         width: expandable && expandedWidth ? expandedWidthValue : slideoutWidth
-        color: Theme.surfaceContainer
+        color: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b,
+                       customTransparency >= 0 ? customTransparency : SettingsData.popupTransparency)
         border.color: Theme.outlineMedium
         border.width: 1
-        opacity: isVisible ? SettingsData.popupTransparency : 0
+        visible: isVisible
+        opacity: isVisible ? (customTransparency >= 0 ? customTransparency : SettingsData.popupTransparency) : 0
 
         Behavior on opacity {
             NumberAnimation {
