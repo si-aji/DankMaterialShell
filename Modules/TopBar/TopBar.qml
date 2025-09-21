@@ -19,6 +19,7 @@ PanelWindow {
     id: root
 
     WlrLayershell.namespace: "quickshell:bar"
+    WlrLayershell.layer: WlrLayershell.Overlay
 
     property var modelData
     property var notepadVariants: null
@@ -188,7 +189,7 @@ PanelWindow {
                                  "loader": systemUpdateLoader,
                                  "prop": "shouldBeVisible"
                              }]
-            return notepadInstanceVisible || loaders.some(item => {
+            return loaders.some(item => {
                 if (item.loader) {
                     return item.loader?.item?.[item.prop]
                 }
