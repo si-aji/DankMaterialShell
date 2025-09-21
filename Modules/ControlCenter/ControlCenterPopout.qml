@@ -245,7 +245,7 @@ DankPopout {
                         Rectangle {
                             width: batteryContentRow.implicitWidth + Theme.spacingS * 2
                             height: 40
-                            radius: 20
+                            radius: Theme.cornerRadius
                             color: batteryMouseArea.containsMouse ? Qt.rgba(
                                                                        Theme.primary.r,
                                                                        Theme.primary.g,

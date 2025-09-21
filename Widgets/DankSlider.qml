@@ -58,7 +58,7 @@ Item {
 
             width: parent.width - (leftIconWidth + rightIconWidth + (slider.leftIcon.length > 0 ? Theme.spacingM : 0) + (slider.rightIcon.length > 0 ? Theme.spacingM : 0))
             height: 12
-            radius: height / 2
+            radius: Theme.cornerRadius
             color: slider.trackColor
             anchors.verticalCenter: parent.verticalCenter
             clip: false
@@ -66,7 +66,7 @@ Item {
             StyledRect {
                 id: sliderFill
                 height: parent.height
-                radius: parent.radius
+                radius: Theme.cornerRadius
                 width: {
                     const ratio = (slider.value - slider.minimum) / (slider.maximum - slider.minimum)
                     const travel = sliderTrack.width - sliderHandle.width
@@ -84,7 +84,7 @@ Item {
 
                 width: 8
                 height: 24
-                radius: 4
+                radius: Theme.cornerRadius
                 x: {
                     const ratio = (slider.value - slider.minimum) / (slider.maximum - slider.minimum)
                     const travel = sliderTrack.width - width
@@ -98,7 +98,7 @@ Item {
 
                 StyledRect {
                     anchors.fill: parent
-                    radius: parent.radius
+                    radius: Theme.cornerRadius
                     color: Theme.onPrimary
                     opacity: slider.enabled ? (sliderMouseArea.pressed ? 0.16 : (sliderMouseArea.containsMouse ? 0.08 : 0)) : 0
                     visible: opacity > 0
