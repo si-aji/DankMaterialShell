@@ -27,7 +27,7 @@ PanelWindow {
     property real wingtipsRadius: Theme.cornerRadius
     readonly property real _wingR: Math.max(0, wingtipsRadius)
     readonly property color _bgColor: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, topBarCore.backgroundTransparency)
-    readonly property color _tintColor: Qt.rgba(Theme.surfaceTint.r, Theme.surfaceTint.g, Theme.surfaceTint.b, 0.04)
+    readonly property color _tintColor: Qt.rgba(Theme.surfaceTint.r, Theme.surfaceTint.g, Theme.surfaceTint.b, 0.04 * topBarCore.backgroundTransparency)
 
     signal colorPickerRequested()
 
@@ -139,7 +139,7 @@ PanelWindow {
     exclusiveZone: (!SettingsData.topBarVisible || topBarCore.autoHide) ? -1 : root.effectiveBarHeight + SettingsData.topBarSpacing + SettingsData.topBarBottomGap - 2
 
     mask: Region {
-        item: barShape
+        item: topBarMouseArea
     }
 
     Item {
