@@ -727,11 +727,51 @@ Item {
                         width: parent.width
                         spacing: Theme.spacingS
 
-                        StyledText {
-                            text: "Top Bar Widget Transparency"
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.surfaceText
-                            font.weight: Font.Medium
+                        Item {
+                            width: parent.width
+                            height: Math.max(transparencyLabel.height, widgetColorGroup.height)
+
+                            StyledText {
+                                id: transparencyLabel
+                                text: "Top Bar Widget Transparency"
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.surfaceText
+                                font.weight: Font.Medium
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            DankButtonGroup {
+                                id: widgetColorGroup
+                                property int currentColorIndex: {
+                                    switch (SettingsData.widgetBackgroundColor) {
+                                        case "sth": return 0
+                                        case "s": return 1
+                                        case "sc": return 2
+                                        case "sch": return 3
+                                        default: return 0
+                                    }
+                                }
+
+                                model: ["sth", "s", "sc", "sch"]
+                                currentIndex: currentColorIndex
+                                selectionMode: "single"
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                buttonHeight: 20
+                                minButtonWidth: 32
+                                buttonPadding: Theme.spacingS
+                                checkIconSize: Theme.iconSizeSmall - 2
+                                textSize: Theme.fontSizeSmall - 2
+                                spacing: 1
+
+                                onSelectionChanged: (index, selected) => {
+                                    if (!selected) return
+                                    const colorOptions = ["sth", "s", "sc", "sch"]
+                                    SettingsData.setWidgetBackgroundColor(colorOptions[index])
+                                }
+                            }
                         }
 
                         DankSlider {

@@ -25,7 +25,7 @@ Rectangle {
             return "transparent";
         }
 
-        const baseColor = cpuTempArea.containsMouse ? Theme.primaryPressed : Theme.secondaryHover;
+        const baseColor = cpuTempArea.containsMouse ? Theme.widgetBaseHoverColor : Theme.widgetBaseBackgroundColor;
         return Qt.rgba(baseColor.r, baseColor.g, baseColor.b, baseColor.a * Theme.widgetTransparency);
     }
     Component.onCompleted: {
@@ -114,12 +114,5 @@ Rectangle {
 
     }
 
-    Behavior on color {
-        ColorAnimation {
-            duration: Theme.shortDuration
-            easing.type: Theme.standardEasing
-        }
-
-    }
 
 }

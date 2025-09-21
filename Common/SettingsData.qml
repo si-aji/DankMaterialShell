@@ -119,6 +119,7 @@ Singleton {
     property bool topBarGothCornersEnabled: false
     property bool lockScreenShowPowerActions: true
     property bool hideBrightnessSlider: false
+    property string widgetBackgroundColor: "sth"
     property int notificationTimeoutLow: 5000
     property int notificationTimeoutNormal: 5000
     property int notificationTimeoutCritical: 0
@@ -299,6 +300,7 @@ Singleton {
                 topBarGothCornersEnabled = settings.topBarGothCornersEnabled !== undefined ? settings.topBarGothCornersEnabled : false
                 lockScreenShowPowerActions = settings.lockScreenShowPowerActions !== undefined ? settings.lockScreenShowPowerActions : true
                 hideBrightnessSlider = settings.hideBrightnessSlider !== undefined ? settings.hideBrightnessSlider : false
+                widgetBackgroundColor = settings.widgetBackgroundColor !== undefined ? settings.widgetBackgroundColor : "sth"
                 screenPreferences = settings.screenPreferences !== undefined ? settings.screenPreferences : ({})
                 applyStoredTheme()
                 detectAvailableIconThemes()
@@ -405,6 +407,7 @@ Singleton {
                                                 "topBarGothCornersEnabled": topBarGothCornersEnabled,
                                                 "lockScreenShowPowerActions": lockScreenShowPowerActions,
                                                 "hideBrightnessSlider": hideBrightnessSlider,
+                                                "widgetBackgroundColor": widgetBackgroundColor,
                                                 "notificationTimeoutLow": notificationTimeoutLow,
                                                 "notificationTimeoutNormal": notificationTimeoutNormal,
                                                 "notificationTimeoutCritical": notificationTimeoutCritical,
@@ -995,6 +998,11 @@ Singleton {
 
     function setHideBrightnessSlider(enabled) {
         hideBrightnessSlider = enabled
+        saveSettings()
+    }
+
+    function setWidgetBackgroundColor(color) {
+        widgetBackgroundColor = color
         saveSettings()
     }
 

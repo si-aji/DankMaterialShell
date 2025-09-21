@@ -337,8 +337,40 @@ Singleton {
 
     property real notepadTransparency: SettingsData.notepadTransparencyOverride >= 0 ? SettingsData.notepadTransparencyOverride : popupTransparency
 
-    function widgetBackground() {
-        return Qt.rgba(surfaceContainer.r, surfaceContainer.g, surfaceContainer.b, widgetTransparency)
+    property var widgetBaseBackgroundColor: {
+        const colorMode = typeof SettingsData !== "undefined" ? SettingsData.widgetBackgroundColor : "sth"
+        switch (colorMode) {
+            case "s":
+                return surface
+            case "sc":
+                return surfaceContainer
+            case "sch":
+                return surfaceContainerHigh
+            case "sth":
+            default:
+                return surfaceTextHover
+        }
+    }
+
+    property var widgetBaseHoverColor: {
+        const baseColor = widgetBaseBackgroundColor
+        const factor = 1.2
+        return isLightMode ? Qt.darker(baseColor, factor) : Qt.lighter(baseColor, factor)
+    }
+
+    property var widgetBackground: {
+        const colorMode = typeof SettingsData !== "undefined" ? SettingsData.widgetBackgroundColor : "sth"
+        switch (colorMode) {
+            case "s":
+                return Qt.rgba(surface.r, surface.g, surface.b, widgetTransparency)
+            case "sc":
+                return Qt.rgba(surfaceContainer.r, surfaceContainer.g, surfaceContainer.b, widgetTransparency)
+            case "sch":
+                return Qt.rgba(surfaceContainerHigh.r, surfaceContainerHigh.g, surfaceContainerHigh.b, widgetTransparency)
+            case "sth":
+            default:
+                return Qt.rgba(surfaceContainer.r, surfaceContainer.g, surfaceContainer.b, widgetTransparency)
+        }
     }
 
     function getPopupBackgroundAlpha() {

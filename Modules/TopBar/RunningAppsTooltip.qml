@@ -44,7 +44,7 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.surfaceContainer
+        color: Theme.widgetBaseBackgroundColor
         radius: Theme.cornerRadius
         border.width: 1
         border.color: Theme.outlineMedium
