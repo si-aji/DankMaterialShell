@@ -495,12 +495,12 @@ There are two theme paths for Firefox, using with [pywalfox](https://github.com/
 
 **(Option 1) - pywalfox**
 
-1. **Install [pywalfox](https://github.com/Frewacom/pywalfox) on system.
+1. **Install [pywalfox](https://github.com/Frewacom/pywalfox)** on system.
 - Available in AUR via `paru -S python-pywalfox`
 
-2. **Install [pywalfox extension](https://addons.mozilla.org/firefox/addon/pywalfox/) in firefox.
+2. **Install [pywalfox extension](https://addons.mozilla.org/firefox/addon/pywalfox/)** in firefox.
 
-3. **Restart dms to generate palette and then enable dank colors.
+3. **Restart dms and create symlink** to generate palette and then enable dank colors.
 - Run `ln -sf ~/.cache/wal/dank-pywalfox.json ~/.cache/wal/colors.json`
 
 
