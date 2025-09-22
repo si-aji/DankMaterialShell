@@ -82,6 +82,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 horizontalAlignment: Text.AlignLeft
                 elide: Text.ElideNone
+                wrapMode: Text.NoWrap
 
                 StyledTextMetrics {
                     id: rxBaseline
@@ -120,6 +121,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 horizontalAlignment: Text.AlignLeft
                 elide: Text.ElideNone
+                wrapMode: Text.NoWrap
 
                 StyledTextMetrics {
                     id: txBaseline
