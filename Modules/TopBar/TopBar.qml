@@ -512,7 +512,7 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -635,7 +635,7 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -682,7 +682,7 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
