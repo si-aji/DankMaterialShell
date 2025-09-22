@@ -491,6 +491,21 @@ Nevigate to dms settings -> themes & colors -> and click "Apply QT Themes"
 
 #### Firefox
 
+There are two theme paths for Firefox, using with [pywalfox](https://github.com/Frewacom/pywalfox) or [material fox](https://github.com/edelvarden/material-fox-updated)
+
+**(Option 1) - pywalfox
+
+1. **Install [pywalfox](https://github.com/Frewacom/pywalfox) on system.
+- Available in AUR via `paru -S python-pywalfox`
+
+2. **Install [pywalfox extension](https://addons.mozilla.org/firefox/addon/pywalfox/) in firefox.
+
+3. **Restart dms to generate palette and then enable dank colors.
+- Run `ln -sf ~/.cache/wal/dank-pywalfox.json ~/.cache/wal/colors.json`
+
+
+**(Option 2) - Chrome-like theme with dynamic colors**
+
 Firefox does use the GTK3 theme, but it doesn't look that good on the stock theme IMO. A separate matugen css is generated for the [material fox](https://github.com/edelvarden/material-fox-updated) theme, you can configure that theme with dynamic colors by following the steps below.
 
 1. **In firefox, navigate to `about:config`**

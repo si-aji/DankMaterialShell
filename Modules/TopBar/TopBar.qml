@@ -267,7 +267,7 @@ PanelWindow {
 
                 transform: Translate {
                     id: topBarSlide
-                    y: Math.round(topBarCore.reveal ? 0 : -(root.effectiveBarHeight + (SettingsData.topBarGothCornersEnabled ? root._wingR : 0)))
+                    y: Math.round(topBarCore.reveal ? 0 : -root.implicitHeight)
 
                     Behavior on y {
                         NumberAnimation {

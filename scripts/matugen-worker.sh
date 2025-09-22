@@ -89,6 +89,11 @@ build_once() {
     cat "$SHELL_DIR/matugen/configs/firefox.toml" >> "$TMP_CFG"
     echo "" >> "$TMP_CFG"
   fi
+
+  if command -v pywalfox >/dev/null 2>&1; then
+    cat "$SHELL_DIR/matugen/configs/pywalfox.toml" >> "$TMP_CFG"
+    echo "" >> "$TMP_CFG"
+  fi
   
   # GTK3 colors based on colloid
   COLLOID_TEMPLATE="$SHELL_DIR/matugen/templates/gtk3-colors.css"
@@ -192,6 +197,11 @@ build_once() {
     [[ "$icon" != "System Default" && -n "$icon" ]] && gsettings set org.gnome.desktop.interface icon-theme "$icon" 2>/dev/null || true
   fi
 }
+
+# if pywalfox is installed and ~/.cache/wal/colors.json exists, run update
+if command -v pywalfox >/dev/null 2>&1 && [[ -f "$HOME/.cache/wal/colors.json" ]]; then
+  pywalfox update >/dev/null 2>&1 || true
+fi
 
 while :; do
   DESIRED="$(read_desired)"
