@@ -328,14 +328,6 @@ DankModal {
                     height: Theme.spacingS
                 }
 
-                StyledText {
-                    text: "↑↓ Navigate • Tab Cycle • Enter Select • Esc Close"
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.surfaceVariantText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    opacity: 0.7
-                }
-
             }
 
         }
