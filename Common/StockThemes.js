@@ -281,6 +281,23 @@ const StockThemes = {
             outline: "#968b8a",
             surfaceContainer: "#201a19",
             surfaceContainerHigh: "#2b2221"
+        },
+        monochrome: {
+            name: "Monochrome",
+            primary: "#ffffff",
+            primaryText: "#2b303c",
+            primaryContainer: "#424753",
+            secondary: "#c4c6d0",
+            surface: "#2a2a2a",
+            surfaceText: "#e4e2e3",
+            surfaceVariant: "#474648",
+            surfaceVariantText: "#c8c6c7",
+            surfaceTint: "#c2c6d6",
+            background: "#131315",
+            backgroundText: "#e4e2e3",
+            outline: "#929092",
+            surfaceContainer: "#2a2a2a",
+            surfaceContainerHigh: "#2a2a2b"
         }
     },
     LIGHT: {
@@ -453,6 +470,23 @@ const StockThemes = {
             outline: "#79747e",
             surfaceContainer: "#f3f3f3",
             surfaceContainerHigh: "#ececec"
+        },
+        monochrome: {
+            name: "Monochrome Light",
+            primary: "#c2c6d6",
+            primaryText: "#2b303c",
+            primaryContainer: "#424753",
+            secondary: "#c4c6d0",
+            surface: "#131315",
+            surfaceText: "#e4e2e3",
+            surfaceVariant: "#474648",
+            surfaceVariantText: "#c8c6c7",
+            surfaceTint: "#c2c6d6",
+            background: "#131315",
+            backgroundText: "#e4e2e3",
+            outline: "#929092",
+            surfaceContainer: "#1f1f21",
+            surfaceContainerHigh: "#2a2a2b"
         }
     }
 }
@@ -460,7 +494,7 @@ const StockThemes = {
 const ThemeCategories = {
     GENERIC: {
         name: "Generic",
-        variants: ["blue", "deepBlue", "purple", "green", "orange", "red", "cyan", "pink", "amber", "coral"]
+        variants: ["blue", "deepBlue", "purple", "green", "orange", "red", "cyan", "pink", "amber", "coral", "monochrome"]
     },
     CATPPUCCIN: {
         name: "Catppuccin",
@@ -479,6 +513,7 @@ const ThemeNames = {
     PINK: "pink",
     AMBER: "amber",
     CORAL: "coral",
+    MONOCHROME: "monochrome",
     DYNAMIC: "dynamic"
 }
 
