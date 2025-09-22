@@ -94,6 +94,11 @@ build_once() {
     cat "$SHELL_DIR/matugen/configs/pywalfox.toml" >> "$TMP_CFG"
     echo "" >> "$TMP_CFG"
   fi
+
+  if command -v vesktop >/dev/null 2>&1 && [[ -d "$CONFIG_DIR/vesktop" ]]; then
+    cat "$SHELL_DIR/matugen/configs/vesktop.toml" >> "$TMP_CFG"
+    echo "" >> "$TMP_CFG"
+  fi
   
   # GTK3 colors based on colloid
   COLLOID_TEMPLATE="$SHELL_DIR/matugen/templates/gtk3-colors.css"
@@ -198,7 +203,6 @@ build_once() {
   fi
 }
 
-# if pywalfox is installed and ~/.cache/wal/colors.json exists, run update
 if command -v pywalfox >/dev/null 2>&1 && [[ -f "$HOME/.cache/wal/colors.json" ]]; then
   pywalfox update >/dev/null 2>&1 || true
 fi
