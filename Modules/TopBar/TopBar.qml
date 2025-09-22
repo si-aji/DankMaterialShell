@@ -145,7 +145,7 @@ PanelWindow {
             left: parent.left
             right: parent.right
         }
-        height: (topBarCore.autoHide && !topBarCore.reveal) ? 8 : (root.effectiveBarHeight + SettingsData.topBarSpacing)
+        height: (topBarCore.autoHide && !topBarCore.reveal) ? 8 : (SettingsData.topBarVisible ? (root.effectiveBarHeight + SettingsData.topBarSpacing) : 0)
     }
 
     mask: Region {
