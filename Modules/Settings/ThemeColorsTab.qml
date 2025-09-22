@@ -687,7 +687,7 @@ Item {
                         }
 
                         StyledText {
-                            text: "Transparency Settings"
+                            text: "Widget Styling"
                             font.pixelSize: Theme.fontSizeLarge
                             font.weight: Font.Medium
                             color: Theme.surfaceText
@@ -815,6 +815,40 @@ Item {
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setPopupTransparency(
                                                           newValue / 100)
+                                                  }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 1
+                        color: Theme.outline
+                        opacity: 0.2
+                    }
+
+                    Column {
+                        width: parent.width
+                        spacing: Theme.spacingS
+
+                        StyledText {
+                            text: "Corner Radius (0 = square corners)"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceText
+                            font.weight: Font.Medium
+                        }
+
+                        DankSlider {
+                            width: parent.width
+                            height: 24
+                            value: SettingsData.cornerRadius
+                            minimum: 0
+                            maximum: 32
+                            unit: ""
+                            showValue: true
+                            wheelEnabled: false
+                            onSliderValueChanged: newValue => {
+                                                      SettingsData.setCornerRadius(
+                                                          newValue)
                                                   }
                         }
                     }
