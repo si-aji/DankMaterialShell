@@ -62,6 +62,7 @@ Singleton {
 
     property bool lockBeforeSuspend: false
 
+
     Component.onCompleted: {
         loadSettings()
     }

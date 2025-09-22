@@ -806,6 +806,7 @@ Item {
                         description: "Visual effect used when wallpaper changes"
                         currentValue: {
                             switch (SessionData.wallpaperTransition) {
+                            case "none": return "None"
                             case "fade": return "Fade"
                             case "wipe": return "Wipe"
                             case "disc": return "Disc"
@@ -816,7 +817,7 @@ Item {
                             default: return "Fade"
                             }
                         }
-                        options: ["Fade", "Wipe", "Disc", "Stripes", "Iris Bloom", "Pixelate", "Portal"]
+                        options: ["None", "Fade", "Wipe", "Disc", "Stripes", "Iris Bloom", "Pixelate", "Portal"]
                         onValueChanged: value => {
                             var transition = value.toLowerCase()
                             SessionData.setWallpaperTransition(transition)
