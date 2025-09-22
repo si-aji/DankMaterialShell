@@ -377,11 +377,11 @@ DankPopout {
 
                     Row {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingL
+                        spacing: SessionService.hibernateSupported ? Theme.spacingS : Theme.spacingL
                         visible: root.powerOptionsExpanded
 
                         Rectangle {
-                            width: 100
+                            width: SessionService.hibernateSupported ? 85 : 100
                             height: 34
                             radius: Theme.cornerRadius
                             color: logoutButton.containsMouse ? Qt.rgba(
@@ -431,7 +431,7 @@ DankPopout {
                         }
 
                         Rectangle {
-                            width: 100
+                            width: SessionService.hibernateSupported ? 85 : 100
                             height: 34
                             radius: Theme.cornerRadius
                             color: rebootButton.containsMouse ? Qt.rgba(
@@ -481,7 +481,7 @@ DankPopout {
                         }
 
                         Rectangle {
-                            width: 100
+                            width: SessionService.hibernateSupported ? 85 : 100
                             height: 34
                             radius: Theme.cornerRadius
                             color: suspendButton.containsMouse ? Qt.rgba(
@@ -531,7 +531,58 @@ DankPopout {
                         }
 
                         Rectangle {
-                            width: 100
+                            width: SessionService.hibernateSupported ? 85 : 100
+                            height: 34
+                            radius: Theme.cornerRadius
+                            color: hibernateButton.containsMouse ? Qt.rgba(
+                                                                       Theme.primary.r,
+                                                                       Theme.primary.g,
+                                                                       Theme.primary.b,
+                                                                       0.12) : Qt.rgba(
+                                                                       Theme.surfaceVariant.r,
+                                                                       Theme.surfaceVariant.g,
+                                                                       Theme.surfaceVariant.b,
+                                                                       0.5)
+                            visible: SessionService.hibernateSupported
+
+                            Row {
+                                anchors.centerIn: parent
+                                spacing: Theme.spacingXS
+
+                                DankIcon {
+                                    name: "ac_unit"
+                                    size: Theme.fontSizeSmall
+                                    color: hibernateButton.containsMouse ? Theme.primary : Theme.surfaceText
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                StyledText {
+                                    text: "Hibernate"
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: hibernateButton.containsMouse ? Theme.primary : Theme.surfaceText
+                                    font.weight: Font.Medium
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                id: hibernateButton
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onPressed: {
+                                    root.powerOptionsExpanded = false
+                                    root.close()
+                                    root.powerActionRequested(
+                                                "hibernate", "Hibernate",
+                                                "Are you sure you want to hibernate?")
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: SessionService.hibernateSupported ? 85 : 100
                             height: 34
                             radius: Theme.cornerRadius
                             color: shutdownButton.containsMouse ? Qt.rgba(

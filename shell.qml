@@ -203,6 +203,9 @@ ShellRoot {
                                                 case "suspend":
                                                     SessionService.suspend()
                                                     break
+                                                case "hibernate":
+                                                    SessionService.hibernate()
+                                                    break
                                                 case "reboot":
                                                     SessionService.reboot()
                                                     break

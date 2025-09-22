@@ -109,7 +109,7 @@ Singleton {
                 })
             }
 
-            if (hibernateTimeout > 0) {
+            if (hibernateTimeout > 0 && SessionService.hibernateSupported) {
                 hibernateMonitor = Qt.createQmlObject(qmlString, root, "IdleService.HibernateMonitor")
                 hibernateMonitor.enabled = Qt.binding(() => root._enableGate && root.enabled && root.idleMonitorAvailable && root.hibernateTimeout > 0)
                 hibernateMonitor.respectInhibitors = Qt.binding(() => root.respectInhibitors)
