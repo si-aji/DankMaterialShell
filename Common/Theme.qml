@@ -218,8 +218,10 @@ Singleton {
         CompositorService.isNiri && NiriService.doScreenTransition()
     }
 
-    function switchTheme(themeName, savePrefs = true) {
-        screenTransition()
+    function switchTheme(themeName, savePrefs = true, enableTransition = true) {
+        if (enableTransition) {
+            screenTransition()
+        }
         if (themeName === dynamic) {
             currentTheme = dynamic
             currentThemeCategory = dynamic
@@ -287,7 +289,7 @@ Singleton {
 
     function switchThemeCategory(category, defaultTheme) {
         currentThemeCategory = category
-        switchTheme(defaultTheme)
+        switchTheme(defaultTheme, true, false)
     }
 
     function getCatppuccinColor(variantName) {
@@ -509,6 +511,10 @@ Singleton {
         if (!matugenAvailable) {
             console.warn("matugen not available - cannot set system theme")
             return
+        }
+
+        if (typeof NiriService !== "undefined" && CompositorService.isNiri) {
+            NiriService.suppressNextToast()
         }
 
         const desired = {

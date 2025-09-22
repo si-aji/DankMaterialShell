@@ -208,11 +208,11 @@ Item {
                                         else if (ToastService.wallpaperErrorStatus === "error")
                                             ToastService.showError("Wallpaper processing failed - check wallpaper path")
                                         else
-                                            Theme.switchTheme(Theme.dynamic)
+                                            Theme.switchTheme(Theme.dynamic, true, false)
                                         break
                                     case 3:
                                         if (Theme.currentThemeName !== "custom") {
-                                            Theme.switchTheme("custom")
+                                            Theme.switchTheme("custom", true, false)
                                         }
                                         break
                                 }
