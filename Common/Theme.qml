@@ -869,7 +869,7 @@ Singleton {
 
         onExited: exitCode => {
             if (exitCode === 0) {
-                if (typeof ToastService !== "undefined") {
+                if (typeof ToastService !== "undefined" && typeof NiriService !== "undefined" && !NiriService.matugenSuppression) {
                     ToastService.showInfo("GTK colors applied successfully")
                 }
             } else {

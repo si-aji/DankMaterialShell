@@ -30,6 +30,7 @@ Singleton {
     property bool hasInitialConnection: false
     property bool suppressConfigToast: true
     property bool suppressNextConfigToast: false
+    property bool matugenSuppression: false
 
     readonly property string socketPath: Quickshell.env("NIRI_SOCKET")
 
@@ -346,10 +347,12 @@ Singleton {
             if (ToastService.toastVisible && ToastService.currentLevel === ToastService.levelError) {
                 ToastService.hideToast()
             }
-            if (hasInitialConnection && !suppressConfigToast && !suppressNextConfigToast) {
+            if (hasInitialConnection && !suppressConfigToast && !suppressNextConfigToast && !matugenSuppression) {
                 ToastService.showInfo("niri: config reloaded")
+            } else if (suppressNextConfigToast) {
+                suppressNextConfigToast = false
+                suppressResetTimer.stop()
             }
-            suppressNextConfigToast = false
         }
 
         if (!hasInitialConnection) {
@@ -496,7 +499,8 @@ Singleton {
     }
 
     function suppressNextToast() {
-        suppressNextConfigToast = true
+        matugenSuppression = true
+        suppressResetTimer.restart()
     }
 
     function findNiriWindow(toplevel) {
@@ -594,5 +598,11 @@ Singleton {
         id: suppressToastTimer
         interval: 3000
         onTriggered: root.suppressConfigToast = false
+    }
+
+    Timer {
+        id: suppressResetTimer
+        interval: 2000
+        onTriggered: root.matugenSuppression = false
     }
 }
