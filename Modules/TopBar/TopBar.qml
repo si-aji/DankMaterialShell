@@ -145,7 +145,15 @@ PanelWindow {
             left: parent.left
             right: parent.right
         }
-        height: (topBarCore.autoHide && !topBarCore.reveal) ? 8 : (SettingsData.topBarVisible ? (root.effectiveBarHeight + SettingsData.topBarSpacing) : 0)
+        height: {
+            if (topBarCore.autoHide && !topBarCore.reveal) {
+                return 8
+            }
+            if (CompositorService.isNiri && NiriService.inOverview && SettingsData.topBarOpenOnOverview) {
+                return root.effectiveBarHeight + SettingsData.topBarSpacing
+            }
+            return SettingsData.topBarVisible ? (root.effectiveBarHeight + SettingsData.topBarSpacing) : 0
+        }
     }
 
     mask: Region {
