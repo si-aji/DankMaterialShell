@@ -123,100 +123,28 @@ DankPopout {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.leftMargin: Theme.spacingL
                         anchors.rightMargin: Theme.spacingL
-                        spacing: Theme.spacingL
+                        spacing: Theme.spacingM
 
-                        Item {
+                        DankCircularImage {
                             id: avatarContainer
-
-                            property bool hasImage: profileImageLoader.status === Image.Ready
 
                             width: 64
                             height: 64
+                            imageSource: {
+                                if (PortalService.profileImage === "")
+                                    return ""
 
-                            Rectangle {
-                                anchors.fill: parent
-                                radius: width / 2
-                                color: "transparent"
-                                border.color: Theme.primary
-                                border.width: 1
-                                visible: parent.hasImage
+                                if (PortalService.profileImage.startsWith("/"))
+                                    return "file://" + PortalService.profileImage
+
+                                return PortalService.profileImage
                             }
-
-                            Image {
-                                id: profileImageLoader
-
-                                source: {
-                                    if (PortalService.profileImage === "")
-                                        return ""
-
-                                    if (PortalService.profileImage.startsWith(
-                                                "/"))
-                                        return "file://" + PortalService.profileImage
-
-                                    return PortalService.profileImage
-                                }
-                                smooth: true
-                                asynchronous: true
-                                mipmap: true
-                                cache: true
-                                visible: false
-                            }
-
-                            MultiEffect {
-                                anchors.fill: parent
-                                anchors.margins: 5
-                                source: profileImageLoader
-                                maskEnabled: true
-                                maskSource: circularMask
-                                visible: avatarContainer.hasImage
-                                maskThresholdMin: 0.5
-                                maskSpreadAtMin: 1
-                            }
-
-                            Item {
-                                id: circularMask
-
-                                width: 64 - 10
-                                height: 64 - 10
-                                layer.enabled: true
-                                layer.smooth: true
-                                visible: false
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    radius: width / 2
-                                    color: "black"
-                                    antialiasing: true
-                                }
-                            }
-
-                            Rectangle {
-                                anchors.fill: parent
-                                radius: width / 2
-                                color: Theme.primary
-                                visible: !parent.hasImage
-
-                                DankIcon {
-                                    anchors.centerIn: parent
-                                    name: "person"
-                                    size: Theme.iconSize + 8
-                                    color: Theme.primaryText
-                                }
-                            }
-
-                            DankIcon {
-                                anchors.centerIn: parent
-                                name: "warning"
-                                size: Theme.iconSize + 8
-                                color: Theme.primaryText
-                                visible: PortalService.profileImage !== ""
-                                         && profileImageLoader.status === Image.Error
-                            }
+                            fallbackIcon: "person"
                         }
 
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: Theme.spacingXS
+                            spacing: 2
 
                             StyledText {
                                 text: UserInfoService.fullName
@@ -236,120 +164,124 @@ DankPopout {
                         }
                     }
 
-                    Row {
+                    Rectangle {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
-                        anchors.rightMargin: Theme.spacingL
-                        spacing: Theme.spacingS
+                        anchors.rightMargin: Theme.spacingM
+                        width: actionButtonsRow.implicitWidth + Theme.spacingM * 2
+                        height: 48
+                        radius: Theme.cornerRadius + 2
+                        color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, 0.6)
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+                        border.width: 1
 
-                        Rectangle {
-                            width: batteryContentRow.implicitWidth + Theme.spacingS * 2
-                            height: 40
-                            radius: Theme.cornerRadius
-                            color: batteryMouseArea.containsMouse ? Qt.rgba(
-                                                                       Theme.primary.r,
-                                                                       Theme.primary.g,
-                                                                       Theme.primary.b,
-                                                                       0.12) : "transparent"
-                            visible: BatteryService.batteryAvailable
+                        Row {
+                            id: actionButtonsRow
+                            anchors.centerIn: parent
+                            spacing: Theme.spacingXS
 
-                            Row {
-                                id: batteryContentRow
-                                anchors.centerIn: parent
-                                spacing: Theme.spacingXS
+                            Item {
+                                width: batteryContentRow.implicitWidth
+                                height: 36
+                                visible: BatteryService.batteryAvailable
 
-                                DankIcon {
-                                    name: Theme.getBatteryIcon(BatteryService.batteryLevel, BatteryService.isCharging, BatteryService.batteryAvailable)
-                                    size: Theme.iconSize - 2
-                                    color: {
-                                        if (batteryMouseArea.containsMouse) {
-                                            return Theme.primary
+                                Row {
+                                    id: batteryContentRow
+                                    anchors.centerIn: parent
+                                    spacing: Theme.spacingXS
+
+                                    DankIcon {
+                                        name: Theme.getBatteryIcon(BatteryService.batteryLevel, BatteryService.isCharging, BatteryService.batteryAvailable)
+                                        size: Theme.iconSize - 4
+                                        color: {
+                                            if (batteryMouseArea.containsMouse) {
+                                                return Theme.primary
+                                            }
+                                            if (BatteryService.isLowBattery && !BatteryService.isCharging) {
+                                                return Theme.error
+                                            }
+                                            if (BatteryService.isCharging || BatteryService.isPluggedIn) {
+                                                return Theme.primary
+                                            }
+                                            return Theme.surfaceText
                                         }
-                                        if (BatteryService.isLowBattery && !BatteryService.isCharging) {
-                                            return Theme.error
-                                        }
-                                        if (BatteryService.isCharging || BatteryService.isPluggedIn) {
-                                            return Theme.primary
-                                        }
-                                        return Theme.surfaceText
+                                        anchors.verticalCenter: parent.verticalCenter
                                     }
-                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    StyledText {
+                                        text: `${BatteryService.batteryLevel}%`
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        font.weight: Font.Medium
+                                        color: {
+                                            if (batteryMouseArea.containsMouse) {
+                                                return Theme.primary
+                                            }
+                                            if (BatteryService.isLowBattery && !BatteryService.isCharging) {
+                                                return Theme.error
+                                            }
+                                            if (BatteryService.isCharging) {
+                                                return Theme.primary
+                                            }
+                                            return Theme.surfaceText
+                                        }
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
                                 }
 
-                                StyledText {
-                                    text: `${BatteryService.batteryLevel}%`
-                                    font.pixelSize: Theme.fontSizeSmall
-                                    font.weight: Font.Medium
-                                    color: {
-                                        if (batteryMouseArea.containsMouse) {
-                                            return Theme.primary
+                                MouseArea {
+                                    id: batteryMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        const globalPos = mapToGlobal(0, 0)
+                                        const currentScreen = root.triggerScreen || Screen
+                                        const screenX = currentScreen.x || 0
+                                        const relativeX = globalPos.x - screenX
+                                        controlCenterBatteryPopout.setTriggerPosition(relativeX, 123 + Theme.spacingXS, width, "right", currentScreen)
+
+                                        if (controlCenterBatteryPopout.shouldBeVisible) {
+                                            controlCenterBatteryPopout.close()
+                                        } else {
+                                            controlCenterBatteryPopout.open()
                                         }
-                                        if (BatteryService.isLowBattery && !BatteryService.isCharging) {
-                                            return Theme.error
-                                        }
-                                        if (BatteryService.isCharging) {
-                                            return Theme.primary
-                                        }
-                                        return Theme.surfaceText
                                     }
-                                    anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
 
-                            MouseArea {
-                                id: batteryMouseArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
+                            DankActionButton {
+                                buttonSize: 36
+                                iconName: "lock"
+                                iconSize: Theme.iconSize - 4
+                                iconColor: Theme.surfaceText
+                                backgroundColor: "transparent"
                                 onClicked: {
-                                    const globalPos = mapToGlobal(0, 0)
-                                    const currentScreen = root.triggerScreen || Screen
-                                    const screenX = currentScreen.x || 0
-                                    const relativeX = globalPos.x - screenX
-                                    controlCenterBatteryPopout.setTriggerPosition(relativeX, 123 + Theme.spacingXS, width, "right", currentScreen)
-
-                                    if (controlCenterBatteryPopout.shouldBeVisible) {
-                                        controlCenterBatteryPopout.close()
-                                    } else {
-                                        controlCenterBatteryPopout.open()
-                                    }
+                                    root.close()
+                                    root.lockRequested()
                                 }
                             }
-                        }
 
-                        DankActionButton {
-                            buttonSize: 40
-                            iconName: "lock"
-                            iconSize: Theme.iconSize - 2
-                            iconColor: Theme.surfaceText
-                            backgroundColor: "transparent"
-                            onClicked: {
-                                root.close()
-                                root.lockRequested()
-                            }
-                        }
-
-                        DankActionButton {
-                            buttonSize: 40
-                            iconName: root.powerOptionsExpanded ? "expand_less" : "power_settings_new"
-                            iconSize: Theme.iconSize - 2
-                            iconColor: Theme.surfaceText
-                            backgroundColor: "transparent"
-                            onClicked: {
-                                root.powerOptionsExpanded = !root.powerOptionsExpanded
+                            DankActionButton {
+                                buttonSize: 36
+                                iconName: root.powerOptionsExpanded ? "expand_less" : "power_settings_new"
+                                iconSize: Theme.iconSize - 4
+                                iconColor: root.powerOptionsExpanded ? Theme.primary : Theme.surfaceText
+                                backgroundColor: "transparent"
+                                onClicked: {
+                                    root.powerOptionsExpanded = !root.powerOptionsExpanded
+                                }
                             }
 
-                        }
-
-                        DankActionButton {
-                            buttonSize: 40
-                            iconName: "settings"
-                            iconSize: Theme.iconSize - 2
-                            iconColor: Theme.surfaceText
-                            backgroundColor: "transparent"
-                            onClicked: {
-                                root.close()
-                                settingsModal.show()
+                            DankActionButton {
+                                buttonSize: 36
+                                iconName: "settings"
+                                iconSize: Theme.iconSize - 4
+                                iconColor: Theme.surfaceText
+                                backgroundColor: "transparent"
+                                onClicked: {
+                                    root.close()
+                                    settingsModal.show()
+                                }
                             }
                         }
                     }
