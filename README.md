@@ -493,7 +493,7 @@ Nevigate to dms settings -> themes & colors -> and click "Apply QT Themes"
 
 There are two theme paths for Firefox, using with [pywalfox](https://github.com/Frewacom/pywalfox) or [material fox](https://github.com/edelvarden/material-fox-updated)
 
-**(Option 1) - pywalfox
+**(Option 1) - pywalfox**
 
 1. **Install [pywalfox](https://github.com/Frewacom/pywalfox) on system.
 - Available in AUR via `paru -S python-pywalfox`
