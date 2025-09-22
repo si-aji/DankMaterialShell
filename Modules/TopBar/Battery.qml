@@ -147,21 +147,7 @@ Rectangle {
             text: `${BatteryService.batteryLevel}%`
             font.pixelSize: Theme.fontSizeSmall
             font.weight: Font.Medium
-            color: {
-                if (!BatteryService.batteryAvailable) {
-                    return Theme.surfaceText;
-                }
-
-                if (BatteryService.isLowBattery && !BatteryService.isCharging) {
-                    return Theme.error;
-                }
-
-                if (BatteryService.isCharging) {
-                    return Theme.primary;
-                }
-
-                return Theme.surfaceText;
-            }
+            color: Theme.surfaceText
             anchors.verticalCenter: parent.verticalCenter
             visible: BatteryService.batteryAvailable
         }
