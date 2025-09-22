@@ -138,22 +138,41 @@ PanelWindow {
 
     exclusiveZone: (!SettingsData.topBarVisible || topBarCore.autoHide) ? -1 : root.effectiveBarHeight + SettingsData.topBarSpacing + SettingsData.topBarBottomGap - 2
 
-    mask: Region {
-        item: topBarMouseArea
+    Item {
+        id: inputMask
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        height: (topBarCore.autoHide && !topBarCore.reveal) ? 8 : (root.effectiveBarHeight + SettingsData.topBarSpacing)
     }
+
+    mask: Region {
+        item: inputMask
+    }
+
 
     Item {
         id: topBarCore
         anchors.fill: parent
 
-
         property real backgroundTransparency: SettingsData.topBarTransparency
         property bool autoHide: SettingsData.topBarAutoHide
+        property bool revealSticky: false
+
+        Timer {
+            id: revealHold
+            interval: 250
+            repeat: false
+            onTriggered: topBarCore.revealSticky = false
+        }
+
         property bool reveal: {
             if (CompositorService.isNiri && NiriService.inOverview) {
                 return SettingsData.topBarOpenOnOverview
             }
-            return SettingsData.topBarVisible && (!autoHide || topBarMouseArea.containsMouse || hasActivePopout)
+            return SettingsData.topBarVisible && (!autoHide || topBarMouseArea.containsMouse || hasActivePopout || revealSticky)
         }
 
         property var notepadInstance: null
@@ -208,10 +227,31 @@ PanelWindow {
             target: SettingsData
         }
 
+        Connections {
+            target: topBarMouseArea
+            function onContainsMouseChanged() {
+                if (topBarMouseArea.containsMouse) {
+                    topBarCore.revealSticky = true
+                    revealHold.stop()
+                } else {
+                    if (topBarCore.autoHide && !topBarCore.hasActivePopout) {
+                        revealHold.restart()
+                    }
+                }
+            }
+        }
+
+        onHasActivePopoutChanged: {
+            if (!hasActivePopout && autoHide && !topBarMouseArea.containsMouse) {
+                revealSticky = true
+                revealHold.restart()
+            }
+        }
+
         MouseArea {
             id: topBarMouseArea
             y: 0
-            height: topBarCore.reveal ? (root.effectiveBarHeight + SettingsData.topBarSpacing) : 4
+            height: root.effectiveBarHeight + SettingsData.topBarSpacing
             anchors {
                 top: parent.top
                 left: parent.left
@@ -219,13 +259,7 @@ PanelWindow {
             }
             hoverEnabled: true
             acceptedButtons: Qt.NoButton
-
-            Behavior on height {
-                NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutCubic
-                }
-            }
+            enabled: true
 
             Item {
                 id: topBarContainer
@@ -265,7 +299,6 @@ PanelWindow {
                             property real rb : SettingsData.topBarGothCornersEnabled ? root._wingR : 0
                             property real rt : SettingsData.topBarSquareCorners ? 0 : Theme.cornerRadius
 
-                            onHChanged: requestPaint()
                             onRbChanged: requestPaint()
                             onRtChanged: requestPaint()
 
@@ -323,7 +356,6 @@ PanelWindow {
 
                             Connections {
                                 target: barShape
-                                function onHChanged() { barTint.requestPaint() }
                                 function onRbChanged() { barTint.requestPaint() }
                                 function onRtChanged() { barTint.requestPaint() }
                             }
@@ -1111,5 +1143,6 @@ PanelWindow {
                 }
             }
         }
+
 
 }
