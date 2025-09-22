@@ -297,7 +297,8 @@ const StockThemes = {
             backgroundText: "#e4e2e3",
             outline: "#929092",
             surfaceContainer: "#2a2a2a",
-            surfaceContainerHigh: "#2a2a2b"
+            surfaceContainerHigh: "#2a2a2b",
+            matugen_type: "scheme-monochrome"
         }
     },
     LIGHT: {
@@ -486,7 +487,8 @@ const StockThemes = {
             backgroundText: "#e4e2e3",
             outline: "#929092",
             surfaceContainer: "#1f1f21",
-            surfaceContainerHigh: "#2a2a2b"
+            surfaceContainerHigh: "#2a2a2b",
+            matugen_type: "scheme-monochrome"
         }
     }
 }

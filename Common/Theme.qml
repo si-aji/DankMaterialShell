@@ -505,7 +505,7 @@ Singleton {
         }
     }
 
-    function setDesiredTheme(kind, value, isLight, iconTheme) {
+    function setDesiredTheme(kind, value, isLight, iconTheme, matugenType) {
         if (!matugenAvailable) {
             console.warn("matugen not available - cannot set system theme")
             return
@@ -515,7 +515,8 @@ Singleton {
             "kind": kind,
             "value": value,
             "mode": isLight ? "light" : "dark",
-            "iconTheme": iconTheme || "System Default"
+            "iconTheme": iconTheme || "System Default",
+            "matugenType": matugenType || "scheme-tonal-spot"
         }
 
         const json = JSON.stringify(desired)
@@ -553,21 +554,24 @@ Singleton {
             }
         } else {
             let primaryColor
+            let matugenType
             if (currentTheme === "custom") {
                 if (!customThemeData || !customThemeData.primary) {
                     console.warn("Custom theme data not available for system theme generation")
                     return
                 }
                 primaryColor = customThemeData.primary
+                matugenType = customThemeData.matugen_type
             } else {
                 primaryColor = currentThemeData.primary
+                matugenType = currentThemeData.matugen_type
             }
 
             if (!primaryColor) {
                 console.warn("No primary color available for theme:", currentTheme)
                 return
             }
-            setDesiredTheme("hex", primaryColor, isLight, iconTheme)
+            setDesiredTheme("hex", primaryColor, isLight, iconTheme, matugenType)
         }
     }
 
@@ -686,17 +690,20 @@ Singleton {
                 }
             } else {
                 let primaryColor
+                let matugenType
                 if (currentTheme === "custom") {
                     if (customThemeData && customThemeData.primary) {
                         primaryColor = customThemeData.primary
+                        matugenType = customThemeData.matugen_type
                     }
                 } else {
                     primaryColor = currentThemeData.primary
+                    matugenType = currentThemeData.matugen_type
                 }
 
                 if (primaryColor) {
                     Quickshell.execDetached(["rm", "-f", stateDir + "/matugen.key"])
-                    setDesiredTheme("hex", primaryColor, isLight, iconTheme)
+                    setDesiredTheme("hex", primaryColor, isLight, iconTheme, matugenType)
                 }
             }
         }

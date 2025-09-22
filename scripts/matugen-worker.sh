@@ -46,18 +46,22 @@ key_of() {
   local value=$(echo "$json" | sed 's/.*"value": *"\([^"]*\)".*/\1/')
   local mode=$(echo "$json" | sed 's/.*"mode": *"\([^"]*\)".*/\1/')
   local icon=$(echo "$json" | sed 's/.*"iconTheme": *"\([^"]*\)".*/\1/')
+  local matugen_type=$(echo "$json" | sed 's/.*"matugenType": *"\([^"]*\)".*/\1/')
   [[ -z "$icon" ]] && icon="System Default"
-  echo "${kind}|${value}|${mode}|${icon}" | sha256sum | cut -d' ' -f1
+  [[ -z "$matugen_type" ]] && matugen_type="scheme-tonal-spot"
+  echo "${kind}|${value}|${mode}|${icon}|${matugen_type}" | sha256sum | cut -d' ' -f1
 }
 
 build_once() {
   local json="$1"
-  local kind value mode icon
+  local kind value mode icon matugen_type
   kind=$(echo "$json" | sed 's/.*"kind": *"\([^"]*\)".*/\1/')
   value=$(echo "$json" | sed 's/.*"value": *"\([^"]*\)".*/\1/')
   mode=$(echo "$json" | sed 's/.*"mode": *"\([^"]*\)".*/\1/')
   icon=$(echo "$json" | sed 's/.*"iconTheme": *"\([^"]*\)".*/\1/')
+  matugen_type=$(echo "$json" | sed 's/.*"matugenType": *"\([^"]*\)".*/\1/')
   [[ -z "$icon" ]] && icon="System Default"
+  [[ -z "$matugen_type" ]] && matugen_type="scheme-tonal-spot"
 
   CONFIG_DIR="${CONFIG_DIR:-$HOME/.config}"
 
@@ -94,17 +98,18 @@ build_once() {
 
   pushd "$SHELL_DIR" >/dev/null
   MAT_MODE=(-m "$mode")
+  MAT_TYPE=(-t "$matugen_type")
 
   case "$kind" in
     image)
       [[ -f "$value" ]] || { echo "wallpaper not found: $value" >&2; popd >/dev/null; return 2; }
-      JSON=$(matugen -c "$TMP_CFG" --json hex image "$value" "${MAT_MODE[@]}")
-      matugen -c "$TMP_CFG" image "$value" "${MAT_MODE[@]}" >/dev/null
+      JSON=$(matugen -c "$TMP_CFG" --json hex image "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}")
+      matugen -c "$TMP_CFG" image "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}" >/dev/null
       ;;
     hex)
       [[ "$value" =~ ^#[0-9A-Fa-f]{6}$ ]] || { echo "invalid hex: $value" >&2; popd >/dev/null; return 2; }
-      JSON=$(matugen -c "$TMP_CFG" --json hex color hex "$value" "${MAT_MODE[@]}")
-      matugen -c "$TMP_CFG" color hex "$value" "${MAT_MODE[@]}" >/dev/null
+      JSON=$(matugen -c "$TMP_CFG" --json hex color hex "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}")
+      matugen -c "$TMP_CFG" color hex "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}" >/dev/null
       ;;
     *)
       echo "unknown kind: $kind" >&2; popd >/dev/null; return 2;;
@@ -135,10 +140,10 @@ build_once() {
   if [[ -s "$TMP_CONTENT_CFG" ]] && grep -q '\[templates\.' "$TMP_CONTENT_CFG"; then
     case "$kind" in
       image)
-        matugen -c "$TMP_CONTENT_CFG" image "$value" "${MAT_MODE[@]}" >/dev/null
+        matugen -c "$TMP_CONTENT_CFG" image "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}" >/dev/null
         ;;
       hex)
-        matugen -c "$TMP_CONTENT_CFG" color hex "$value" "${MAT_MODE[@]}" >/dev/null
+        matugen -c "$TMP_CONTENT_CFG" color hex "$value" "${MAT_MODE[@]}" "${MAT_TYPE[@]}" >/dev/null
         ;;
     esac
   fi
