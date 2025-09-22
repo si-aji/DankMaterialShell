@@ -282,6 +282,78 @@ LazyLoader {
                     fragmentShader: Qt.resolvedUrl("../Shaders/qsb/wp_stripes.frag.qsb")
                 }
 
+                ShaderEffect {
+                    id: irisBloomShader
+                    anchors.fill: parent
+                    visible: (root.transitionType === "iris bloom" || root.transitionType === "none") && (root.hasCurrent || root.booting)
+
+                    property variant source1: root.hasCurrent ? currentWallpaper : transparentSource
+                    property variant source2: nextWallpaper
+                    property real progress: root.transitionProgress
+                    property real smoothness: root.edgeSmoothness
+                    property real centerX: root.discCenterX
+                    property real centerY: root.discCenterY
+                    property real aspectRatio: root.width / root.height
+                    property real fillMode: root.fillMode
+                    property vector4d fillColor: root.fillColor
+                    property real imageWidth1: Math.max(1, root.hasCurrent ? source1.sourceSize.width : width)
+                    property real imageHeight1: Math.max(1, root.hasCurrent ? source1.sourceSize.height : height)
+                    property real imageWidth2: Math.max(1, source2.sourceSize.width)
+                    property real imageHeight2: Math.max(1, source2.sourceSize.height)
+                    property real screenWidth: width
+                    property real screenHeight: height
+
+                    fragmentShader: Qt.resolvedUrl("../Shaders/qsb/wp_iris_bloom.frag.qsb")
+                }
+
+                ShaderEffect {
+                    id: pixelateShader
+                    anchors.fill: parent
+                    visible: root.transitionType === "pixelate" && (root.hasCurrent || root.booting)
+
+                    property variant source1: root.hasCurrent ? currentWallpaper : transparentSource
+                    property variant source2: nextWallpaper
+                    property real progress: root.transitionProgress
+                    property real smoothness: root.edgeSmoothness   // controls starting block size
+                    property real fillMode: root.fillMode
+                    property vector4d fillColor: root.fillColor
+                    property real imageWidth1: Math.max(1, root.hasCurrent ? source1.sourceSize.width : width)
+                    property real imageHeight1: Math.max(1, root.hasCurrent ? source1.sourceSize.height : height)
+                    property real imageWidth2: Math.max(1, source2.sourceSize.width)
+                    property real imageHeight2: Math.max(1, source2.sourceSize.height)
+                    property real screenWidth: width
+                    property real screenHeight: height
+                    property real centerX: root.discCenterX
+                    property real centerY: root.discCenterY
+                    property real aspectRatio: root.width / root.height
+
+                    fragmentShader: Qt.resolvedUrl("../Shaders/qsb/wp_pixelate.frag.qsb")
+                }
+
+                ShaderEffect {
+                    id: portalShader
+                    anchors.fill: parent
+                    visible: root.transitionType === "portal" && (root.hasCurrent || root.booting)
+
+                    property variant source1: root.hasCurrent ? currentWallpaper : transparentSource
+                    property variant source2: nextWallpaper
+                    property real progress: root.transitionProgress
+                    property real smoothness: root.edgeSmoothness
+                    property real aspectRatio: root.width / root.height
+                    property real centerX: root.discCenterX
+                    property real centerY: root.discCenterY
+                    property real fillMode: root.fillMode
+                    property vector4d fillColor: root.fillColor
+                    property real imageWidth1: Math.max(1, root.hasCurrent ? source1.sourceSize.width : width)
+                    property real imageHeight1: Math.max(1, root.hasCurrent ? source1.sourceSize.height : height)
+                    property real imageWidth2: Math.max(1, source2.sourceSize.width)
+                    property real imageHeight2: Math.max(1, source2.sourceSize.height)
+                    property real screenWidth: width
+                    property real screenHeight: height
+
+                    fragmentShader: Qt.resolvedUrl("../Shaders/qsb/wp_portal.frag.qsb")
+                }
+
                 NumberAnimation {
                     id: transitionAnimation
                     target: root
