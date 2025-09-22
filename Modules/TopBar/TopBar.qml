@@ -19,7 +19,6 @@ PanelWindow {
     id: root
 
     WlrLayershell.namespace: "quickshell:bar"
-    WlrLayershell.layer: WlrLayershell.Overlay
 
     property var modelData
     property var notepadVariants: null
@@ -150,27 +149,9 @@ PanelWindow {
 
         property real backgroundTransparency: SettingsData.topBarTransparency
         property bool autoHide: SettingsData.topBarAutoHide
-        property bool isFullscreenWindow: {
-            const activeWindow = ToplevelManager.activeToplevel
-            if (!activeWindow || !root.screen) return false
-            
-            if (activeWindow.fullscreen !== undefined) {
-                return activeWindow.fullscreen
-            }
-            
-            const screenGeometry = root.screen.geometry
-            if (!screenGeometry || !activeWindow.geometry) return false
-            
-            return activeWindow.geometry.width >= screenGeometry.width &&
-                   activeWindow.geometry.height >= screenGeometry.height
-        }
         property bool reveal: {
             if (CompositorService.isNiri && NiriService.inOverview) {
                 return SettingsData.topBarOpenOnOverview
-            }
-
-            if (isFullscreenWindow) {
-                return topBarMouseArea.containsMouse || hasActivePopout
             }
             return SettingsData.topBarVisible && (!autoHide || topBarMouseArea.containsMouse || hasActivePopout)
         }
@@ -207,7 +188,7 @@ PanelWindow {
                                  "loader": systemUpdateLoader,
                                  "prop": "shouldBeVisible"
                              }]
-            return loaders.some(item => {
+            return notepadInstanceVisible || loaders.some(item => {
                 if (item.loader) {
                     return item.loader?.item?.[item.prop]
                 }
