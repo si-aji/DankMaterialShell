@@ -35,8 +35,7 @@ Rectangle {
     color: _containerBg
     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.10)
     border.width: 1
-    layer.enabled: true
-    layer.samples: 8
+    antialiasing: true
 
     readonly property color _labelPrimary: Theme.surfaceText
     readonly property color _labelSecondary: Theme.surfaceVariantText
@@ -62,6 +61,7 @@ Rectangle {
         visible: false
         color: hoverTint(_containerBg)
         opacity: 0.08
+        antialiasing: true
         Behavior on opacity { NumberAnimation { duration: Theme.shortDuration } }
     }
 
@@ -82,6 +82,7 @@ Rectangle {
             color: isActive ? _tileBgActive : _tileBgInactive
             border.color: isActive ? _tileRingActive : "transparent"
             border.width: isActive ? 1 : 0
+            antialiasing: true
 
             Rectangle {
                 anchors.fill: parent
@@ -89,6 +90,7 @@ Rectangle {
                 color: hoverTint(iconTile.color)
                 opacity: tileMouse.pressed ? 0.3 : (tileMouse.containsMouse ? 0.2 : 0.0)
                 visible: opacity > 0
+                antialiasing: true
                 Behavior on opacity { NumberAnimation { duration: Theme.shortDuration } }
             }
 
