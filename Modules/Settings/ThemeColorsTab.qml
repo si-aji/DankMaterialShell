@@ -229,7 +229,7 @@ Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
 
                                 Repeater {
-                                    model: ["blue", "deepBlue", "purple", "green", "orange"]
+                                    model: ["blue", "purple", "green", "orange", "red"]
 
                                     Rectangle {
                                         property string themeName: modelData
@@ -294,7 +294,7 @@ Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
 
                                 Repeater {
-                                    model: ["red", "cyan", "pink", "amber", "coral", "monochrome"]
+                                    model: ["cyan", "pink", "amber", "coral", "monochrome"]
 
                                     Rectangle {
                                         property string themeName: modelData
