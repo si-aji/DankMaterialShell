@@ -527,51 +527,62 @@ Singleton {
             return [...toplevels]
         }
 
-        return [...toplevels].sort((a, b) => {
-                                       const aNiri = findNiriWindow(a)
-                                       const bNiri = findNiriWindow(b)
+        const usedToplevels = new Set()
+        const enrichedToplevels = []
 
-                                       if (!aNiri && !bNiri) {
-                                           return 0
-                                       }
-                                       if (!aNiri) {
-                                           return 1
-                                       }
-                                       if (!bNiri) {
-                                           return -1
-                                       }
+        for (const niriWindow of sortWindowsByLayout(windows)) {
+            let bestMatch = null
 
-                                       const aWindow = aNiri.niriWindow
-                                       const bWindow = bNiri.niriWindow
-                                       const aWorkspace = allWorkspaces.find(ws => ws.id === aWindow.workspace_id)
-                                       const bWorkspace = allWorkspaces.find(ws => ws.id === bWindow.workspace_id)
+            for (const toplevel of toplevels) {
+                if (usedToplevels.has(toplevel)) continue
 
-                                       if (aWorkspace && bWorkspace) {
-                                           if (aWorkspace.output !== bWorkspace.output) {
-                                               return aWorkspace.output.localeCompare(bWorkspace.output)
-                                           }
+                if (toplevel.appId === niriWindow.app_id) {
+                    if (niriWindow.title && toplevel.title === niriWindow.title) {
+                        bestMatch = toplevel
+                        break
+                    } else if (!niriWindow.title && !bestMatch) {
+                        bestMatch = toplevel
+                    }
+                }
+            }
 
-                                           if (aWorkspace.output === bWorkspace.output && aWorkspace.idx !== bWorkspace.idx) {
-                                               return aWorkspace.idx - bWorkspace.idx
-                                           }
-                                       }
+            if (bestMatch) {
+                usedToplevels.add(bestMatch)
 
-                                       if (aWindow.workspace_id === bWindow.workspace_id && aWindow.layout && bWindow.layout && aWindow.layout.pos_in_scrolling_layout && bWindow.layout.pos_in_scrolling_layout) {
-                                           const aPos = aWindow.layout.pos_in_scrolling_layout
-                                           const bPos = bWindow.layout.pos_in_scrolling_layout
+                const enrichedToplevel = {
+                    appId: bestMatch.appId,
+                    title: bestMatch.title,
+                    activated: bestMatch.activated,
+                    niriWindowId: niriWindow.id,
+                    niriWorkspaceId: niriWindow.workspace_id,
+                    activate: function() {
+                        return NiriService.focusWindow(niriWindow.id)
+                    },
+                    close: function() {
+                        if (bestMatch.close) {
+                            return bestMatch.close()
+                        }
+                        return false
+                    }
+                }
 
-                                           if (aPos.length > 1 && bPos.length > 1) {
-                                               if (aPos[0] !== bPos[0]) {
-                                                   return aPos[0] - bPos[0]
-                                               }
-                                               if (aPos[1] !== bPos[1]) {
-                                                   return aPos[1] - bPos[1]
-                                               }
-                                           }
-                                       }
+                for (let prop in bestMatch) {
+                    if (!(prop in enrichedToplevel)) {
+                        enrichedToplevel[prop] = bestMatch[prop]
+                    }
+                }
 
-                                       return aWindow.id - bWindow.id
-                                   })
+                enrichedToplevels.push(enrichedToplevel)
+            }
+        }
+
+        for (const toplevel of toplevels) {
+            if (!usedToplevels.has(toplevel)) {
+                enrichedToplevels.push(toplevel)
+            }
+        }
+
+        return enrichedToplevels
     }
 
     function filterCurrentWorkspace(toplevels, screenName) {
@@ -588,10 +599,57 @@ Singleton {
             return toplevels
         }
 
-        return toplevels.filter(toplevel => {
-                                    const niriMatch = findNiriWindow(toplevel)
-                                    return niriMatch && niriMatch.niriWindow.workspace_id === currentWorkspaceId
-                                })
+        const workspaceWindows = windows.filter(niriWindow => niriWindow.workspace_id === currentWorkspaceId)
+        const usedToplevels = new Set()
+        const result = []
+
+        for (const niriWindow of workspaceWindows) {
+            let bestMatch = null
+
+            for (const toplevel of toplevels) {
+                if (usedToplevels.has(toplevel)) continue
+
+                if (toplevel.appId === niriWindow.app_id) {
+                    if (niriWindow.title && toplevel.title === niriWindow.title) {
+                        bestMatch = toplevel
+                        break
+                    } else if (!niriWindow.title && !bestMatch) {
+                        bestMatch = toplevel
+                    }
+                }
+            }
+
+            if (bestMatch) {
+                usedToplevels.add(bestMatch)
+
+                const enrichedToplevel = {
+                    appId: bestMatch.appId,
+                    title: bestMatch.title,
+                    activated: bestMatch.activated,
+                    niriWindowId: niriWindow.id,
+                    niriWorkspaceId: niriWindow.workspace_id,
+                    activate: function() {
+                        return NiriService.focusWindow(niriWindow.id)
+                    },
+                    close: function() {
+                        if (bestMatch.close) {
+                            return bestMatch.close()
+                        }
+                        return false
+                    }
+                }
+
+                for (let prop in bestMatch) {
+                    if (!(prop in enrichedToplevel)) {
+                        enrichedToplevel[prop] = bestMatch[prop]
+                    }
+                }
+
+                result.push(enrichedToplevel)
+            }
+        }
+
+        return result
     }
 
     Timer {
