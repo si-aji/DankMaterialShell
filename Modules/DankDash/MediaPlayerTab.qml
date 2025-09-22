@@ -90,7 +90,8 @@ Item {
         if (!activePlayer || !activePlayer.length || activePlayer.length <= 0) {
             return 0
         }
-        const calculatedRatio = (activePlayer.position || 0) / activePlayer.length
+        const pos = (activePlayer.position || 0) % Math.max(1, activePlayer.length)
+        const calculatedRatio = pos / activePlayer.length
         return Math.max(0, Math.min(1, calculatedRatio))
     }
 
@@ -760,7 +761,8 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             text: {
                                 if (!activePlayer) return "0:00"
-                                const pos = Math.max(0, activePlayer.position || 0)
+                                const rawPos = Math.max(0, activePlayer.position || 0)
+                                const pos = activePlayer.length ? rawPos % Math.max(1, activePlayer.length) : rawPos
                                 const minutes = Math.floor(pos / 60)
                                 const seconds = Math.floor(pos % 60)
                                 const timeStr = minutes + ":" + (seconds < 10 ? "0" : "") + seconds
