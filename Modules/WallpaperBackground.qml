@@ -302,8 +302,8 @@ LazyLoader {
                     property variant source2: nextWallpaper
                     property real progress: root.transitionProgress
                     property real smoothness: root.edgeSmoothness
-                    property real centerX: root.discCenterX
-                    property real centerY: root.discCenterY
+                    property real centerX: 0.5
+                    property real centerY: 0.5
                     property real aspectRatio: root.width / root.height
                     property real fillMode: root.fillMode
                     property vector4d fillColor: root.fillColor
