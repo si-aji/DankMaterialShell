@@ -624,24 +624,34 @@ PanelWindow {
                                         }
                                     }
                                 } else {
-                                    const leftIndex = (totalWidgets / 2) - 1
-                                    const rightIndex = totalWidgets / 2
-                                    const halfSpacing = spacing / 2
+                                    if (totalWidgets >= 2) {
+                                        const leftIndex = (totalWidgets / 2) - 1
+                                        const rightIndex = totalWidgets / 2
+                                        const halfSpacing = spacing / 2
 
-                                    centerWidgets[leftIndex].x = parentCenterX - halfSpacing - centerWidgets[leftIndex].width
-                                    centerWidgets[rightIndex].x = parentCenterX + halfSpacing
+                                        if (centerWidgets[leftIndex] && centerWidgets[rightIndex]) {
+                                            centerWidgets[leftIndex].x = parentCenterX - halfSpacing - centerWidgets[leftIndex].width
+                                            centerWidgets[rightIndex].x = parentCenterX + halfSpacing
 
-                                    let currentX = centerWidgets[leftIndex].x
-                                    for (var i = leftIndex - 1; i >= 0; i--) {
-                                        currentX -= (spacing + centerWidgets[i].width)
-                                        centerWidgets[i].x = currentX
-                                    }
+                                            let currentX = centerWidgets[leftIndex].x
+                                            for (var i = leftIndex - 1; i >= 0; i--) {
+                                                if (centerWidgets[i]) {
+                                                    currentX -= (spacing + centerWidgets[i].width)
+                                                    centerWidgets[i].x = currentX
+                                                }
+                                            }
 
-                                    currentX = centerWidgets[rightIndex].x + centerWidgets[rightIndex].width
-                                    for (var i = rightIndex + 1; i < totalWidgets; i++) {
-                                        currentX += spacing
-                                        centerWidgets[i].x = currentX
-                                        currentX += centerWidgets[i].width
+                                            currentX = centerWidgets[rightIndex].x + centerWidgets[rightIndex].width
+                                            for (var i = rightIndex + 1; i < totalWidgets; i++) {
+                                                if (centerWidgets[i]) {
+                                                    currentX += spacing
+                                                    centerWidgets[i].x = currentX
+                                                    currentX += centerWidgets[i].width
+                                                }
+                                            }
+                                        }
+                                    } else if (totalWidgets === 1 && centerWidgets[0]) {
+                                        centerWidgets[0].x = parentCenterX - (centerWidgets[0].width / 2)
                                     }
                                 }
                             }
