@@ -16,8 +16,29 @@ Rectangle {
     readonly property int maxNormalWidth: 456
     readonly property int maxCompactWidth: 288
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
+    readonly property bool hasWindowsOnCurrentWorkspace: {
+        if (!CompositorService.isNiri) {
+            return activeWindow && activeWindow.title
+        }
 
-    width: compactMode ? Math.min(baseWidth, maxCompactWidth) : Math.min(baseWidth, maxNormalWidth)
+        let currentWorkspaceId = null
+        for (var i = 0; i < NiriService.allWorkspaces.length; i++) {
+            const ws = NiriService.allWorkspaces[i]
+            if (ws.is_focused) {
+                currentWorkspaceId = ws.id
+                break
+            }
+        }
+
+        if (!currentWorkspaceId) {
+            return false
+        }
+
+        const workspaceWindows = NiriService.windows.filter(w => w.workspace_id === currentWorkspaceId)
+        return workspaceWindows.length > 0 && activeWindow && activeWindow.title
+    }
+
+    width: !hasWindowsOnCurrentWorkspace ? 0 : (compactMode ? Math.min(baseWidth, maxCompactWidth) : Math.min(baseWidth, maxNormalWidth))
     height: widgetHeight
     radius: SettingsData.topBarNoBackground ? 0 : Theme.cornerRadius
     color: {
@@ -33,7 +54,7 @@ Rectangle {
         return Qt.rgba(baseColor.r, baseColor.g, baseColor.b, baseColor.a * Theme.widgetTransparency);
     }
     clip: true
-    visible: activeWindow && activeWindow.title
+    visible: hasWindowsOnCurrentWorkspace
 
     Row {
         id: contentRow
