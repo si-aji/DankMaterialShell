@@ -13,7 +13,7 @@ Rectangle {
     signal lockRequested()
     signal editModeToggled()
 
-    implicitHeight: 90
+    implicitHeight: 70
     radius: Theme.cornerRadius
     color: Qt.rgba(Theme.surfaceVariant.r,
                    Theme.surfaceVariant.g,
@@ -33,8 +33,8 @@ Rectangle {
         DankCircularImage {
             id: avatarContainer
 
-            width: 64
-            height: 64
+            width: 60
+            height: 60
             imageSource: {
                 if (PortalService.profileImage === "")
                     return ""
@@ -69,9 +69,8 @@ Rectangle {
     Row {
         id: actionButtonsRow
         anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: Theme.spacingXS
-        anchors.topMargin: Theme.spacingXS
         spacing: Theme.spacingXS
 
         DankActionButton {
@@ -106,17 +105,14 @@ Rectangle {
                 settingsModal.show()
             }
         }
-    }
 
-    DankActionButton {
-        buttonSize: 24
-        iconName: editMode ? "done" : "edit"
-        iconSize: 14
-        iconColor: editMode ? Theme.primary : Theme.outline
-        backgroundColor: "transparent"
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.margins: Theme.spacingXS
-        onClicked: root.editModeToggled()
+        DankActionButton {
+            buttonSize: 36
+            iconName: editMode ? "done" : "edit"
+            iconSize: Theme.iconSize - 4
+            iconColor: editMode ? Theme.primary : Theme.surfaceText
+            backgroundColor: "transparent"
+            onClicked: root.editModeToggled()
+        }
     }
 }
