@@ -116,6 +116,7 @@ Singleton {
     property bool qtThemingEnabled: false
     property bool showDock: false
     property bool dockAutoHide: false
+    property bool dockGroupByApp: false
     property real cornerRadius: 12
     property bool notificationOverlayEnabled: false
     property bool topBarAutoHide: false
@@ -304,6 +305,7 @@ Singleton {
                 qtThemingEnabled = settings.qtThemingEnabled !== undefined ? settings.qtThemingEnabled : false
                 showDock = settings.showDock !== undefined ? settings.showDock : false
                 dockAutoHide = settings.dockAutoHide !== undefined ? settings.dockAutoHide : false
+                dockGroupByApp = settings.dockGroupByApp !== undefined ? settings.dockGroupByApp : false
                 cornerRadius = settings.cornerRadius !== undefined ? settings.cornerRadius : 12
                 notificationOverlayEnabled = settings.notificationOverlayEnabled !== undefined ? settings.notificationOverlayEnabled : false
                 topBarAutoHide = settings.topBarAutoHide !== undefined ? settings.topBarAutoHide : false
@@ -415,6 +417,7 @@ Singleton {
                                                 "qtThemingEnabled": qtThemingEnabled,
                                                 "showDock": showDock,
                                                 "dockAutoHide": dockAutoHide,
+                                                "dockGroupByApp": dockGroupByApp,
                                                 "cornerRadius": cornerRadius,
                                                 "notificationOverlayEnabled": notificationOverlayEnabled,
                                                 "topBarAutoHide": topBarAutoHide,
@@ -938,6 +941,11 @@ Singleton {
 
     function setDockAutoHide(enabled) {
         dockAutoHide = enabled
+        saveSettings()
+    }
+
+    function setDockGroupByApp(enabled) {
+        dockGroupByApp = enabled
         saveSettings()
     }
 

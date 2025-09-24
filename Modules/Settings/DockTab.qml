@@ -156,6 +156,79 @@ Item {
                 }
             }
 
+            // Group by App
+            StyledRect {
+                width: parent.width
+                height: groupByAppSection.implicitHeight + Theme.spacingL * 2
+                radius: Theme.cornerRadius
+                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
+                               Theme.surfaceVariant.b, 0.3)
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
+                                      Theme.outline.b, 0.2)
+                border.width: 1
+                visible: SettingsData.showDock
+                opacity: visible ? 1 : 0
+
+                Column {
+                    id: groupByAppSection
+
+                    anchors.fill: parent
+                    anchors.margins: Theme.spacingL
+                    spacing: Theme.spacingM
+
+                    Row {
+                        width: parent.width
+                        spacing: Theme.spacingM
+
+                        DankIcon {
+                            name: "apps"
+                            size: Theme.iconSize
+                            color: Theme.primary
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Column {
+                            width: parent.width - Theme.iconSize - Theme.spacingM
+                                   - groupByAppToggle.width - Theme.spacingM
+                            spacing: Theme.spacingXS
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            StyledText {
+                                text: "Group by App"
+                                font.pixelSize: Theme.fontSizeLarge
+                                font.weight: Font.Medium
+                                color: Theme.surfaceText
+                            }
+
+                            StyledText {
+                                text: "Group multiple windows of the same app together with a window count indicator"
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.surfaceVariantText
+                                wrapMode: Text.WordWrap
+                                width: parent.width
+                            }
+                        }
+
+                        DankToggle {
+                            id: groupByAppToggle
+
+                            anchors.verticalCenter: parent.verticalCenter
+                            checked: SettingsData.dockGroupByApp
+                            onToggled: checked => {
+                                           SettingsData.setDockGroupByApp(checked)
+                                       }
+                        }
+                    }
+                }
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: Theme.mediumDuration
+                        easing.type: Theme.emphasizedEasing
+                    }
+                }
+            }
+
             // Dock Transparency Section
             StyledRect {
                 width: parent.width
