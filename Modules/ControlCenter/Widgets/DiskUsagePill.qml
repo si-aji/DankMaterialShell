@@ -39,7 +39,7 @@ CompoundPill {
         if (!selectedMount) {
             return "No disk data"
         }
-        return `Disk Usage • ${selectedMount.mount}`
+        return selectedMount.mount
     }
 
     secondaryText: {
