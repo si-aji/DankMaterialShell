@@ -413,6 +413,8 @@ dms ipc call mpris next
 
 ## Theming
 
+dms will spawn a matugen process on theme changes to generate color palettes for installed and supported apps. If you do not want these files generated, you can set the env variable `DMS_DISABLE_MATUGEN=1` to disable it entirely.
+
 ### Custom Themes
 
 DankMaterialShell supports custom color themes! You can create your own Material Design 3 color schemes or use pre-made themes like Cyberpunk Electric, Hotline Miami, and Miami Vice.

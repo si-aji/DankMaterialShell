@@ -14,6 +14,8 @@ import "StockThemes.js" as StockThemes
 Singleton {
     id: root
 
+    readonly property bool envDisableMatugen: Quickshell.env("DMS_DISABLE_MATUGEN") === "1" || Quickshell.env("DMS_DISABLE_MATUGEN") === "true"
+
     property string currentTheme: "blue"
     property string currentThemeCategory: "generic"
     property bool isLightMode: false
@@ -263,9 +265,6 @@ Singleton {
     function forceGenerateSystemThemes() {
         screenTransition()
         if (!matugenAvailable) {
-            if (typeof ToastService !== "undefined") {
-                ToastService.showWarning("matugen not available - cannot generate system themes")
-            }
             return
         }
         generateSystemThemesFromCurrentTheme()
@@ -509,7 +508,7 @@ Singleton {
 
     function setDesiredTheme(kind, value, isLight, iconTheme, matugenType) {
         if (!matugenAvailable) {
-            console.warn("matugen not available - cannot set system theme")
+            console.warn("matugen not available or disabled - cannot set system theme")
             return
         }
 
@@ -584,7 +583,7 @@ Singleton {
     function applyGtkColors() {
         if (!matugenAvailable) {
             if (typeof ToastService !== "undefined") {
-                ToastService.showError("matugen not available - cannot apply GTK colors")
+                ToastService.showError("matugen not available or disabled - cannot apply GTK colors")
             }
             return
         }
@@ -597,7 +596,7 @@ Singleton {
     function applyQtColors() {
         if (!matugenAvailable) {
             if (typeof ToastService !== "undefined") {
-                ToastService.showError("matugen not available - cannot apply Qt colors")
+                ToastService.showError("matugen not available or disabled - cannot apply Qt colors")
             }
             return
         }
@@ -666,12 +665,9 @@ Singleton {
         id: matugenCheck
         command: ["which", "matugen"]
         onExited: code => {
-            matugenAvailable = (code === 0)
+            matugenAvailable = (code === 0) && !envDisableMatugen
             if (!matugenAvailable) {
-                if (typeof ToastService !== "undefined") {
-                    ToastService.wallpaperErrorStatus = "matugen_missing"
-                    ToastService.showWarning("matugen not found - dynamic theming disabled")
-                }
+                console.log("matugen not not available in path or disabled via DMS_DISABLE_MATUGEN")
                 return
             }
             if (extractionRequested) {
