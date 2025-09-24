@@ -447,8 +447,7 @@ Singleton {
         if (typeof Theme !== "undefined" && typeof Quickshell !== "undefined") {
             var screens = Quickshell.screens
             if (screens.length > 0 && screenName === screens[0].name) {
-                if (typeof SettingsData !== "undefined" && SettingsData.wallpaperDynamicTheming) {
-                    Theme.switchTheme("dynamic")
+                if (Theme.currentTheme === Theme.dynamic) {
                     Theme.extractColors()
                 }
                 Theme.generateSystemThemesFromCurrentTheme()

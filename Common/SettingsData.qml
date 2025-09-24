@@ -88,7 +88,6 @@ Singleton {
     property string osLogoColorOverride: ""
     property real osLogoBrightness: 0.5
     property real osLogoContrast: 1
-    property bool wallpaperDynamicTheming: true
     property bool weatherEnabled: true
     property string fontFamily: "Inter Variable"
     property string monoFontFamily: "Fira Code"
@@ -291,7 +290,6 @@ Singleton {
                 osLogoColorOverride = settings.osLogoColorOverride !== undefined ? settings.osLogoColorOverride : ""
                 osLogoBrightness = settings.osLogoBrightness !== undefined ? settings.osLogoBrightness : 0.5
                 osLogoContrast = settings.osLogoContrast !== undefined ? settings.osLogoContrast : 1
-                wallpaperDynamicTheming = settings.wallpaperDynamicTheming !== undefined ? settings.wallpaperDynamicTheming : true
                 fontFamily = settings.fontFamily !== undefined ? settings.fontFamily : defaultFontFamily
                 monoFontFamily = settings.monoFontFamily !== undefined ? settings.monoFontFamily : defaultMonoFontFamily
                 fontWeight = settings.fontWeight !== undefined ? settings.fontWeight : Font.Normal
@@ -403,7 +401,6 @@ Singleton {
                                                 "osLogoColorOverride": osLogoColorOverride,
                                                 "osLogoBrightness": osLogoBrightness,
                                                 "osLogoContrast": osLogoContrast,
-                                                "wallpaperDynamicTheming": wallpaperDynamicTheming,
                                                 "fontFamily": fontFamily,
                                                 "monoFontFamily": monoFontFamily,
                                                 "fontWeight": fontWeight,
@@ -894,11 +891,6 @@ Singleton {
 
     function setOSLogoContrast(contrast) {
         osLogoContrast = contrast
-        saveSettings()
-    }
-
-    function setWallpaperDynamicTheming(enabled) {
-        wallpaperDynamicTheming = enabled
         saveSettings()
     }
 
