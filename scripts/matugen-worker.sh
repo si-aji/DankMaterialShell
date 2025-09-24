@@ -181,6 +181,7 @@ build_once() {
       printf "%s\n\n" "$OUT" > "$TMP"
       cat "$CONFIG_DIR/ghostty/config-dankcolors" >> "$TMP"
       mv "$TMP" "$CONFIG_DIR/ghostty/config-dankcolors"
+      pkill -USR2 -x ghostty >/dev/null 2>&1 || true
     fi
   fi
 
