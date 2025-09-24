@@ -550,6 +550,13 @@ You can enable the dynamic color schemes in supported terminal apps by modifying
 echo "config-file = ./config-dankcolors" >> ~/.config/ghostty/config
 ```
 
+If you want to disable excessive config reloaded popup sin ghostty, you may wish to also add this:
+
+```bash
+# These are the default danklinux options, if you still want config reloaded and copied to clipboard popups you can skip it.
+echo "app-notifications = no-clipboard-copy,no-config-reload" >> ~/.config/ghostty/config
+```
+
 **kitty**:
 
 ```bash
