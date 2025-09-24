@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import qs.Common
 import qs.Services
 import qs.Widgets
@@ -17,25 +18,40 @@ Rectangle {
     readonly property int maxCompactWidth: 288
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
     readonly property bool hasWindowsOnCurrentWorkspace: {
-        if (!CompositorService.isNiri) {
-            return activeWindow && activeWindow.title
-        }
-
-        let currentWorkspaceId = null
-        for (var i = 0; i < NiriService.allWorkspaces.length; i++) {
-            const ws = NiriService.allWorkspaces[i]
-            if (ws.is_focused) {
-                currentWorkspaceId = ws.id
-                break
+        if (CompositorService.isNiri) {
+            let currentWorkspaceId = null
+            for (var i = 0; i < NiriService.allWorkspaces.length; i++) {
+                const ws = NiriService.allWorkspaces[i]
+                if (ws.is_focused) {
+                    currentWorkspaceId = ws.id
+                    break
+                }
             }
+
+            if (!currentWorkspaceId) {
+                return false
+            }
+
+            const workspaceWindows = NiriService.windows.filter(w => w.workspace_id === currentWorkspaceId)
+            return workspaceWindows.length > 0 && activeWindow && activeWindow.title
         }
 
-        if (!currentWorkspaceId) {
-            return false
+        if (CompositorService.isHyprland) {
+            if (!Hyprland.focusedWorkspace || !activeWindow || !activeWindow.title) {
+                return false
+            }
+
+            const hyprlandToplevels = Array.from(Hyprland.toplevels.values)
+            const activeHyprToplevel = hyprlandToplevels.find(t => t.wayland === activeWindow)
+
+            if (!activeHyprToplevel || !activeHyprToplevel.workspace) {
+                return false
+            }
+
+            return activeHyprToplevel.workspace.id === Hyprland.focusedWorkspace.id
         }
 
-        const workspaceWindows = NiriService.windows.filter(w => w.workspace_id === currentWorkspaceId)
-        return workspaceWindows.length > 0 && activeWindow && activeWindow.title
+        return activeWindow && activeWindow.title
     }
 
     width: !hasWindowsOnCurrentWorkspace ? 0 : (compactMode ? Math.min(baseWidth, maxCompactWidth) : Math.min(baseWidth, maxNormalWidth))
