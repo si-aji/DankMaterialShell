@@ -67,7 +67,13 @@ Column {
                             const widgets = SettingsData.controlCenterWidgets || []
                             for (var i = 0; i < widgets.length; i++) {
                                 if (widgets[i].id === modelData.id) {
-                                    return i
+                                    if (modelData.id === "diskUsage") {
+                                        if (widgets[i].instanceId === modelData.instanceId) {
+                                            return i
+                                        }
+                                    } else {
+                                        return i
+                                    }
                                 }
                             }
                             return -1
