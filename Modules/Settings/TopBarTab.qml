@@ -67,6 +67,13 @@ Item {
             "id": "memUsage",
             "text": "Memory Usage",
             "description": "Memory usage indicator",
+            "icon": "developer_board",
+            "enabled": DgopService.dgopAvailable,
+            "warning": !DgopService.dgopAvailable ? "Requires 'dgop' tool" : undefined
+        }, {
+            "id": "diskUsage",
+            "text": "Disk Usage",
+            "description": "Percentage",
             "icon": "storage",
             "enabled": DgopService.dgopAvailable,
             "warning": !DgopService.dgopAvailable ? "Requires 'dgop' tool" : undefined
@@ -222,6 +229,9 @@ Item {
             widgetObj.showNetworkIcon = true
             widgetObj.showBluetoothIcon = true
             widgetObj.showAudioIcon = true
+        }
+        if (widgetId === "diskUsage") {
+            widgetObj.mountPath = "/"
         }
 
         var widgets = []
@@ -412,6 +422,52 @@ Item {
             SettingsData.setTopBarRightWidgets(widgets)
     }
 
+    function handleDiskMountSelectionChanged(sectionId, widgetIndex, mountPath) {
+        var widgets = []
+        if (sectionId === "left")
+            widgets = SettingsData.topBarLeftWidgets.slice()
+        else if (sectionId === "center")
+            widgets = SettingsData.topBarCenterWidgets.slice()
+        else if (sectionId === "right")
+            widgets = SettingsData.topBarRightWidgets.slice()
+
+        if (widgetIndex >= 0 && widgetIndex < widgets.length) {
+            var widget = widgets[widgetIndex]
+            if (typeof widget === "string") {
+                widgets[widgetIndex] = {
+                    "id": widget,
+                    "enabled": true,
+                    "mountPath": mountPath
+                }
+            } else {
+                var newWidget = {
+                    "id": widget.id,
+                    "enabled": widget.enabled,
+                    "mountPath": mountPath
+                }
+                if (widget.size !== undefined)
+                    newWidget.size = widget.size
+                if (widget.selectedGpuIndex !== undefined)
+                    newWidget.selectedGpuIndex = widget.selectedGpuIndex
+                if (widget.pciId !== undefined)
+                    newWidget.pciId = widget.pciId
+                if (widget.id === "controlCenterButton") {
+                    newWidget.showNetworkIcon = widget.showNetworkIcon !== undefined ? widget.showNetworkIcon : true
+                    newWidget.showBluetoothIcon = widget.showBluetoothIcon !== undefined ? widget.showBluetoothIcon : true
+                    newWidget.showAudioIcon = widget.showAudioIcon !== undefined ? widget.showAudioIcon : true
+                }
+                widgets[widgetIndex] = newWidget
+            }
+        }
+
+        if (sectionId === "left")
+            SettingsData.setTopBarLeftWidgets(widgets)
+        else if (sectionId === "center")
+            SettingsData.setTopBarCenterWidgets(widgets)
+        else if (sectionId === "right")
+            SettingsData.setTopBarRightWidgets(widgets)
+    }
+
     function handleControlCenterSettingChanged(sectionId, widgetIndex, settingName, value) {
         // Control Center settings are global, not per-widget instance
         if (settingName === "showNetworkIcon") {
@@ -441,6 +497,8 @@ Item {
                                === "string" ? undefined : widget.selectedGpuIndex
                                var widgetPciId = typeof widget
                                === "string" ? undefined : widget.pciId
+                               var widgetMountPath = typeof widget
+                               === "string" ? undefined : widget.mountPath
                                var widgetShowNetworkIcon = typeof widget === "string" ? undefined : widget.showNetworkIcon
                                var widgetShowBluetoothIcon = typeof widget === "string" ? undefined : widget.showBluetoothIcon
                                var widgetShowAudioIcon = typeof widget === "string" ? undefined : widget.showAudioIcon
@@ -456,6 +514,8 @@ Item {
                                    item.selectedGpuIndex = widgetSelectedGpuIndex
                                    if (widgetPciId !== undefined)
                                    item.pciId = widgetPciId
+                                   if (widgetMountPath !== undefined)
+                                   item.mountPath = widgetMountPath
                                    if (widgetShowNetworkIcon !== undefined)
                                    item.showNetworkIcon = widgetShowNetworkIcon
                                    if (widgetShowBluetoothIcon !== undefined)
@@ -1045,6 +1105,10 @@ Item {
                                                        sectionId, widgetIndex,
                                                        selectedIndex)
                                                }
+                        onDiskMountSelectionChanged: (sectionId, widgetIndex, mountPath) => {
+                                                         topBarTab.handleDiskMountSelectionChanged(
+                                                             sectionId, widgetIndex, mountPath)
+                                                     }
                     }
                 }
 
@@ -1115,6 +1179,10 @@ Item {
                                                        sectionId, widgetIndex,
                                                        selectedIndex)
                                                }
+                        onDiskMountSelectionChanged: (sectionId, widgetIndex, mountPath) => {
+                                                         topBarTab.handleDiskMountSelectionChanged(
+                                                             sectionId, widgetIndex, mountPath)
+                                                     }
                     }
                 }
 
@@ -1185,6 +1253,10 @@ Item {
                                                        sectionId, widgetIndex,
                                                        selectedIndex)
                                                }
+                        onDiskMountSelectionChanged: (sectionId, widgetIndex, mountPath) => {
+                                                         topBarTab.handleDiskMountSelectionChanged(
+                                                             sectionId, widgetIndex, mountPath)
+                                                     }
                     }
                 }
             }

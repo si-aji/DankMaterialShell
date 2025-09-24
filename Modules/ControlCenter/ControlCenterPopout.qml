@@ -26,9 +26,28 @@ DankPopout {
     property var triggerScreen: null
     property bool editMode: false
     property int expandedWidgetIndex: -1
+    property var expandedWidgetData: null
 
     signal powerActionRequested(string action, string title, string message)
     signal lockRequested
+
+    function collapseAll() {
+        expandedSection = ""
+        expandedWidgetIndex = -1
+        expandedWidgetData = null
+    }
+
+    onEditModeChanged: {
+        if (editMode) {
+            collapseAll()
+        }
+    }
+
+    onVisibleChanged: {
+        if (!visible) {
+            collapseAll()
+        }
+    }
 
     readonly property color _containerBg: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
 
@@ -132,10 +151,16 @@ DankPopout {
                     editMode: root.editMode
                     expandedSection: root.expandedSection
                     expandedWidgetIndex: root.expandedWidgetIndex
+                    expandedWidgetData: root.expandedWidgetData
                     model: widgetModel
                     onExpandClicked: (widgetData, globalIndex) => {
                         root.expandedWidgetIndex = globalIndex
-                        root.toggleSection(widgetData.id)
+                        root.expandedWidgetData = widgetData
+                        if (widgetData.id === "diskUsage") {
+                            root.toggleSection("diskUsage_" + (widgetData.instanceId || "default"))
+                        } else {
+                            root.toggleSection(widgetData.id)
+                        }
                     }
                     onRemoveWidget: (index) => widgetModel.removeWidget(index)
                     onMoveWidget: (fromIndex, toIndex) => widgetModel.moveWidget(fromIndex, toIndex)
@@ -147,7 +172,7 @@ DankPopout {
                     visible: editMode
                     availableWidgets: {
                         const existingIds = (SettingsData.controlCenterWidgets || []).map(w => w.id)
-                        return widgetModel.baseWidgetDefinitions.filter(w => !existingIds.includes(w.id))
+                        return widgetModel.baseWidgetDefinitions.filter(w => w.allowMultiple || !existingIds.includes(w.id))
                     }
                     onAddWidget: (widgetId) => widgetModel.addWidget(widgetId)
                     onResetToDefault: () => widgetModel.resetToDefault()

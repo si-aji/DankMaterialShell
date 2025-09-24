@@ -20,6 +20,7 @@ Column {
     signal spacerSizeChanged(string sectionId, int widgetIndex, int newSize)
     signal compactModeChanged(string widgetId, var value)
     signal gpuSelectionChanged(string sectionId, int widgetIndex, int selectedIndex)
+    signal diskMountSelectionChanged(string sectionId, int widgetIndex, string mountPath)
     signal controlCenterSettingChanged(string sectionId, int widgetIndex, string settingName, bool value)
 
     width: parent.width
@@ -184,6 +185,38 @@ Column {
                                                             index, gpuIndex)
                                                     }
                                                 }
+                            }
+                        }
+
+                        Item {
+                            width: 120
+                            height: 32
+                            visible: modelData.id === "diskUsage"
+                            DankDropdown {
+                                id: diskMountDropdown
+                                anchors.fill: parent
+                                currentValue: {
+                                    const mountPath = modelData.mountPath || "/"
+                                    if (mountPath === "/") {
+                                        return "root (/)"
+                                    }
+                                    return mountPath
+                                }
+                                options: {
+                                    if (!DgopService.diskMounts || DgopService.diskMounts.length === 0) {
+                                        return ["root (/)"]
+                                    }
+                                    return DgopService.diskMounts.map(mount => {
+                                        if (mount.mount === "/") {
+                                            return "root (/)"
+                                        }
+                                        return mount.mount
+                                    })
+                                }
+                                onValueChanged: value => {
+                                    const newPath = value === "root (/)" ? "/" : value
+                                    root.diskMountSelectionChanged(root.sectionId, index, newPath)
+                                }
                             }
                         }
 

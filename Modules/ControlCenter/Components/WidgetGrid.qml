@@ -12,6 +12,7 @@ Column {
     property string expandedSection: ""
     property int expandedWidgetIndex: -1
     property var model: null
+    property var expandedWidgetData: null
 
     signal expandClicked(var widgetData, int globalIndex)
     signal removeWidget(int index)
@@ -28,12 +29,17 @@ Column {
         return LayoutUtils.calculateRowsAndWidgets(root, expandedSection, expandedWidgetIndex)
     }
 
+    property var layoutResult: {
+        const dummy = [expandedSection, expandedWidgetIndex, model?.controlCenterWidgets]
+        return calculateRowsAndWidgets()
+    }
+
+    onLayoutResultChanged: {
+        expandedRowIndex = layoutResult.expandedRowIndex
+    }
+
     Repeater {
-        model: {
-            const result = root.calculateRowsAndWidgets()
-            root.expandedRowIndex = result.expandedRowIndex
-            return result.rows
-        }
+        model: root.layoutResult.rows
 
         Column {
             width: root.width
@@ -102,6 +108,8 @@ Column {
                                     return inputAudioSliderComponent
                                 } else if (id === "battery") {
                                     return widgetWidth <= 25 ? smallBatteryComponent : batteryPillComponent
+                                } else if (id === "diskUsage") {
+                                    return diskUsagePillComponent
                                 } else {
                                     return widgetWidth <= 25 ? smallToggleComponent : toggleButtonComponent
                                 }
@@ -115,9 +123,19 @@ Column {
             DetailHost {
                 width: parent.width
                 height: active ? (250 + Theme.spacingS) : 0
-                property bool active: root.expandedSection !== "" && rowIndex === root.expandedRowIndex
+                property bool active: {
+                    if (root.expandedSection === "") return false
+
+                    if (root.expandedSection.startsWith("diskUsage_") && root.expandedWidgetData) {
+                        const expandedInstanceId = root.expandedWidgetData.instanceId
+                        return rowWidgets.some(w => w.id === "diskUsage" && w.instanceId === expandedInstanceId)
+                    }
+
+                    return rowIndex === root.expandedRowIndex
+                }
                 visible: active
                 expandedSection: root.expandedSection
+                expandedWidgetData: root.expandedWidgetData
             }
         }
     }
@@ -660,6 +678,37 @@ Column {
                     SessionService.toggleIdleInhibit()
                     break
                 }
+                }
+            }
+
+            EditModeOverlay {
+                anchors.fill: parent
+                editMode: root.editMode
+                widgetData: parent.widgetData
+                widgetIndex: parent.widgetIndex
+                showSizeControls: true
+                isSlider: false
+                onRemoveWidget: (index) => root.removeWidget(index)
+                onToggleWidgetSize: (index) => root.toggleWidgetSize(index)
+                onMoveWidget: (fromIndex, toIndex) => root.moveWidget(fromIndex, toIndex)
+            }
+        }
+    }
+
+    Component {
+        id: diskUsagePillComponent
+        DiskUsagePill {
+            property var widgetData: parent.widgetData || {}
+            property int widgetIndex: parent.widgetIndex || 0
+            width: parent.width
+            height: 60
+
+            mountPath: widgetData.mountPath || "/"
+            instanceId: widgetData.instanceId || ""
+
+            onExpandClicked: {
+                if (!root.editMode) {
+                    root.expandClicked(widgetData, widgetIndex)
                 }
             }
 

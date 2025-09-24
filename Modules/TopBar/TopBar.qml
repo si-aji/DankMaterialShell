@@ -483,6 +483,7 @@ PanelWindow {
                                                                  "clipboard": clipboardComponent,
                                                                  "cpuUsage": cpuUsageComponent,
                                                                  "memUsage": memUsageComponent,
+                                                                 "diskUsage": diskUsageComponent,
                                                                  "cpuTemp": cpuTempComponent,
                                                                  "gpuTemp": gpuTempComponent,
                                                                  "notificationButton": notificationButtonComponent,
@@ -1000,6 +1001,15 @@ PanelWindow {
                                                        processListPopoutLoader.active = true
                                                        return processListPopoutLoader.item?.toggle()
                                                    }
+                            }
+                        }
+
+                        Component {
+                            id: diskUsageComponent
+
+                            DiskUsage {
+                                widgetHeight: root.widgetHeight
+                                widgetData: parent.widgetData
                             }
                         }
 
