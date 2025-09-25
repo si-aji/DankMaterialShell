@@ -49,7 +49,7 @@ DankPopout {
         }
     }
 
-    readonly property color _containerBg: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
+    readonly property color _containerBg: Theme.surfaceContainerHigh
 
     function setTriggerPosition(x, y, width, section, screen) {
         StateUtils.setTriggerPosition(root, x, y, width, section, screen)
@@ -66,7 +66,7 @@ DankPopout {
     popupWidth: 550
     popupHeight: Math.min((triggerScreen?.height ?? 1080) - 100, contentLoader.item && contentLoader.item.implicitHeight > 0 ? contentLoader.item.implicitHeight + 20 : 400)
     triggerX: (triggerScreen?.width ?? 1920) - 600 - Theme.spacingL
-    triggerY: Theme.barHeight - 4 + SettingsData.topBarSpacing + Theme.spacingXS
+    triggerY: Theme.barHeight - 4 + SettingsData.topBarSpacing + Theme.popupDistance
     triggerWidth: 80
     positioning: "center"
     screen: triggerScreen
@@ -109,7 +109,7 @@ DankPopout {
             radius: Theme.cornerRadius
             border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                   Theme.outline.b, 0.08)
-            border.width: 1
+            border.width: 0
             antialiasing: true
             smooth: true
 

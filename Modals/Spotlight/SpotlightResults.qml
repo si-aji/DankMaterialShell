@@ -13,7 +13,7 @@ Rectangle {
     width: parent.width
     height: parent.height - y
     radius: Theme.cornerRadius
-    color: Theme.surfaceLight
+    color: Theme.surfaceContainerHigh
     border.color: Theme.outlineLight
     border.width: 1
 
@@ -75,7 +75,7 @@ Rectangle {
             width: ListView.view.width
             height: resultsList.itemHeight
             radius: Theme.cornerRadius
-            color: ListView.isCurrentItem ? Theme.primaryPressed : listMouseArea.containsMouse ? Theme.primaryHoverLight : Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, 0.03)
+            color: ListView.isCurrentItem ? Theme.primaryPressed : listMouseArea.containsMouse ? Theme.primaryHoverLight : "transparent"
             border.color: ListView.isCurrentItem ? Theme.primarySelected : Theme.outlineMedium
             border.width: ListView.isCurrentItem ? 2 : 1
 
@@ -238,7 +238,7 @@ Rectangle {
             width: resultsGrid.cellWidth - resultsGrid.cellPadding
             height: resultsGrid.cellHeight - resultsGrid.cellPadding
             radius: Theme.cornerRadius
-            color: resultsGrid.currentIndex === index ? Theme.primaryPressed : gridMouseArea.containsMouse ? Theme.primaryHoverLight : Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, 0.03)
+            color: resultsGrid.currentIndex === index ? Theme.primaryPressed : gridMouseArea.containsMouse ? Theme.primaryHoverLight : "transparent"
             border.color: resultsGrid.currentIndex === index ? Theme.primarySelected : Theme.outlineMedium
             border.width: resultsGrid.currentIndex === index ? 2 : 1
 

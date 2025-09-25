@@ -33,7 +33,7 @@ DankPopout {
     popupWidth: 520
     popupHeight: 600
     triggerX: Theme.spacingL
-    triggerY: Theme.barHeight - 4 + SettingsData.topBarSpacing + Theme.spacingXS
+    triggerY: Math.max(26 + SettingsData.topBarInnerPadding + 4, Theme.barHeight - 4 - (8 - SettingsData.topBarInnerPadding)) + SettingsData.topBarSpacing + SettingsData.topBarBottomGap - 2 + Theme.popupDistance
     triggerWidth: 40
     positioning: "center"
     screen: triggerScreen
@@ -95,7 +95,7 @@ DankPopout {
                     color: "transparent"
                     radius: parent.radius + Math.abs(modelData.margin)
                     border.color: modelData.color
-                    border.width: 1
+                    border.width: 0
                     z: modelData.z
                 }
             }
@@ -294,7 +294,7 @@ DankPopout {
                         radius: Theme.cornerRadius
                         color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, 0.1)
                         border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
-                        border.width: 1
+                        border.width: 0
 
                         DankListView {
                             id: appList
@@ -382,7 +382,7 @@ DankPopout {
                                             visible: !listIconImg.visible
                                             color: Theme.surfaceLight
                                             radius: Theme.cornerRadius
-                                            border.width: 1
+                                            border.width: 0
                                             border.color: Theme.primarySelected
 
                                             StyledText {
@@ -546,7 +546,7 @@ DankPopout {
                                             visible: !gridIconImg.visible
                                             color: Theme.surfaceLight
                                             radius: Theme.cornerRadius
-                                            border.width: 1
+                                            border.width: 0
                                             border.color: Theme.primarySelected
 
                                             StyledText {
@@ -653,7 +653,7 @@ DankPopout {
         radius: Theme.cornerRadius
         color: Theme.popupBackground()
         border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-        border.width: 1
+        border.width: 0
         z: 1000
         opacity: menuVisible ? 1 : 0
         scale: menuVisible ? 1 : 0.85

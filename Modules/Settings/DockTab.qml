@@ -24,11 +24,10 @@ Item {
                 width: parent.width
                 height: enableDockSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
 
                 Column {
                     id: enableDockSection
@@ -88,11 +87,10 @@ Item {
                 width: parent.width
                 height: autoHideSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
                 visible: SettingsData.showDock
                 opacity: visible ? 1 : 0
 
@@ -161,11 +159,10 @@ Item {
                 width: parent.width
                 height: groupByAppSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
                 visible: SettingsData.showDock
                 opacity: visible ? 1 : 0
 
@@ -234,11 +231,10 @@ Item {
                 width: parent.width
                 height: transparencySection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
                 visible: SettingsData.showDock
                 opacity: visible ? 1 : 0
 
@@ -278,6 +274,7 @@ Item {
                         unit: "%"
                         showValue: true
                         wheelEnabled: false
+                        thumbOutlineColor: Theme.surfaceContainerHigh
                         onSliderValueChanged: newValue => {
                                                   SettingsData.setDockTransparency(
                                                       newValue / 100)

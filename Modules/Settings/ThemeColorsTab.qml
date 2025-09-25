@@ -106,11 +106,10 @@ Item {
                 width: parent.width
                 height: themeSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
 
                 Column {
                     id: themeSection
@@ -136,6 +135,40 @@ Item {
                             font.weight: Font.Medium
                             color: Theme.surfaceText
                             anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Item {
+                            width: parent.width - parent.children[0].width - parent.children[1].width - surfaceBaseGroup.width - Theme.spacingM * 3
+                            height: 1
+                        }
+
+                        DankButtonGroup {
+                            id: surfaceBaseGroup
+                            property int currentSurfaceIndex: {
+                                switch (SettingsData.surfaceBase) {
+                                    case "sc": return 0
+                                    case "s": return 1
+                                    default: return 0
+                                }
+                            }
+
+                            model: ["Container", "Surface"]
+                            currentIndex: currentSurfaceIndex
+                            selectionMode: "single"
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            buttonHeight: 20
+                            minButtonWidth: 48
+                            buttonPadding: Theme.spacingS
+                            checkIconSize: Theme.iconSizeSmall - 2
+                            textSize: Theme.fontSizeSmall - 2
+                            spacing: 1
+
+                            onSelectionChanged: (index, selected) => {
+                                if (!selected) return
+                                const surfaceOptions = ["sc", "s"]
+                                SettingsData.setSurfaceBase(surfaceOptions[index])
+                            }
                         }
                     }
 
@@ -180,6 +213,7 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
+
 
                     Column {
                         spacing: Theme.spacingM
@@ -246,7 +280,7 @@ Item {
                                             height: nameText.contentHeight + Theme.spacingXS * 2
                                             color: Theme.surfaceContainer
                                             border.color: Theme.outline
-                                            border.width: 1
+                                            border.width: 0
                                             radius: Theme.cornerRadius
                                             anchors.bottom: parent.top
                                             anchors.bottomMargin: Theme.spacingXS
@@ -311,7 +345,7 @@ Item {
                                             height: nameText2.contentHeight + Theme.spacingXS * 2
                                             color: Theme.surfaceContainer
                                             border.color: Theme.outline
-                                            border.width: 1
+                                            border.width: 0
                                             radius: Theme.cornerRadius
                                             anchors.bottom: parent.top
                                             anchors.bottomMargin: Theme.spacingXS
@@ -382,7 +416,7 @@ Item {
                                             height: nameTextCat.contentHeight + Theme.spacingXS * 2
                                             color: Theme.surfaceContainer
                                             border.color: Theme.outline
-                                            border.width: 1
+                                            border.width: 0
                                             radius: Theme.cornerRadius
                                             anchors.bottom: parent.top
                                             anchors.bottomMargin: Theme.spacingXS
@@ -447,7 +481,7 @@ Item {
                                             height: nameTextCat2.contentHeight + Theme.spacingXS * 2
                                             color: Theme.surfaceContainer
                                             border.color: Theme.outline
-                                            border.width: 1
+                                            border.width: 0
                                             radius: Theme.cornerRadius
                                             anchors.bottom: parent.top
                                             anchors.bottomMargin: Theme.spacingXS
@@ -506,7 +540,7 @@ Item {
                                     radius: Theme.cornerRadius
                                     color: Theme.surfaceVariant
                                     border.color: Theme.outline
-                                    border.width: 1
+                                    border.width: 0
 
                                     CachingImage {
                                         anchors.fill: parent
@@ -693,11 +727,10 @@ Item {
                 width: parent.width
                 height: transparencySection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
 
                 Column {
                     id: transparencySection
@@ -747,6 +780,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainerHigh
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setTopBarTransparency(
                                                           newValue / 100)
@@ -815,6 +849,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainerHigh
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setTopBarWidgetTransparency(
                                                           newValue / 100)
@@ -843,12 +878,14 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainerHigh
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setPopupTransparency(
                                                           newValue / 100)
                                                   }
                         }
                     }
+
 
                     Rectangle {
                         width: parent.width
@@ -877,6 +914,7 @@ Item {
                             unit: ""
                             showValue: true
                             wheelEnabled: false
+                            thumbOutlineColor: Theme.surfaceContainerHigh
                             onSliderValueChanged: newValue => {
                                                       SettingsData.setCornerRadius(
                                                           newValue)
@@ -895,7 +933,7 @@ Item {
                                Theme.warning.b, 0.12)
                 border.color: Qt.rgba(Theme.warning.r, Theme.warning.g,
                                       Theme.warning.b, 0.3)
-                border.width: 1
+                border.width: 0
 
                 Row {
                     anchors.fill: parent
@@ -925,11 +963,10 @@ Item {
                 width: parent.width
                 height: iconThemeSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
 
                 Column {
                     id: iconThemeSection
@@ -980,11 +1017,10 @@ Item {
                 width: parent.width
                 height: systemThemingSection.implicitHeight + Theme.spacingL * 2
                 radius: Theme.cornerRadius
-                color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g,
-                               Theme.surfaceVariant.b, 0.3)
+                color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                       Theme.outline.b, 0.2)
-                border.width: 1
+                border.width: 0
                 visible: Theme.matugenAvailable
 
                 Column {
@@ -1024,7 +1060,7 @@ Item {
                             radius: Theme.cornerRadius
                             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
                             border.color: Theme.primary
-                            border.width: 1
+                            border.width: 0
 
                             Row {
                                 anchors.centerIn: parent
@@ -1060,7 +1096,7 @@ Item {
                             radius: Theme.cornerRadius
                             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
                             border.color: Theme.primary
-                            border.width: 1
+                            border.width: 0
 
                             Row {
                                 anchors.centerIn: parent

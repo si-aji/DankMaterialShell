@@ -418,7 +418,7 @@ Column {
                 anchors.centerIn: parent
                 width: parent.width
                 height: 14
-                property color sliderTrackColor: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
+                property color sliderTrackColor: Theme.surfaceContainerHigh
             }
 
             EditModeOverlay {
@@ -447,7 +447,7 @@ Column {
                 anchors.centerIn: parent
                 width: parent.width
                 height: 14
-                property color sliderTrackColor: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
+                property color sliderTrackColor: Theme.surfaceContainerHigh
             }
 
             EditModeOverlay {
@@ -476,7 +476,7 @@ Column {
                 anchors.centerIn: parent
                 width: parent.width
                 height: 14
-                property color sliderTrackColor: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.60)
+                property color sliderTrackColor: Theme.surfaceContainerHigh
             }
 
             EditModeOverlay {

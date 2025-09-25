@@ -13,9 +13,9 @@ Rectangle {
 
     implicitHeight: diskContent.height + Theme.spacingM
     radius: Theme.cornerRadius
-    color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.6)
+    color: Theme.surfaceContainerHigh
     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-    border.width: 1
+    border.width: 0
 
     Component.onCompleted: {
         DgopService.addRef(["diskmounts"])
@@ -76,7 +76,7 @@ Rectangle {
                     width: parent.width
                     height: 80
                     radius: Theme.cornerRadius
-                    color: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, index % 2 === 0 ? 0.3 : 0.2)
+                    color: Theme.surfaceContainerHigh
                     border.color: modelData.mount === currentMountPath ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
                     border.width: modelData.mount === currentMountPath ? 2 : 1
 

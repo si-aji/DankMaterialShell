@@ -82,7 +82,7 @@ Column {
                                    Theme.surfaceContainer.b, 0.8)
                     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                                           Theme.outline.b, 0.2)
-                    border.width: 1
+                    border.width: 0
 
                     DankIcon {
                         name: "drag_indicator"
@@ -259,7 +259,7 @@ Column {
                                 radius: Theme.cornerRadius
                                 color: Theme.surfaceContainer
                                 border.color: Theme.outline
-                                border.width: 1
+                                border.width: 0
                                 visible: warningArea.containsMouse
                                          && warningText !== ""
                                 opacity: visible ? 1 : 0
@@ -382,7 +382,7 @@ Column {
                                 radius: Theme.cornerRadius
                                 color: Theme.surfaceContainer
                                 border.color: Theme.outline
-                                border.width: 1
+                                border.width: 0
                                 visible: false
                                 opacity: visible ? 1 : 0
                                 x: -width - Theme.spacingS
@@ -560,7 +560,7 @@ Column {
                                                  Theme.surfaceVariant.b, 0.3)
         border.color: Qt.rgba(Theme.outline.r, Theme.outline.g,
                               Theme.outline.b, 0.2)
-        border.width: 1
+        border.width: 0
         anchors.horizontalCenter: parent.horizontalCenter
 
         StyledText {
@@ -618,7 +618,7 @@ Column {
             color: Theme.popupBackground()
             radius: Theme.cornerRadius
             border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-            border.width: 1
+            border.width: 0
         }
 
         contentItem: Item {

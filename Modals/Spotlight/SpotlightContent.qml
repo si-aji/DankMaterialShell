@@ -95,7 +95,7 @@ Item {
                 width: parent.width - 80 - Theme.spacingM
                 height: 56
                 cornerRadius: Theme.cornerRadius
-                backgroundColor: Qt.rgba(Theme.surfaceVariant.r, Theme.surfaceVariant.g, Theme.surfaceVariant.b, Theme.getContentBackgroundAlpha() * 0.7)
+                backgroundColor: Theme.surfaceContainerHigh
                 normalBorderColor: Theme.outlineMedium
                 focusedBorderColor: Theme.primary
                 leftIconName: "search"
