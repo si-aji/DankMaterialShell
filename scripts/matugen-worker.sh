@@ -201,6 +201,9 @@ build_once() {
 
   echo "$JSON" | grep -q '"primary"' || { echo "matugen JSON missing primary" >&2; return 2; }
   printf "%s" "$JSON" > "$LAST_JSON"
+
+  # Write JSON for Theme.qml FileView to watch
+  printf "%s" "$JSON" > "$STATE_DIR/dms-colors.json"
   
   if [ "$mode" = "light" ]; then
     SECTION=$(echo "$JSON" | sed -n 's/.*"light":{\([^}]*\)}.*/\1/p')

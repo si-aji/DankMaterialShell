@@ -74,7 +74,6 @@ Singleton {
     property bool qtThemingEnabled: typeof SettingsData !== "undefined" ? (SettingsData.qt5ctAvailable || SettingsData.qt6ctAvailable) : false
     property var workerRunning: false
     property var matugenColors: ({})
-    property bool extractionRequested: false
     property int colorUpdateTrigger: 0
     property var customThemeData: null
 
@@ -271,7 +270,6 @@ Singleton {
         if (themeName === dynamic) {
             currentTheme = dynamic
             currentThemeCategory = dynamic
-            extractColors()
         } else if (themeName === custom) {
             currentTheme = custom
             currentThemeCategory = custom
@@ -528,17 +526,6 @@ Singleton {
         }
     }
 
-    function extractColors() {
-        extractionRequested = true
-        if (matugenAvailable)
-            if (rawWallpaperPath.startsWith("we:")) {
-                fileCheckerTimer.start()
-            } else {
-                fileChecker.running = true
-            }
-        else
-            matugenCheck.running = true
-    }
 
     function onLightModeChanged() {
         if (matugenColors && Object.keys(matugenColors).length > 0) {
@@ -651,61 +638,6 @@ Singleton {
         qtApplier.running = true
     }
 
-    function extractJsonFromText(text) {
-        if (!text)
-            return null
-
-        const start = text.search(/[{\[]/)
-        if (start === -1)
-            return null
-
-        const open = text[start]
-        const pairs = {
-            "{": '}',
-            "[": ']'
-        }
-        const close = pairs[open]
-        if (!close)
-            return null
-
-        let inString = false
-        let escape = false
-        const stack = [open]
-
-        for (var i = start + 1; i < text.length; i++) {
-            const ch = text[i]
-
-            if (inString) {
-                if (escape) {
-                    escape = false
-                } else if (ch === '\\') {
-                    escape = true
-                } else if (ch === '"') {
-                    inString = false
-                }
-                continue
-            }
-
-            if (ch === '"') {
-                inString = true
-                continue
-            }
-            if (ch === '{' || ch === '[') {
-                stack.push(ch)
-                continue
-            }
-            if (ch === '}' || ch === ']') {
-                const last = stack.pop()
-                if (!last || pairs[last] !== ch) {
-                    return null
-                }
-                if (stack.length === 0) {
-                    return text.slice(start, i + 1)
-                }
-            }
-        }
-        return null
-    }
 
     Process {
         id: matugenCheck
@@ -715,13 +647,6 @@ Singleton {
             if (!matugenAvailable) {
                 console.log("matugen not not available in path or disabled via DMS_DISABLE_MATUGEN")
                 return
-            }
-            if (extractionRequested) {
-                if (rawWallpaperPath.startsWith("we:")) {
-                    fileCheckerTimer.start()
-                } else {
-                    fileChecker.running = true
-                }
             }
 
             const isLight = (typeof SessionData !== "undefined" && SessionData.isLightMode)
@@ -758,128 +683,7 @@ Singleton {
         }
     }
 
-    Process {
-        id: fileChecker
-        command: ["test", "-r", wallpaperPath]
-        onExited: code => {
-            if (code === 0) {
-                matugenProcess.running = true
-            } else if (wallpaperPath.startsWith("#")) {
-                colorMatugenProcess.running = true
-            }
-        }
-    }
 
-    Timer {
-        id: fileCheckerTimer
-        interval: 1000
-        repeat: false
-        onTriggered: {
-            fileChecker.running = true
-        }
-    }
-
-    Process {
-        id: matugenProcess
-        command: {
-            const scheme = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
-            return ["matugen", "image", wallpaperPath, "--json", "hex", "-t", scheme]
-        }
-
-        stdout: StdioCollector {
-            id: matugenCollector
-            onStreamFinished: {
-                if (!matugenCollector.text) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Wallpaper Processing Failed: Empty JSON extracted from matugen output.")
-                    }
-                    return
-                }
-                const extractedJson = extractJsonFromText(matugenCollector.text)
-                if (!extractedJson) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Wallpaper Processing Failed: Invalid JSON extracted from matugen output.")
-                    }
-                    console.log("Raw matugen output:", matugenCollector.text)
-                    return
-                }
-                try {
-                    root.matugenColors = JSON.parse(extractedJson)
-                    root.colorUpdateTrigger++
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.clearWallpaperError()
-                    }
-                } catch (e) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Wallpaper processing failed (JSON parse error after extraction)")
-                    }
-                }
-            }
-        }
-
-        onExited: code => {
-            if (code !== 0) {
-                if (typeof ToastService !== "undefined") {
-                    ToastService.wallpaperErrorStatus = "error"
-                    ToastService.showError("Matugen command failed with exit code " + code)
-                }
-            }
-        }
-    }
-
-    Process {
-        id: colorMatugenProcess
-        command: {
-            const scheme = (typeof SettingsData !== "undefined" && SettingsData.matugenScheme) ? SettingsData.matugenScheme : "scheme-tonal-spot"
-            return ["matugen", "color", "hex", wallpaperPath, "--json", "hex", "-t", scheme]
-        }
-
-        stdout: StdioCollector {
-            id: colorMatugenCollector
-            onStreamFinished: {
-                if (!colorMatugenCollector.text) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Color Processing Failed: Empty JSON extracted from matugen output.")
-                    }
-                    return
-                }
-                const extractedJson = extractJsonFromText(colorMatugenCollector.text)
-                if (!extractedJson) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Color Processing Failed: Invalid JSON extracted from matugen output.")
-                    }
-                    console.log("Raw matugen output:", colorMatugenCollector.text)
-                    return
-                }
-                try {
-                    root.matugenColors = JSON.parse(extractedJson)
-                    root.colorUpdateTrigger++
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.clearWallpaperError()
-                    }
-                } catch (e) {
-                    if (typeof ToastService !== "undefined") {
-                        ToastService.wallpaperErrorStatus = "error"
-                        ToastService.showError("Color processing failed (JSON parse error after extraction)")
-                    }
-                }
-            }
-        }
-
-        onExited: code => {
-            if (code !== 0) {
-                if (typeof ToastService !== "undefined") {
-                    ToastService.wallpaperErrorStatus = "error"
-                    ToastService.showError("Matugen color command failed with exit code " + code)
-                }
-            }
-        }
-    }
 
     Process {
         id: ensureStateDir
@@ -978,6 +782,48 @@ Singleton {
         onLoadFailed: function (error) {
             if (typeof ToastService !== "undefined") {
                 ToastService.showError("Failed to read theme file: " + error)
+            }
+        }
+    }
+
+    FileView {
+        id: dynamicColorsFileView
+        path: stateDir + "/dms-colors.json"
+        watchChanges: currentTheme === dynamic
+
+        function parseAndLoadColors() {
+            try {
+                const colorsText = dynamicColorsFileView.text()
+                if (colorsText) {
+                    root.matugenColors = JSON.parse(colorsText)
+                    root.colorUpdateTrigger++
+                    if (typeof ToastService !== "undefined") {
+                        ToastService.clearWallpaperError()
+                    }
+                }
+            } catch (e) {
+                if (typeof ToastService !== "undefined") {
+                    ToastService.wallpaperErrorStatus = "error"
+                    ToastService.showError("Dynamic colors parse error: " + e.message)
+                }
+            }
+        }
+
+        onLoaded: {
+            if (currentTheme === dynamic) {
+                parseAndLoadColors()
+            }
+        }
+
+        onFileChanged: {
+            if (currentTheme === dynamic) {
+                dynamicColorsFileView.reload()
+            }
+        }
+
+        onLoadFailed: function (error) {
+            if (currentTheme === dynamic && typeof ToastService !== "undefined") {
+                ToastService.showError("Failed to read dynamic colors: " + error)
             }
         }
     }

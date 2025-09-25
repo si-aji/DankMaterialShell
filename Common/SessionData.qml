@@ -267,9 +267,6 @@ Singleton {
         saveSettings()
 
         if (typeof Theme !== "undefined") {
-            if (Theme.currentTheme === Theme.dynamic) {
-                Theme.extractColors()
-            }
             Theme.generateSystemThemesFromCurrentTheme()
         }
     }
@@ -279,9 +276,6 @@ Singleton {
         saveSettings()
 
         if (typeof Theme !== "undefined") {
-            if (Theme.currentTheme === Theme.dynamic) {
-                Theme.extractColors()
-            }
             Theme.generateSystemThemesFromCurrentTheme()
         }
     }
@@ -430,9 +424,6 @@ Singleton {
 
         // Refresh dynamic theming when per-monitor mode changes
         if (typeof Theme !== "undefined") {
-            if (Theme.currentTheme === Theme.dynamic) {
-                Theme.extractColors()
-            }
             Theme.generateSystemThemesFromCurrentTheme()
         }
     }
@@ -451,9 +442,6 @@ Singleton {
         if (typeof Theme !== "undefined" && typeof Quickshell !== "undefined") {
             var screens = Quickshell.screens
             if (screens.length > 0 && screenName === screens[0].name) {
-                if (Theme.currentTheme === Theme.dynamic) {
-                    Theme.extractColors()
-                }
                 Theme.generateSystemThemesFromCurrentTheme()
             }
         }
