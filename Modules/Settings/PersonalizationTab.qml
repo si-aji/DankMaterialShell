@@ -805,22 +805,58 @@ Item {
                         text: "Transition Effect"
                         description: "Visual effect used when wallpaper changes"
                         currentValue: {
-                            switch (SessionData.wallpaperTransition) {
-                            case "none": return "None"
-                            case "fade": return "Fade"
-                            case "wipe": return "Wipe"
-                            case "disc": return "Disc"
-                            case "stripes": return "Stripes"
-                            case "iris bloom": return "Iris Bloom"
-                            case "pixelate": return "Pixelate"
-                            case "portal": return "Portal"
-                            default: return "Fade"
-                            }
+                            if (SessionData.wallpaperTransition === "random") return "Random"
+                            return SessionData.wallpaperTransition.charAt(0).toUpperCase() + SessionData.wallpaperTransition.slice(1)
                         }
-                        options: ["None", "Fade", "Wipe", "Disc", "Stripes", "Iris Bloom", "Pixelate", "Portal"]
+                        options: ["Random"].concat(SessionData.availableWallpaperTransitions.map(t => t.charAt(0).toUpperCase() + t.slice(1)))
                         onValueChanged: value => {
                             var transition = value.toLowerCase()
                             SessionData.setWallpaperTransition(transition)
+                        }
+                    }
+
+                    Column {
+                        width: parent.width
+                        spacing: Theme.spacingS
+                        visible: SessionData.wallpaperTransition === "random"
+                        leftPadding: Theme.spacingM
+                        rightPadding: Theme.spacingM
+
+                        StyledText {
+                            text: "Include Transitions"
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Theme.surfaceText
+                            font.weight: Font.Medium
+                        }
+
+                        StyledText {
+                            text: "Select which transitions to include in randomization"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                            wrapMode: Text.WordWrap
+                            width: parent.width - parent.leftPadding - parent.rightPadding
+                        }
+
+                        DankButtonGroup {
+                            id: transitionGroup
+                            width: parent.width - parent.leftPadding - parent.rightPadding
+                            selectionMode: "multi"
+                            model: SessionData.availableWallpaperTransitions.filter(t => t !== "none")
+                            initialSelection: SessionData.includedTransitions
+                            currentSelection: SessionData.includedTransitions
+
+                            onSelectionChanged: (index, selected) => {
+                                const transition = model[index]
+                                let newIncluded = [...SessionData.includedTransitions]
+
+                                if (selected && !newIncluded.includes(transition)) {
+                                    newIncluded.push(transition)
+                                } else if (!selected && newIncluded.includes(transition)) {
+                                    newIncluded = newIncluded.filter(t => t !== transition)
+                                }
+
+                                SessionData.includedTransitions = newIncluded
+                            }
                         }
                     }
                 }
