@@ -409,6 +409,36 @@ ShellRoot {
     }
 
     IpcHandler {
+        function open(): string {
+            controlCenterLoader.active = true
+            if (controlCenterLoader.item) {
+                controlCenterLoader.item.open()
+                return "CONTROL_CENTER_OPEN_SUCCESS"
+            }
+            return "CONTROL_CENTER_OPEN_FAILED"
+        }
+
+        function close(): string {
+            if (controlCenterLoader.item) {
+                controlCenterLoader.item.close()
+                return "CONTROL_CENTER_CLOSE_SUCCESS"
+            }
+            return "CONTROL_CENTER_CLOSE_FAILED"
+        }
+
+        function toggle(): string {
+            controlCenterLoader.active = true
+            if (controlCenterLoader.item) {
+                controlCenterLoader.item.toggle()
+                return "CONTROL_CENTER_TOGGLE_SUCCESS"
+            }
+            return "CONTROL_CENTER_TOGGLE_FAILED"
+        }
+
+        target: "control-center"
+    }
+
+    IpcHandler {
         function open(tab: string): string {
             dankDashPopoutLoader.active = true
             if (dankDashPopoutLoader.item) {
