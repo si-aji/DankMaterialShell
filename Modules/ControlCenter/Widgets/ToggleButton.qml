@@ -27,7 +27,11 @@ Rectangle {
     readonly property color _tileRingActive:
         Qt.rgba(Theme.primaryText.r, Theme.primaryText.g, Theme.primaryText.b, 0.22)
 
-    color: isActive ? _tileBgActive : _tileBgInactive
+    color: {
+        if (isActive) return _tileBgActive
+        const baseColor = mouseArea.containsMouse ? Theme.widgetBaseHoverColor : _tileBgInactive
+        return baseColor
+    }
     border.color: isActive ? _tileRingActive : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
     border.width: 0
     opacity: enabled ? 1.0 : 0.6

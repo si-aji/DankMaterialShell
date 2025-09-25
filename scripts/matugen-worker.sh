@@ -74,16 +74,21 @@ build_once() {
 
   cat "$SHELL_DIR/matugen/configs/base.toml" > "$TMP_CFG"
   echo "" >> "$TMP_CFG"
+
+  # Always include dank config for dms-colors.json
+  cat "$SHELL_DIR/matugen/configs/dank.toml" >> "$TMP_CFG"
+  echo "" >> "$TMP_CFG"
+
   if command -v niri >/dev/null 2>&1; then
     cat "$SHELL_DIR/matugen/configs/niri.toml" >> "$TMP_CFG"
     echo "" >> "$TMP_CFG"
   fi
-  
+
   if command -v qt5ct >/dev/null 2>&1; then
     cat "$SHELL_DIR/matugen/configs/qt5ct.toml" >> "$TMP_CFG"
     echo "" >> "$TMP_CFG"
   fi
-  
+
   if command -v qt6ct >/dev/null 2>&1; then
     cat "$SHELL_DIR/matugen/configs/qt6ct.toml" >> "$TMP_CFG"
     echo "" >> "$TMP_CFG"
@@ -201,9 +206,6 @@ build_once() {
 
   echo "$JSON" | grep -q '"primary"' || { echo "matugen JSON missing primary" >&2; return 2; }
   printf "%s" "$JSON" > "$LAST_JSON"
-
-  # Write JSON for Theme.qml FileView to watch
-  printf "%s" "$JSON" > "$STATE_DIR/dms-colors.json"
   
   if [ "$mode" = "light" ]; then
     SECTION=$(echo "$JSON" | sed -n 's/.*"light":{\([^}]*\)}.*/\1/p')

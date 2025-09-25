@@ -29,7 +29,10 @@ Rectangle {
 
     readonly property color _containerBg: Theme.surfaceContainerHigh
 
-    color: _containerBg
+    color: {
+        const baseColor = bodyMouse.containsMouse ? Theme.widgetBaseHoverColor : _containerBg
+        return baseColor
+    }
     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.10)
     border.width: 0
     antialiasing: true
