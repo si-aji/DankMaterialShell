@@ -31,7 +31,11 @@ Rectangle {
     readonly property color _tileIconActive: Theme.primaryContainer
     readonly property color _tileIconInactive: Theme.primary
 
-    color: isActive ? _tileBgActive : _tileBgInactive
+    color: {
+        if (isActive) return _tileBgActive
+        const baseColor = mouseArea.containsMouse ? Theme.widgetBaseHoverColor : _tileBgInactive
+        return baseColor
+    }
     border.color: isActive ? _tileRingActive : "transparent"
     border.width: isActive ? 1 : 0
     antialiasing: true
