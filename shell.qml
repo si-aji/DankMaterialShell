@@ -412,8 +412,7 @@ ShellRoot {
         function open(): string {
             controlCenterLoader.active = true
             if (controlCenterLoader.item) {
-                // If already open just ensure visibility
-                controlCenterLoader.item.shouldBeVisible = true
+                controlCenterLoader.item.open()
                 return "CONTROL_CENTER_OPEN_SUCCESS"
             }
             return "CONTROL_CENTER_OPEN_FAILED"
@@ -421,7 +420,7 @@ ShellRoot {
 
         function close(): string {
             if (controlCenterLoader.item) {
-                controlCenterLoader.item.shouldBeVisible = false
+                controlCenterLoader.item.close()
                 return "CONTROL_CENTER_CLOSE_SUCCESS"
             }
             return "CONTROL_CENTER_CLOSE_FAILED"
@@ -430,7 +429,7 @@ ShellRoot {
         function toggle(): string {
             controlCenterLoader.active = true
             if (controlCenterLoader.item) {
-                controlCenterLoader.item.shouldBeVisible = !controlCenterLoader.item.shouldBeVisible
+                controlCenterLoader.item.toggle()
                 return "CONTROL_CENTER_TOGGLE_SUCCESS"
             }
             return "CONTROL_CENTER_TOGGLE_FAILED"
