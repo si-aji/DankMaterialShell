@@ -13,6 +13,7 @@ Column {
     property int expandedWidgetIndex: -1
     property var model: null
     property var expandedWidgetData: null
+    property var bluetoothCodecSelector: null
 
     signal expandClicked(var widgetData, int globalIndex)
     signal removeWidget(int index)
@@ -158,6 +159,7 @@ Column {
                 visible: active
                 expandedSection: root.expandedSection
                 expandedWidgetData: root.expandedWidgetData
+                bluetoothCodecSelector: root.bluetoothCodecSelector
             }
         }
     }

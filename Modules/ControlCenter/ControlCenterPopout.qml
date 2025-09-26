@@ -153,6 +153,7 @@ DankPopout {
                     expandedWidgetIndex: root.expandedWidgetIndex
                     expandedWidgetData: root.expandedWidgetData
                     model: widgetModel
+                    bluetoothCodecSelector: bluetoothCodecSelector
                     onExpandClicked: (widgetData, globalIndex) => {
                         root.expandedWidgetIndex = globalIndex
                         root.expandedWidgetData = widgetData
