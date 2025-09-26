@@ -103,7 +103,7 @@ PanelWindow {
             }
             return triggerX
         }
-        readonly property real calculatedY: Math.max(Theme.spacingM, Math.min(screenHeight - popupHeight - Theme.spacingM, triggerY))
+        readonly property real calculatedY: Math.max(0, Math.min(screenHeight - popupHeight - Theme.spacingM, triggerY))
 
         width: popupWidth
         height: popupHeight
