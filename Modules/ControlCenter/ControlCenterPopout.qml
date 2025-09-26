@@ -145,7 +145,7 @@ DankPopout {
                     }
                 }
 
-                DragDropGrid {
+                WidgetGrid {
                     id: widgetGrid
                     width: parent.width
                     editMode: root.editMode
