@@ -181,7 +181,7 @@ To install using home-manager, you need to add this repo into your flake inputs:
 
 ``` nix
 dankMaterialShell = {
-  url = "github:AvengeMedia/DankMaterialShell/make_niri_optional";
+  url = "github:AvengeMedia/DankMaterialShell";
   inputs.nixpkgs.follows = "nixpkgs";
 };
 ```
