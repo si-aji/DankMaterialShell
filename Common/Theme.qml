@@ -20,7 +20,7 @@ Singleton {
 
     property string currentTheme: "blue"
     property string currentThemeCategory: "generic"
-    property bool isLightMode: false
+    property bool isLightMode: typeof SessionData !== "undefined" ? SessionData.isLightMode : false
 
     readonly property string dynamic: "dynamic"
     readonly property string custom : "custom"
@@ -82,9 +82,11 @@ Singleton {
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", stateDir])
         matugenCheck.running = true
-        if (typeof SessionData !== "undefined")
+        if (typeof SessionData !== "undefined") {
             SessionData.isLightModeChanged.connect(root.onLightModeChanged)
-        
+            isLightMode = SessionData.isLightMode
+        }
+
         if (typeof SettingsData !== "undefined" && SettingsData.currentThemeName) {
             switchTheme(SettingsData.currentThemeName, false)
         }
