@@ -118,6 +118,7 @@ Singleton {
     property bool showDock: false
     property bool dockAutoHide: false
     property bool dockGroupByApp: false
+    property bool dockOpenOnOverview: false
     property real cornerRadius: 12
     property bool notificationOverlayEnabled: false
     property bool dankBarAutoHide: false
@@ -316,6 +317,7 @@ Singleton {
                 dankBarAutoHide = settings.dankBarAutoHide !== undefined ? settings.dankBarAutoHide : (settings.topBarAutoHide !== undefined ? settings.topBarAutoHide : false)
                 dankBarOpenOnOverview = settings.dankBarOpenOnOverview !== undefined ? settings.dankBarOpenOnOverview : (settings.topBarOpenOnOverview !== undefined ? settings.topBarOpenOnOverview : false)
                 dankBarVisible = settings.dankBarVisible !== undefined ? settings.dankBarVisible : (settings.topBarVisible !== undefined ? settings.topBarVisible : true)
+                dockOpenOnOverview = settings.dockOpenOnOverview !== undefined ? settings.dockOpenOnOverview : false
                 notificationTimeoutLow = settings.notificationTimeoutLow !== undefined ? settings.notificationTimeoutLow : 5000
                 notificationTimeoutNormal = settings.notificationTimeoutNormal !== undefined ? settings.notificationTimeoutNormal : 5000
                 notificationTimeoutCritical = settings.notificationTimeoutCritical !== undefined ? settings.notificationTimeoutCritical : 0
@@ -425,6 +427,7 @@ Singleton {
                                                 "showDock": showDock,
                                                 "dockAutoHide": dockAutoHide,
                                                 "dockGroupByApp": dockGroupByApp,
+                                                "dockOpenOnOverview": dockOpenOnOverview,
                                                 "cornerRadius": cornerRadius,
                                                 "notificationOverlayEnabled": notificationOverlayEnabled,
                                                 "dankBarAutoHide": dankBarAutoHide,
@@ -969,6 +972,11 @@ Singleton {
 
     function setDockGroupByApp(enabled) {
         dockGroupByApp = enabled
+        saveSettings()
+    }
+
+    function setdockOpenOnOverview(enabled) {
+        dockOpenOnOverview = enabled
         saveSettings()
     }
 
