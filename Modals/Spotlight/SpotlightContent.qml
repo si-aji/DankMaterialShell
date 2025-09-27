@@ -33,6 +33,20 @@ Item {
                         } else if (event.key === Qt.Key_Left && appLauncher.viewMode === "grid") {
                             appLauncher.selectPreviousInRow()
                             event.accepted = true
+                        } else if (event.key === Qt.Key_Tab) {
+                            if (appLauncher.viewMode === "grid") {
+                                appLauncher.selectNextInRow()
+                            } else {
+                                appLauncher.selectNext()
+                            }
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Backtab) {
+                            if (appLauncher.viewMode === "grid") {
+                                appLauncher.selectPreviousInRow()
+                            } else {
+                                appLauncher.selectPrevious()
+                            }
+                            event.accepted = true
                         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                             appLauncher.launchSelected()
                             event.accepted = true
@@ -124,7 +138,7 @@ Item {
                                         else if (appLauncher.model.count > 0)
                                         appLauncher.launchApp(appLauncher.model.get(0))
                                         event.accepted = true
-                                    } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Up || event.key === Qt.Key_Left || event.key === Qt.Key_Right || ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && text.length === 0)) {
+                                    } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Up || event.key === Qt.Key_Left || event.key === Qt.Key_Right || event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab || ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && text.length === 0)) {
                                         event.accepted = false
                                     }
                                 }
