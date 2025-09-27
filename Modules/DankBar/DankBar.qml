@@ -152,7 +152,7 @@ PanelWindow {
         }
         height: {
             const base = px(root.effectiveBarHeight + SettingsData.dankBarSpacing)
-            if (topBarCore.autoHide && !topBarCore.reveal) return 8
+            if (topBarCore.autoHide && !topBarCore.reveal) return 1
             if (CompositorService.isNiri && NiriService.inOverview && SettingsData.dankBarOpenOnOverview) return base
             return SettingsData.dankBarVisible ? base : 0
         }
