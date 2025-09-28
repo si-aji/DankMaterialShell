@@ -521,7 +521,7 @@ PanelWindow {
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
                                                                      "network_speed_monitor": DgopService.dgopAvailable,
-                                                                     "pomodoro": true
+                                                                     "pomodoro": PomodoroService.isRunning
                                                                  })
 
                         function getWidgetVisible(widgetId) {
@@ -582,6 +582,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -800,6 +801,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -848,6 +850,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false

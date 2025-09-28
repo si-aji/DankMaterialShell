@@ -13,7 +13,7 @@ Rectangle {
     property var parentScreen: null
 
     readonly property real horizontalPadding: SettingsData.dankBarNoBackground ? 2 : Theme.spacingXS
-    readonly property bool pomodoroActive: true
+    readonly property bool pomodoroActive: PomodoroService.isRunning
     readonly property string timeText: {
         const hours = PomodoroService.displayHours || 0
         const minutes = String(PomodoroService.displayMinutes || 0).padStart(2, "0")
@@ -24,9 +24,9 @@ Rectangle {
         return `${minutes}:${seconds}`
     }
 
-    width: contentRow.implicitWidth + horizontalPadding * 2
+    width: pomodoroActive ? contentRow.implicitWidth + horizontalPadding * 2 : 0
     height: widgetHeight
-    visible: true
+    visible: pomodoroActive
     radius: SettingsData.dankBarNoBackground ? 0 : Theme.cornerRadius
     color: {
         if (SettingsData.dankBarNoBackground) {
@@ -36,7 +36,7 @@ Rectangle {
         const base = hoverArea.containsMouse ? Theme.widgetBaseHoverColor : Theme.widgetBaseBackgroundColor
         return Qt.rgba(base.r, base.g, base.b, base.a * Theme.widgetTransparency)
     }
-    opacity: 1
+    opacity: pomodoroActive ? 1 : 0
 
     Ref {
         service: PomodoroService
