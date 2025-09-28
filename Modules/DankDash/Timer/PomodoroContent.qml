@@ -538,6 +538,32 @@ Item {
                 }
             }
 
+            // Quit button
+            Rectangle {
+                width: 80
+                height: 40
+                radius: Theme.cornerRadius
+                color: Theme.error
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                border.width: 1
+                visible: root.isRunning
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Quit"
+                    color: Theme.onError
+                    font.pixelSize: 14
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: resetPomodoro()
+                    hoverEnabled: true
+                    onEntered: cursorShape = Qt.PointingHandCursor
+                    onExited: cursorShape = Qt.ArrowCursor
+                }
+            }
+
             // Reset button
             Rectangle {
                 width: 80

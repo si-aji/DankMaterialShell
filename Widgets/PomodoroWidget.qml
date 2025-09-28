@@ -10,6 +10,7 @@ Item {
     property real widgetHeight: 30
     property bool isAtBottom: false
     property bool containsMouse: false
+    property var parentScreen: null
 
     width: 120
     height: widgetHeight

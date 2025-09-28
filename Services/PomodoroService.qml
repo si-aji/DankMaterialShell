@@ -124,6 +124,10 @@ Singleton {
         root.isBreak = false
         root.completedPomodoros = 0
         root.totalSeconds = root.workMinutes * 60
+        root.showConfirmation = false
+        root.confirmationMessage = ""
+        root.confirmationCallback = null
+        root.showCongratulations = false
         timerUpdated()
     }
 
