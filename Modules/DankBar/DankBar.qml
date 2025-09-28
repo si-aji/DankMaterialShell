@@ -554,7 +554,8 @@ PanelWindow {
                                                                  "vpn": vpnComponent,
                                                                  "notepadButton": notepadButtonComponent,
                                                                  "colorPicker": colorPickerComponent,
-                                                                 "systemUpdate": systemUpdateComponent
+                                                                 "systemUpdate": systemUpdateComponent,
+                                                                 "pomodoro": pomodoroComponent
                                                              })
 
                         function getWidgetComponent(widgetId) {
@@ -1306,6 +1307,16 @@ PanelWindow {
                                     systemUpdateLoader.active = true
                                     systemUpdateLoader.item?.toggle()
                                 }
+                            }
+                        }
+
+                        Component {
+                            id: pomodoroComponent
+
+                            PomodoroWidget {
+                                widgetHeight: root.widgetHeight
+                                isAtBottom: SettingsData.dankBarAtBottom
+                                parentScreen: root.screen
                             }
                         }
                     }

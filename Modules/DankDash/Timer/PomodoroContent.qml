@@ -2,211 +2,67 @@ import QtQuick
 import QtQuick.Controls
 import qs.Common
 import qs.Widgets
+import qs.Services
 
 Item {
     id: root
 
-    property bool isRunning: false
-    property bool isPaused: false
-    property bool isBreak: false
-    property int workMinutes: 25
-    property int breakMinutes: 5
-    property int totalSeconds: workMinutes * 60
-    property int displayHours: Math.floor(totalSeconds / 3600)
-    property int displayMinutes: Math.floor((totalSeconds % 3600) / 60)
-    property int displaySeconds: totalSeconds % 60
+    // Bind all properties to the service
+    property bool isRunning: PomodoroService.isRunning
+    property bool isPaused: PomodoroService.isPaused
+    property bool isBreak: PomodoroService.isBreak
+    property int workMinutes: PomodoroService.workMinutes
+    property int breakMinutes: PomodoroService.breakMinutes
+    property int totalSeconds: PomodoroService.totalSeconds
+    property int displayHours: PomodoroService.displayHours
+    property int displayMinutes: PomodoroService.displayMinutes
+    property int displaySeconds: PomodoroService.displaySeconds
+    property int completedPomodoros: PomodoroService.completedPomodoros
+    property int targetPomodoros: PomodoroService.targetPomodoros
+    property bool showCongratulations: PomodoroService.showCongratulations
+    property bool showConfirmation: PomodoroService.showConfirmation
+    property string confirmationMessage: PomodoroService.confirmationMessage
+    readonly property bool isLastWorkSession: PomodoroService.isLastWorkSession
 
-    function updateDisplayTime() {
-        // Force recalculation of display time properties using Qt.callLater for stability
-        Qt.callLater(function() {
-            var temp = root.totalSeconds
-            root.totalSeconds = temp
-        })
-    }
-
-    function getSessionColor(index) {
-        if (index < root.completedPomodoros) {
-            return Theme.primary  // Completed sessions
-        } else if (index === root.completedPomodoros && root.isRunning && !root.isBreak) {
-            return Theme.secondary  // Currently active work session
-        } else if (index === root.completedPomodoros && root.isRunning && root.isBreak) {
-            return Theme.tertiary  // Currently active break session
-        } else {
-            return Theme.surfaceVariant  // Future sessions
-        }
-    }
-    property int completedPomodoros: 0
-    property int targetPomodoros: 4
-    property bool showCongratulations: false
-    property bool showConfirmation: false
-    property string confirmationMessage: ""
-    property var confirmationCallback: null
-    readonly property bool isLastWorkSession: !root.isBreak && root.completedPomodoros === root.targetPomodoros - 1
-
-    Timer {
-        id: pomodoroTimer
-        interval: 1000
-        repeat: true
-        onTriggered: {
-            if (root.totalSeconds > 0 && !root.isPaused) {
-                root.totalSeconds--
-            } else if (root.totalSeconds === 0) {
-                pomodoroTimer.stop()
-                root.isRunning = false
-                root.isPaused = false
-
-                // Check if this is the last work session
-                if (root.isLastWorkSession) {
-                    // Go directly to congratulations
-                    root.completedPomodoros++
-                    root.showCongratulations = true
-                    congratsTimer.start()
-                } else {
-                    // Show confirmation for switching sessions
-                    root.showSessionSwitchConfirmation(false)
-                }
-            }
-        }
-    }
-
-    Timer {
-        id: congratsTimer
-        interval: 3000
-        repeat: false
-        onTriggered: {
-            root.showCongratulations = false
-            root.resetPomodoro()
-        }
-    }
-
-    Timer {
-        id: layoutStabilizerTimer
-        interval: 50
-        repeat: false
-        onTriggered: {
-            root.updateDisplayTime()
-        }
-    }
 
     function formatTime() {
-        let h, m, s
-
-        h = String(displayHours).padStart(2, '0')
-        m = String(displayMinutes).padStart(2, '0')
-        s = String(displaySeconds).padStart(2, '0')
-
-        return `${h}:${m}:${s}`
+        return PomodoroService.formatTime()
     }
 
     function startPomodoro() {
-        if (!root.isRunning) {
-            root.isRunning = true
-            root.isPaused = false
-            pomodoroTimer.start()
-        }
+        PomodoroService.startPomodoro()
     }
 
     function pausePomodoro() {
-        root.isPaused = true
+        PomodoroService.pausePomodoro()
     }
 
     function resumePomodoro() {
-        root.isPaused = false
+        PomodoroService.resumePomodoro()
     }
 
     function stopPomodoro() {
-        pomodoroTimer.stop()
-        root.isRunning = false
-        root.isPaused = false
+        PomodoroService.stopPomodoro()
     }
 
     function resetPomodoro() {
-        pomodoroTimer.stop()
-        root.isRunning = false
-        root.isPaused = false
-        root.isBreak = false
-        root.completedPomodoros = 0
-        root.totalSeconds = root.workMinutes * 60
-    }
-
-    function showSessionSwitchConfirmation(isFromSkip) {
-        if (!root.isBreak) {
-            // Show confirmation for switching to break
-            root.confirmationMessage = "Start break time?"
-            root.confirmationCallback = function() {
-                root.completedPomodoros++
-
-                // Check if all pomodoros are completed
-                if (root.completedPomodoros >= root.targetPomodoros) {
-                    root.showCongratulations = true
-                    // Show congratulations for 3 seconds then reset
-                    congratsTimer.start()
-                } else {
-                    root.isBreak = true
-                    root.totalSeconds = root.breakMinutes * 60
-                    root.isRunning = true  // Start the timer automatically
-                    pomodoroTimer.start()  // Start the countdown
-                    // Use stabilizer timer to ensure layout stability
-                layoutStabilizerTimer.start()
-                }
-                root.showConfirmation = false
-            }
-        } else {
-            // Show confirmation for switching to work
-            root.confirmationMessage = "Start work time?"
-            root.confirmationCallback = function() {
-                root.isBreak = false
-                root.totalSeconds = root.workMinutes * 60
-                root.isRunning = true  // Start the timer automatically
-                    pomodoroTimer.start()  // Start the countdown
-                // Use stabilizer timer to ensure layout stability
-                layoutStabilizerTimer.start()
-                root.showConfirmation = false
-            }
-        }
-        root.showConfirmation = true
+        PomodoroService.resetPomodoro()
     }
 
     function skipSession() {
-        root.showSessionSwitchConfirmation(true)
+        PomodoroService.skipSession()
     }
 
     function incrementTime(unit) {
-        if (isRunning) return
-
-        switch (unit) {
-            case "work":
-                root.workMinutes = Math.min(root.workMinutes + 1, 60)
-                if (!root.isBreak) {
-                    root.totalSeconds = root.workMinutes * 60
-                }
-                break
-            case "break":
-                root.breakMinutes = Math.min(root.breakMinutes + 1, 30)
-                if (root.isBreak) {
-                    root.totalSeconds = root.breakMinutes * 60
-                }
-                break
-        }
+        PomodoroService.incrementTime(unit)
     }
 
     function decrementTime(unit) {
-        if (isRunning) return
+        PomodoroService.decrementTime(unit)
+    }
 
-        switch (unit) {
-            case "work":
-                root.workMinutes = Math.max(root.workMinutes - 1, 1)
-                if (!root.isBreak) {
-                    root.totalSeconds = root.workMinutes * 60
-                }
-                break
-            case "break":
-                root.breakMinutes = Math.max(root.breakMinutes - 1, 1)
-                if (root.isBreak) {
-                    root.totalSeconds = root.breakMinutes * 60
-                }
-                break
-        }
+    function getSessionColor(index) {
+        return PomodoroService.getSessionColor(index)
     }
 
     Column {
@@ -671,12 +527,7 @@ Item {
                     onClicked: {
                         if (root.isLastWorkSession) {
                             // On last work session, go directly to congratulations
-                            root.completedPomodoros++
-                            root.showCongratulations = true
-                            congratsTimer.start()
-                            pomodoroTimer.stop()
-                            root.isRunning = false
-                            root.isPaused = false
+                            PomodoroService.skipSession()
                         } else {
                             skipSession()
                         }
@@ -741,7 +592,7 @@ Item {
             if (!visible) {
                 // Force a layout update when dialog is hidden
                 Qt.callLater(function() {
-                    root.updateDisplayTime()
+                    PomodoroService.updateDisplayTime()
                 })
             }
         }
@@ -783,9 +634,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            if (root.confirmationCallback) {
-                                root.confirmationCallback()
-                            }
+                            PomodoroService.confirmSessionSwitch()
                         }
                         hoverEnabled: true
                         onEntered: cursorShape = Qt.PointingHandCursor
@@ -811,10 +660,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            root.showConfirmation = false
-                            // Resume the timer if user cancels
-                            root.isRunning = true
-                            pomodoroTimer.start()
+                            PomodoroService.cancelSessionSwitch()
                         }
                         hoverEnabled: true
                         onEntered: cursorShape = Qt.PointingHandCursor
