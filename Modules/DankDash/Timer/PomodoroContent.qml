@@ -15,6 +15,14 @@ Item {
     property int displayHours: Math.floor(totalSeconds / 3600)
     property int displayMinutes: Math.floor((totalSeconds % 3600) / 60)
     property int displaySeconds: totalSeconds % 60
+
+    function updateDisplayTime() {
+        // Force recalculation of display time properties using Qt.callLater for stability
+        Qt.callLater(function() {
+            var temp = root.totalSeconds
+            root.totalSeconds = temp
+        })
+    }
     property int completedPomodoros: 0
     property int targetPomodoros: 4
     property bool showCongratulations: false
@@ -47,6 +55,15 @@ Item {
         onTriggered: {
             root.showCongratulations = false
             root.resetPomodoro()
+        }
+    }
+
+    Timer {
+        id: layoutStabilizerTimer
+        interval: 50
+        repeat: false
+        onTriggered: {
+            root.updateDisplayTime()
         }
     }
 
@@ -106,15 +123,22 @@ Item {
                 } else {
                     root.isBreak = true
                     root.totalSeconds = root.breakMinutes * 60
+                    root.isRunning = true  // Start the timer automatically
+                    pomodoroTimer.start()  // Start the countdown
+                    // Use stabilizer timer to ensure layout stability
+                layoutStabilizerTimer.start()
                 }
                 root.showConfirmation = false
             }
         } else {
             // Show confirmation for switching to work
-            root.confirmationMessage = "Start focus time?"
             root.confirmationCallback = function() {
                 root.isBreak = false
                 root.totalSeconds = root.workMinutes * 60
+                root.isRunning = true  // Start the timer automatically
+                    pomodoroTimer.start()  // Start the countdown
+                // Use stabilizer timer to ensure layout stability
+                layoutStabilizerTimer.start()
                 root.showConfirmation = false
             }
         }
@@ -164,8 +188,11 @@ Item {
     }
 
     Column {
+        id: mainColumn
         anchors.centerIn: parent
         spacing: Theme.spacingL
+        width: Math.min(parent.width * 0.8, 400)  // Fixed width for stability
+        height: implicitHeight  // Let height be content-driven
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -231,104 +258,7 @@ Item {
             }
         }
 
-        // Confirmation Dialog
-        Rectangle {
-            anchors.centerIn: parent
-            width: 300
-            height: 180
-            radius: Theme.cornerRadius
-            color: Theme.surfaceContainer
-            border.color: Theme.outline
-            border.width: 1
-            visible: root.showConfirmation
-            opacity: root.showConfirmation ? 1 : 0
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 300
-                    easing.type: Easing.InOutQuad
-                }
-            }
-
-            Column {
-                anchors.centerIn: parent
-                spacing: Theme.spacingL
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: root.confirmationMessage
-                    font.pixelSize: 18
-                    font.weight: Font.Medium
-                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
-                    horizontalAlignment: Text.AlignHCenter
-                    width: parent.width - Theme.spacingL * 2
-                    wrapMode: Text.WordWrap
-                }
-
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: Theme.spacingM
-
-                    Rectangle {
-                        width: 80
-                        height: 40
-                        radius: Theme.cornerRadius
-                        color: Theme.primary
-                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Yes"
-                            color: Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
-                            font.pixelSize: 14
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (root.confirmationCallback) {
-                                    root.confirmationCallback()
-                                }
-                            }
-                            hoverEnabled: true
-                            onEntered: cursorShape = Qt.PointingHandCursor
-                            onExited: cursorShape = Qt.ArrowCursor
-                        }
-                    }
-
-                    Rectangle {
-                        width: 80
-                        height: 40
-                        radius: Theme.cornerRadius
-                        color: Theme.surface
-                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "No"
-                            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
-                            font.pixelSize: 14
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                root.showConfirmation = false
-                                // Resume the timer if user cancels
-                                root.isRunning = true
-                                pomodoroTimer.start()
-                            }
-                            hoverEnabled: true
-                            onEntered: cursorShape = Qt.PointingHandCursor
-                            onExited: cursorShape = Qt.ArrowCursor
-                        }
-                    }
-                }
-            }
-        }
-
+        
         // Time Configuration
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -621,6 +551,116 @@ Item {
                     hoverEnabled: true
                     onEntered: cursorShape = Qt.PointingHandCursor
                     onExited: cursorShape = Qt.ArrowCursor
+                }
+            }
+        }
+    }
+
+    // Confirmation Dialog (positioned outside main Column for stability)
+    Rectangle {
+        id: confirmationDialog
+        anchors.centerIn: parent
+        width: 300
+        height: 180
+        radius: Theme.cornerRadius
+        color: Theme.surfaceContainer
+        border.color: Theme.outline
+        border.width: 1
+        visible: root.showConfirmation
+        opacity: root.showConfirmation ? 1 : 0
+        z: 100  // Ensure it's above other content
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.InOutQuad
+            }
+        }
+
+        // Ensure layout stability when dialog closes
+        onVisibleChanged: {
+            if (!visible) {
+                // Force a layout update when dialog is hidden
+                Qt.callLater(function() {
+                    root.updateDisplayTime()
+                })
+            }
+        }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: Theme.spacingL
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: root.confirmationMessage
+                font.pixelSize: 18
+                font.weight: Font.Medium
+                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width - Theme.spacingL * 2
+                wrapMode: Text.WordWrap
+            }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.spacingM
+
+                Rectangle {
+                    width: 80
+                    height: 40
+                    radius: Theme.cornerRadius
+                    color: Theme.primary
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Yes"
+                        color: Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                        font.pixelSize: 14
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (root.confirmationCallback) {
+                                root.confirmationCallback()
+                            }
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
+                }
+
+                Rectangle {
+                    width: 80
+                    height: 40
+                    radius: Theme.cornerRadius
+                    color: Theme.surface
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "No"
+                        color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                        font.pixelSize: 14
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            root.showConfirmation = false
+                            // Resume the timer if user cancels
+                            root.isRunning = true
+                            pomodoroTimer.start()
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
                 }
             }
         }
