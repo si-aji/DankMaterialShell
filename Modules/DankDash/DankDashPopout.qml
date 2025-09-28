@@ -16,6 +16,7 @@ DankPopout {
     property string triggerSection: "center"
     property var triggerScreen: null
     property int currentTabIndex: 0
+    property var timerTabComponent: null
 
     function setTriggerPosition(x, y, width, section, screen) {
         if (section === "center") {
@@ -135,6 +136,9 @@ DankPopout {
                         if (SettingsData.weatherEnabled) {
                             tabs.push({ icon: "wb_sunny", text: "Weather" })
                         }
+
+                        tabs.push({ icon: "timer", text: "Timer" })
+                        tabs.push({ icon: "done_all", text: "Todo" })
                         
                         tabs.push({ icon: "settings", text: "Settings", isAction: true })
                         return tabs
@@ -184,6 +188,12 @@ DankPopout {
                             tabBar.currentIndex = 1
                             tabBar.tabClicked(1)
                         }
+
+                        onSwitchToTimerTab: {
+                            let timerIndex = SettingsData.weatherEnabled ? 3 : 2
+                            tabBar.currentIndex = timerIndex
+                            tabBar.tabClicked(timerIndex)
+                        }
                     }
 
                     MediaPlayerTab {
@@ -194,6 +204,20 @@ DankPopout {
                         id: weatherTab
                         visible: SettingsData.weatherEnabled && root.currentTabIndex === 2
                     }
+
+                    TimerTab {
+                        id: timerTab
+                        Component.onCompleted: root.timerTabComponent = this
+                        onVisibleChanged: {
+                            if (visible) {
+                                root.timerTabComponent = this
+                            }
+                        }
+                    }
+
+                    // TodoTab {
+                    //     id: todoTab
+                    // }
                 }
             }
         }

@@ -520,7 +520,10 @@ PanelWindow {
                                                                      "memUsage": DgopService.dgopAvailable,
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
-                                                                     "network_speed_monitor": DgopService.dgopAvailable
+                                                                     "network_speed_monitor": DgopService.dgopAvailable,
+                                                                     "timer": TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion,
+                                                                     "pomodoro": PomodoroService.shouldDisplay,
+                                                                     "stopwatch": StopwatchService.isRunning || StopwatchService.isPaused
                                                                  })
 
                         function getWidgetVisible(widgetId) {
@@ -554,7 +557,10 @@ PanelWindow {
                                                                  "vpn": vpnComponent,
                                                                  "notepadButton": notepadButtonComponent,
                                                                  "colorPicker": colorPickerComponent,
-                                                                 "systemUpdate": systemUpdateComponent
+                                                                 "systemUpdate": systemUpdateComponent,
+                                                                 "timer": timerComponent,
+                                                                 "pomodoro": pomodoroComponent,
+                                                                 "stopwatch": stopwatchComponent
                                                              })
 
                         function getWidgetComponent(widgetId) {
@@ -578,7 +584,11 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.shouldDisplay)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -795,7 +805,11 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.shouldDisplay)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -842,7 +856,11 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
+                                             && (model.widgetId !== "pomodoro" || PomodoroService.shouldDisplay)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -1306,6 +1324,51 @@ PanelWindow {
                                     systemUpdateLoader.active = true
                                     systemUpdateLoader.item?.toggle()
                                 }
+                            }
+                        }
+
+                        Component {
+                            id: timerComponent
+
+                            TimerIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
+                            }
+                        }
+
+                        Component {
+                            id: pomodoroComponent
+
+                            PomodoroIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
+                            }
+                        }
+
+                        Component {
+                            id: stopwatchComponent
+
+                            StopwatchIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
                             }
                         }
                     }
