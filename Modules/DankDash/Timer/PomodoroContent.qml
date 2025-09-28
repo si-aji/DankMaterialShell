@@ -474,167 +474,25 @@ Continue?`
             }
         }
 
-        // Control Buttons
-        Row {
+        PomodoroControls {
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingM
-            visible: !root.showCongratulations && !root.showConfirmation
+            visible: root.controlsVisible
+            isRunning: root.isRunning
+            isPaused: root.isPaused
+            awaitingContinuation: root.awaitingContinuation
+            isLastWorkSession: root.isLastWorkSession
+            showReset: root.shouldShowReset
+            skipEnabled: root.canSkip
 
-            Rectangle {
-                width: 80
-                height: 40
-                radius: Theme.cornerRadius
-                color: {
-                    if (root.isRunning && !root.isPaused) {
-                        return Theme.secondary
-                    } else if (root.isRunning && root.isPaused) {
-                        return Theme.primary
-                    } else {
-                        return Theme.primary
-                    }
-                }
-                border.color: {
-                    if (root.isRunning) {
-                        return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                    } else {
-                        return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                    }
-                }
-                border.width: 1
-
-                Text {
-                    anchors.centerIn: parent
-                    text: {
-                        if (root.awaitingContinuation) {
-                            return "Continue"
-                        } else if (root.isRunning && !root.isPaused) {
-                            return "Pause"
-                        } else if (root.isRunning && root.isPaused) {
-                            return "Resume"
-                        } else {
-                            return "Start"
-                        }
-                    }
-                    color: {
-                        if (root.isRunning) {
-                            if (root.isPaused) {
-                                return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
-                            } else {
-                                return Theme.onSecondary
-                            }
-                        } else {
-                            return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
-                        }
-                    }
-                    font.pixelSize: 14
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (root.isRunning) {
-                            if (root.isPaused) {
-                                resumePomodoro()
-                            } else {
-                                pausePomodoro()
-                            }
-                        } else {
-                            startPomodoro()
-                        }
-                    }
-                    hoverEnabled: true
-                    onEntered: cursorShape = Qt.PointingHandCursor
-                    onExited: cursorShape = Qt.ArrowCursor
-                }
-            }
-
-            // Skip/Finish button
-            Rectangle {
-                width: 80
-                height: 40
-                radius: Theme.cornerRadius
-                color: root.isLastWorkSession ? Theme.primary : Theme.surface
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-                visible: root.isRunning
-                enabled: root.totalSeconds > 0 && !root.awaitingContinuation
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.isLastWorkSession ? "Finish" : "Skip"
-                    color: root.isLastWorkSession ? Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1) : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
-                    font.pixelSize: 14
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (root.isLastWorkSession) {
-                            // On last work session, go directly to congratulations
-                            PomodoroService.skipSession()
-                        } else {
-                            skipSession()
-                        }
-                    }
-                    hoverEnabled: true
-                    onEntered: cursorShape = Qt.PointingHandCursor
-                    onExited: cursorShape = Qt.ArrowCursor
-                }
-            }
-
-            // Quit button
-            Rectangle {
-                width: 80
-                height: 40
-                radius: Theme.cornerRadius
-                color: Theme.error
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-                visible: root.isRunning
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "Quit"
-                    color: Theme.onError
-                    font.pixelSize: 14
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: resetPomodoro()
-                    hoverEnabled: true
-                    onEntered: cursorShape = Qt.PointingHandCursor
-                    onExited: cursorShape = Qt.ArrowCursor
-                }
-            }
-
-            // Reset button
-            Rectangle {
-                width: 80
-                height: 40
-                radius: Theme.cornerRadius
-                color: Theme.error
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-                visible: !root.isRunning && (root.completedPomodoros > 0 || root.isBreak)
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "Reset"
-                    color: Theme.onError
-                    font.pixelSize: 14
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: resetPomodoro()
-                    hoverEnabled: true
-                    onEntered: cursorShape = Qt.PointingHandCursor
-                    onExited: cursorShape = Qt.ArrowCursor
-                }
-            }
+            onStartRequested: startPomodoro()
+            onPauseRequested: pausePomodoro()
+            onResumeRequested: resumePomodoro()
+            onContinueRequested: resumePomodoro()
+            onSkipRequested: skipSession()
+            onFinishRequested: PomodoroService.skipSession()
+            onResetRequested: resetPomodoro()
+            onQuitRequested: resetPomodoro()
         }
-    }
 
     Rectangle {
         id: conflictDialog
