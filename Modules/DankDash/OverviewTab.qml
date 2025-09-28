@@ -30,21 +30,11 @@ Item {
         WeatherOverviewCard {
             x: SettingsData.weatherEnabled ? parent.width * 0.2 - Theme.spacingM : 0
             y: 0
-            width: SettingsData.weatherEnabled ? parent.width * 0.25 : 0
+            width: SettingsData.weatherEnabled ? parent.width * 0.4 : 0
             height: 100
             visible: SettingsData.weatherEnabled
 
             onClicked: root.switchToWeatherTab()
-        }
-
-        // Pomodoro - top middle (only shows when running)
-        PomodoroOverviewCard {
-            x: SettingsData.weatherEnabled ? parent.width * 0.45 - Theme.spacingM : parent.width * 0.2 - Theme.spacingM
-            y: 0
-            width: SettingsData.weatherEnabled ? parent.width * 0.15 : parent.width * 0.3
-            height: 100
-
-            onClicked: root.switchToTimerTab()
         }
 
         // UserInfo - top middle-right (extend when weather disabled)
