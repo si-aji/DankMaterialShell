@@ -14,7 +14,9 @@ Rectangle {
 
     readonly property real horizontalPadding: SettingsData.dankBarNoBackground ? 2 : Theme.spacingXS
     readonly property bool pomodoroActive: PomodoroService.shouldDisplay
-    readonly property bool awaitingConfirmation: PomodoroService.showConfirmation || (PomodoroService.pendingSessionSwitch && !PomodoroService.showCongratulations)
+    readonly property bool awaitingConfirmation: PomodoroService.showConfirmation
+            || (PomodoroService.pendingSessionSwitch && !PomodoroService.showCongratulations)
+            || PomodoroService.awaitingContinuation
     readonly property string fallbackConfirmationText: PomodoroService.pendingTargetIsBreak
             ? qsTr("Start break time?")
             : qsTr("Start work time?")
@@ -117,7 +119,7 @@ Rectangle {
             return
         }
 
-        if (PomodoroService.pendingSessionSwitch
+        if ((PomodoroService.pendingSessionSwitch || PomodoroService.awaitingContinuation)
                 && !PomodoroService.showConfirmation
                 && !PomodoroService.showCongratulations) {
             PomodoroService.showSessionSwitchConfirmation(false)
@@ -163,6 +165,20 @@ Rectangle {
         target: PomodoroService
         function onSessionSwitchPrompted(fromSkip) {
             togglePomodoroPopup(true)
+        }
+
+        function onShowConfirmationChanged() {
+            if (!PomodoroService.showConfirmation
+                    && popupTarget
+                    && popupTarget.dashVisible) {
+                enforcePomodoroMode()
+            }
+        }
+
+        function onSessionSwitchCancelled() {
+            if (popupTarget && popupTarget.dashVisible) {
+                enforcePomodoroMode()
+            }
         }
     }
 }

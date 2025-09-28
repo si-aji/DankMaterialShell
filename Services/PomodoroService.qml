@@ -24,6 +24,7 @@ Singleton {
     property bool hasActiveSession: false
     property bool pendingSessionSwitch: false
     property bool pendingTargetIsBreak: false
+    property bool awaitingContinuation: false
 
     readonly property bool shouldDisplay: root.hasActiveSession
             || root.isRunning
@@ -31,6 +32,7 @@ Singleton {
             || root.showConfirmation
             || root.showCongratulations
             || root.pendingSessionSwitch
+            || root.awaitingContinuation
 
     // Timer instance
     Timer {
@@ -42,10 +44,9 @@ Singleton {
                 root.totalSeconds--
             } else if (root.totalSeconds === 0) {
                 pomodoroTimer.stop()
-                root.isRunning = false
-                root.isPaused = false
                 root.pendingSessionSwitch = true
                 root.pendingTargetIsBreak = !root.isBreak
+                root.awaitingContinuation = true
 
                 // Check if this is the last work session
                 if (root.isLastWorkSession) {
@@ -53,9 +54,17 @@ Singleton {
                     root.completedPomodoros++
                     root.showCongratulations = true
                     congratsTimer.start()
+                    root.isRunning = false
+                    root.isPaused = false
+                    root.hasActiveSession = false
                     root.pendingSessionSwitch = false
                     root.pendingTargetIsBreak = false
+                    root.awaitingContinuation = false
                 } else {
+                    root.isRunning = true
+                    root.isPaused = true
+                    root.hasActiveSession = true
+
                     // Show notification for session completion
                     root.showSessionCompleteNotification()
 
@@ -94,6 +103,7 @@ Singleton {
     signal allSessionsCompleted
     signal congratulationsRequested
     signal sessionSwitchPrompted(bool fromSkip)
+    signal sessionSwitchCancelled
 
     function updateDisplayTime() {
         // Force recalculation of display time properties
@@ -133,6 +143,7 @@ Singleton {
             root.hasActiveSession = true
             root.isRunning = true
             root.isPaused = false
+            root.awaitingContinuation = false
             pomodoroTimer.start()
             timerUpdated()
         }
@@ -144,7 +155,13 @@ Singleton {
     }
 
     function resumePomodoro() {
+        if (root.awaitingContinuation || (root.totalSeconds === 0 && root.pendingSessionSwitch)) {
+            root.showSessionSwitchConfirmation(false)
+            return
+        }
+
         root.isPaused = false
+        root.awaitingContinuation = false
         timerUpdated()
     }
 
@@ -159,6 +176,7 @@ Singleton {
         root.confirmationFromSkip = false
         root.pendingSessionSwitch = false
         root.pendingTargetIsBreak = false
+        root.awaitingContinuation = false
         timerUpdated()
     }
 
@@ -177,6 +195,7 @@ Singleton {
         root.showCongratulations = false
         root.pendingSessionSwitch = false
         root.pendingTargetIsBreak = false
+        root.awaitingContinuation = false
         timerUpdated()
     }
 
@@ -204,10 +223,12 @@ Singleton {
                     root.isBreak = true
                     root.totalSeconds = root.breakMinutes * 60
                     root.isRunning = true
+                    root.isPaused = false
                     pomodoroTimer.start()
                 }
                 root.pendingSessionSwitch = false
                 root.pendingTargetIsBreak = false
+                root.awaitingContinuation = false
                 root.showConfirmation = false
                 root.confirmationMessage = ""
                 root.confirmationFromSkip = false
@@ -220,9 +241,11 @@ Singleton {
                 root.isBreak = false
                 root.totalSeconds = root.workMinutes * 60
                 root.isRunning = true
+                root.isPaused = false
                 pomodoroTimer.start()
                 root.pendingSessionSwitch = false
                 root.pendingTargetIsBreak = false
+                root.awaitingContinuation = false
                 root.showConfirmation = false
                 root.confirmationMessage = ""
                 root.confirmationFromSkip = false
@@ -242,6 +265,8 @@ Singleton {
             root.isRunning = false
             root.isPaused = false
             root.pendingSessionSwitch = false
+            root.pendingTargetIsBreak = false
+            root.awaitingContinuation = false
         } else {
             root.showSessionSwitchConfirmation(true)
         }
@@ -316,20 +341,33 @@ Singleton {
     // Public function for UI to cancel session switch
     function cancelSessionSwitch() {
         const resumeTimer = root.confirmationFromSkip
+        const targetIsBreak = root.pendingTargetIsBreak
         root.showConfirmation = false
         root.confirmationFromSkip = false
         root.confirmationCallback = null
         root.pendingSessionSwitch = false
-        root.pendingTargetIsBreak = false
         root.confirmationMessage = ""
         if (resumeTimer) {
             // Resume the timer if the prompt came from an intentional skip
+            root.pendingTargetIsBreak = false
+            root.awaitingContinuation = false
             root.isRunning = true
             pomodoroTimer.start()
         } else {
-            root.isRunning = false
+            // Stay on the finished state with controls visible but paused
+            if (targetIsBreak) {
+                root.isBreak = false
+            } else {
+                root.isBreak = true
+            }
+            root.pendingTargetIsBreak = false
+            root.awaitingContinuation = true
+            root.isRunning = true
+            root.isPaused = true
             pomodoroTimer.stop()
-            root.isPaused = false
+            root.hasActiveSession = true
         }
+        sessionSwitchCancelled()
+        timerUpdated()
     }
 }

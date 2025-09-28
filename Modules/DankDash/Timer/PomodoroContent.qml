@@ -23,6 +23,7 @@ Item {
     property bool showConfirmation: PomodoroService.showConfirmation
     property string confirmationMessage: PomodoroService.confirmationMessage
     readonly property bool isLastWorkSession: PomodoroService.isLastWorkSession
+    property bool awaitingContinuation: PomodoroService.awaitingContinuation
 
     property bool showConflictDialog: false
     property string conflictMessage: ""
@@ -504,7 +505,9 @@ Continue?`
                 Text {
                     anchors.centerIn: parent
                     text: {
-                        if (root.isRunning && !root.isPaused) {
+                        if (root.awaitingContinuation) {
+                            return "Continue"
+                        } else if (root.isRunning && !root.isPaused) {
                             return "Pause"
                         } else if (root.isRunning && root.isPaused) {
                             return "Resume"
@@ -554,6 +557,7 @@ Continue?`
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                 border.width: 1
                 visible: root.isRunning
+                enabled: root.totalSeconds > 0 && !root.awaitingContinuation
 
                 Text {
                     anchors.centerIn: parent
