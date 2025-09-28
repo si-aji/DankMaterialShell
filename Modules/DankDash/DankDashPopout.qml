@@ -16,6 +16,7 @@ DankPopout {
     property string triggerSection: "center"
     property var triggerScreen: null
     property int currentTabIndex: 0
+    property var timerTabComponent: null
 
     function setTriggerPosition(x, y, width, section, screen) {
         if (section === "center") {
@@ -206,6 +207,12 @@ DankPopout {
 
                     TimerTab {
                         id: timerTab
+                        Component.onCompleted: root.timerTabComponent = this
+                        onVisibleChanged: {
+                            if (visible) {
+                                root.timerTabComponent = this
+                            }
+                        }
                     }
 
                     // TodoTab {

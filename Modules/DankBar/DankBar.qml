@@ -520,7 +520,8 @@ PanelWindow {
                                                                      "memUsage": DgopService.dgopAvailable,
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
-                                                                     "network_speed_monitor": DgopService.dgopAvailable
+                                                                     "network_speed_monitor": DgopService.dgopAvailable,
+                                                                     "pomodoro": true
                                                                  })
 
                         function getWidgetVisible(widgetId) {
@@ -579,7 +580,8 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -796,7 +798,8 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -843,7 +846,8 @@ PanelWindow {
                                     property int spacerSize: model.size || 20
 
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                                    active: topBarContent.getWidgetVisible(model.widgetId) && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                    active: topBarContent.getWidgetVisible(model.widgetId)
+                                             && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -1313,9 +1317,14 @@ PanelWindow {
                         Component {
                             id: pomodoroComponent
 
-                            PomodoroWidget {
+                            PomodoroIndicator {
                                 widgetHeight: root.widgetHeight
-                                isAtBottom: SettingsData.dankBarAtBottom
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
                                 parentScreen: root.screen
                             }
                         }

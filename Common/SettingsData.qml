@@ -271,15 +271,25 @@ Singleton {
                     dankBarLeftWidgets = widgetOrder.filter(w => {
                                                                               return ["launcherButton", "workspaceSwitcher", "focusedWindow"].includes(w)
                                                                           })
-                    dankBarCenterWidgets = widgetOrder.filter(w => {
-                                                                                return ["clock", "music", "weather"].includes(w)
-                                                                            })
+                    var filteredCenter = widgetOrder.filter(w => {
+                                                            return ["clock", "music", "weather", "pomodoro"].includes(w)
+                                                        })
+                    if (!filteredCenter.includes("pomodoro")) {
+                        filteredCenter = filteredCenter.concat(["pomodoro"])
+                    }
+                    dankBarCenterWidgets = filteredCenter
                     dankBarRightWidgets = widgetOrder.filter(w => {
                                                                                return ["systemTray", "clipboard", "systemResources", "notificationButton", "battery", "controlCenterButton"].includes(w)
                                                                            })
+                    updateListModel(leftWidgetsModel, dankBarLeftWidgets)
+                    updateListModel(centerWidgetsModel, dankBarCenterWidgets)
+                    updateListModel(rightWidgetsModel, dankBarRightWidgets)
                 } else {
                     var leftWidgets = settings.dankBarLeftWidgets !== undefined ? settings.dankBarLeftWidgets : (settings.topBarLeftWidgets !== undefined ? settings.topBarLeftWidgets : ["launcherButton", "workspaceSwitcher", "focusedWindow"])
                     var centerWidgets = settings.dankBarCenterWidgets !== undefined ? settings.dankBarCenterWidgets : (settings.topBarCenterWidgets !== undefined ? settings.topBarCenterWidgets : ["music", "clock", "weather", "pomodoro"])
+                    if (!centerWidgets.includes("pomodoro")) {
+                        centerWidgets = centerWidgets.concat(["pomodoro"])
+                    }
                     var rightWidgets = settings.dankBarRightWidgets !== undefined ? settings.dankBarRightWidgets : (settings.topBarRightWidgets !== undefined ? settings.topBarRightWidgets : ["systemTray", "clipboard", "cpuUsage", "memUsage", "notificationButton", "battery", "controlCenterButton"])
                     dankBarLeftWidgets = leftWidgets
                     dankBarCenterWidgets = centerWidgets
