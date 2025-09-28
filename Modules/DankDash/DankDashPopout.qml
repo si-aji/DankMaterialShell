@@ -187,6 +187,12 @@ DankPopout {
                             tabBar.currentIndex = 1
                             tabBar.tabClicked(1)
                         }
+
+                        onSwitchToTimerTab: {
+                            let timerIndex = SettingsData.weatherEnabled ? 3 : 2
+                            tabBar.currentIndex = timerIndex
+                            tabBar.tabClicked(timerIndex)
+                        }
                     }
 
                     MediaPlayerTab {
