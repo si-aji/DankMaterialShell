@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Basic
 import qs.Common
 import qs.Widgets
 
@@ -12,6 +13,7 @@ Item {
     property var startTime
     property var pauseTime
     property var pausedElapsed: 0
+    property var lapTimes: []
 
     Timer {
         id: stopwatchTimer
@@ -60,6 +62,14 @@ Item {
         root.isPaused = false
         root.elapsedMilliseconds = 0
         root.pausedElapsed = 0
+        root.lapTimes = []
+    }
+
+    function addLap() {
+        root.lapTimes.push({
+            time: root.elapsedMilliseconds,
+            formattedTime: formatTime(root.elapsedMilliseconds)
+        })
     }
 
     Row {
@@ -173,9 +183,7 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                console.log("Lap time:", formatTime(root.elapsedMilliseconds))
-                            }
+                            onClicked: addLap()
                             hoverEnabled: enabled
                             onEntered: if (enabled) cursorShape = Qt.PointingHandCursor
                             onExited: if (enabled) cursorShape = Qt.ArrowCursor
@@ -198,6 +206,76 @@ Item {
                 color: Theme.surfaceContainer
                 border.color: Theme.outline
                 border.width: 1
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: Theme.spacingM
+                    spacing: Theme.spacingM
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Lap Times"
+                        font.pixelSize: 24
+                        font.weight: Font.Bold
+                        color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                    }
+
+                    ScrollView {
+                        width: parent.width
+                        height: parent.height - y - Theme.spacingM
+                        clip: true
+
+                        Column {
+                            width: parent.width
+                            spacing: Theme.spacingS
+
+                            Text {
+                                width: parent.width
+                                text: root.lapTimes.length === 0 ?
+                                      (root.isRunning ? "click on lap button to start tracking lap times" :
+                                       "start stopwatch to start tracking lap time") : ""
+                                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+                                font.pixelSize: 14
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                                visible: root.lapTimes.length === 0
+                            }
+
+                            Repeater {
+                                model: root.lapTimes
+                                delegate: Rectangle {
+                                    width: parent.width
+                                    height: 40
+                                    radius: Theme.cornerRadiusSmall
+                                    color: Theme.surface
+                                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                                    border.width: 1
+
+                                    Row {
+                                        anchors.centerIn: parent
+                                        spacing: Theme.spacingS
+                                        width: parent.width - Theme.spacingM
+
+                                        Text {
+                                            text: "Lap " + (index + 1)
+                                            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                                            font.pixelSize: 14
+                                            font.weight: Font.Medium
+                                        }
+
+                                        Text {
+                                            text: modelData.formattedTime
+                                            color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+                                            font.pixelSize: 14
+                                            font.family: Theme.monoFont
+                                            anchors.right: parent.right
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
