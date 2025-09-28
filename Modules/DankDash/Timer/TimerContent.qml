@@ -133,7 +133,7 @@ Item {
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Timer"
+            text: "Timers"
             font.pixelSize: 36
             font.weight: Font.Bold
             color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
