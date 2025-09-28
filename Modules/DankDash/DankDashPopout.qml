@@ -135,6 +135,9 @@ DankPopout {
                         if (SettingsData.weatherEnabled) {
                             tabs.push({ icon: "wb_sunny", text: "Weather" })
                         }
+
+                        tabs.push({ icon: "timer", text: "Timer" })
+                        tabs.push({ icon: "done_all", text: "Todo" })
                         
                         tabs.push({ icon: "settings", text: "Settings", isAction: true })
                         return tabs
@@ -194,6 +197,14 @@ DankPopout {
                         id: weatherTab
                         visible: SettingsData.weatherEnabled && root.currentTabIndex === 2
                     }
+
+                    TimerTab {
+                        id: timerTab
+                    }
+
+                    // TodoTab {
+                    //     id: todoTab
+                    // }
                 }
             }
         }
