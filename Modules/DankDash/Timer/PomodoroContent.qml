@@ -23,12 +23,25 @@ Item {
             root.totalSeconds = temp
         })
     }
+
+    function getSessionColor(index) {
+        if (index < root.completedPomodoros) {
+            return Theme.primary  // Completed sessions
+        } else if (index === root.completedPomodoros && root.isRunning && !root.isBreak) {
+            return Theme.secondary  // Currently active work session
+        } else if (index === root.completedPomodoros && root.isRunning && root.isBreak) {
+            return Theme.tertiary  // Currently active break session
+        } else {
+            return Theme.surfaceVariant  // Future sessions
+        }
+    }
     property int completedPomodoros: 0
     property int targetPomodoros: 4
     property bool showCongratulations: false
     property bool showConfirmation: false
     property string confirmationMessage: ""
     property var confirmationCallback: null
+    readonly property bool isLastWorkSession: !root.isBreak && root.completedPomodoros === root.targetPomodoros - 1
 
     Timer {
         id: pomodoroTimer
@@ -42,8 +55,16 @@ Item {
                 root.isRunning = false
                 root.isPaused = false
 
-                // Show confirmation for switching sessions
-                root.showSessionSwitchConfirmation(false)
+                // Check if this is the last work session
+                if (root.isLastWorkSession) {
+                    // Go directly to congratulations
+                    root.completedPomodoros++
+                    root.showCongratulations = true
+                    congratsTimer.start()
+                } else {
+                    // Show confirmation for switching sessions
+                    root.showSessionSwitchConfirmation(false)
+                }
             }
         }
     }
@@ -231,13 +252,138 @@ Item {
             Repeater {
                 model: root.targetPomodoros
                 delegate: Rectangle {
+                    id: sessionIndicator
                     width: 20
                     height: 20
                     radius: Theme.cornerRadiusSmall
-                    color: index < root.completedPomodoros ? Theme.primary : Theme.surfaceVariant
+                    color: root.getSessionColor(index)
                     border.color: Theme.outline
                     border.width: 1
+
+                    // Add a subtle animation for color changes
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 300
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    // Check if this session is currently active
+                    readonly property bool isActive: index === root.completedPomodoros && root.isRunning
+
+                    // Pulsing animation for active session
+                    SequentialAnimation on scale {
+                        running: sessionIndicator.isActive && !root.showConfirmation && !root.showCongratulations
+                        loops: Animation.Infinite
+                        alwaysRunToEnd: true
+
+                        ScaleAnimator {
+                            from: 1.0
+                            to: 1.2
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+
+                        ScaleAnimator {
+                            from: 1.2
+                            to: 1.0
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    // Breathing opacity animation for active session
+                    SequentialAnimation on opacity {
+                        running: sessionIndicator.isActive && !root.showConfirmation && !root.showCongratulations
+                        loops: Animation.Infinite
+                        alwaysRunToEnd: true
+
+                        OpacityAnimator {
+                            from: 1.0
+                            to: 0.6
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+
+                        OpacityAnimator {
+                            from: 0.6
+                            to: 1.0
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    // Subtle glow effect for active session
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        radius: parent.radius + 4
+                        color: "transparent"
+                        border.color: parent.color
+                        border.width: sessionIndicator.isActive ? 2 : 0
+                        opacity: sessionIndicator.isActive ? 0.5 : 0
+
+                        Behavior on border.width {
+                            NumberAnimation {
+                                duration: 300
+                                easing.type: Easing.InOutQuad
+                            }
+                        }
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 300
+                                easing.type: Easing.InOutQuad
+                            }
+                        }
+                    }
                 }
+            }
+        }
+
+        // Color Legend
+        Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.spacingS
+            visible: !root.showCongratulations && !root.showConfirmation && !root.isRunning
+
+            Rectangle {
+                width: 12
+                height: 12
+                radius: 2
+                color: Theme.primary
+            }
+
+            Text {
+                text: "Done"
+                font.pixelSize: 10
+                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+            }
+
+            Rectangle {
+                width: 12
+                height: 12
+                radius: 2
+                color: Theme.secondary
+            }
+
+            Text {
+                text: "Current"
+                font.pixelSize: 10
+                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+            }
+
+            Rectangle {
+                width: 12
+                height: 12
+                radius: 2
+                color: Theme.surfaceVariant
+            }
+
+            Text {
+                text: "Upcoming"
+                font.pixelSize: 10
+                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
             }
         }
 
@@ -503,26 +649,38 @@ Item {
                 }
             }
 
-            // Skip button
+            // Skip/Finish button
             Rectangle {
                 width: 80
                 height: 40
                 radius: Theme.cornerRadius
-                color: Theme.surface
+                color: root.isLastWorkSession ? Theme.primary : Theme.surface
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                 border.width: 1
                 visible: root.isRunning
 
                 Text {
                     anchors.centerIn: parent
-                    text: "Skip"
-                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+                    text: root.isLastWorkSession ? "Finish" : "Skip"
+                    color: root.isLastWorkSession ? Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1) : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
                     font.pixelSize: 14
                 }
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: skipSession()
+                    onClicked: {
+                        if (root.isLastWorkSession) {
+                            // On last work session, go directly to congratulations
+                            root.completedPomodoros++
+                            root.showCongratulations = true
+                            congratsTimer.start()
+                            pomodoroTimer.stop()
+                            root.isRunning = false
+                            root.isPaused = false
+                        } else {
+                            skipSession()
+                        }
+                    }
                     hoverEnabled: true
                     onEntered: cursorShape = Qt.PointingHandCursor
                     onExited: cursorShape = Qt.ArrowCursor
