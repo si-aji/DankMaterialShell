@@ -132,6 +132,7 @@ Item {
             }
         } else {
             // Show confirmation for switching to work
+            root.confirmationMessage = "Start work time?"
             root.confirmationCallback = function() {
                 root.isBreak = false
                 root.totalSeconds = root.workMinutes * 60
