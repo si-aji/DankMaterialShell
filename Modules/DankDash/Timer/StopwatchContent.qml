@@ -43,7 +43,8 @@ Item {
             return
         }
         pendingAction = action
-        conflictMessage = `Starting the stopwatch will stop ${conflicts.join(" and ")}. Continue?`
+        conflictMessage = `Starting the stopwatch will stop ${conflicts.join(" and ")}.
+Continue?`
         showConflictDialog = true
     }
 
@@ -330,8 +331,8 @@ Item {
         id: conflictDialog
         visible: showConflictDialog
         anchors.centerIn: parent
-        width: 280
-        height: 160
+        width: Math.min(Math.max(240, parent.width - Theme.spacingL * 2), 340)
+        height: dialogColumn.implicitHeight + Theme.spacingM * 2
         radius: Theme.cornerRadius
         color: Theme.surfaceContainer
         border.color: Theme.outline
@@ -339,7 +340,12 @@ Item {
         z: 200
 
         Column {
-            anchors.centerIn: parent
+            id: dialogColumn
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: Theme.spacingM
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: Theme.spacingM
             spacing: Theme.spacingM
             width: parent.width - Theme.spacingL * 2
 
@@ -349,6 +355,7 @@ Item {
                 color: Theme.surfaceText
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
 
             Row {
