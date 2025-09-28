@@ -99,11 +99,12 @@ Item {
                 }
 
                 Text {
+                    id: timerDisplay
+                    anchors.horizontalCenter: parent.horizontalCenter
                     text: formatTime(root.elapsedMilliseconds)
                     font.pixelSize: 48
                     font.family: Theme.monoFont
                     color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
-                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Row {
@@ -115,14 +116,38 @@ Item {
                         width: 100
                         height: 40
                         radius: Theme.cornerRadius
-                        color: Theme.primary
-                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                        color: {
+                            if (root.isRunning && !root.isPaused) {
+                                return Theme.secondary
+                            } else if (root.isRunning && root.isPaused) {
+                                return Theme.primary
+                            } else {
+                                return Theme.primary
+                            }
+                        }
+                        border.color: {
+                            if (root.isRunning) {
+                                return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                            } else {
+                                return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                            }
+                        }
                         border.width: 1
 
                         Text {
                             anchors.centerIn: parent
                             text: root.isPaused ? "Resume" : (root.isRunning ? "Pause" : "Start")
-                            color: Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                            color: {
+                                if (root.isRunning) {
+                                    if (root.isPaused) {
+                                        return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                                    } else {
+                                        return Theme.onSecondary
+                                    }
+                                } else {
+                                    return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                                }
+                            }
                             font.pixelSize: 14
                         }
 
@@ -148,24 +173,24 @@ Item {
                         width: 80
                         height: 40
                         radius: Theme.cornerRadius
-                        color: enabled ? Theme.surface : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
-                        border.color: enabled ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08) : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
+                        color: Theme.error
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                         border.width: 1
-                        enabled: root.isRunning || root.isPaused
+                        visible: root.isRunning || root.isPaused
 
                         Text {
                             anchors.centerIn: parent
                             text: "Reset"
-                            color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+                            color: Theme.onError
                             font.pixelSize: 14
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             onClicked: resetStopwatch()
-                            hoverEnabled: enabled
-                            onEntered: if (enabled) cursorShape = Qt.PointingHandCursor
-                            onExited: if (enabled) cursorShape = Qt.ArrowCursor
+                            hoverEnabled: true
+                            onEntered: cursorShape = Qt.PointingHandCursor
+                            onExited: cursorShape = Qt.ArrowCursor
                         }
                     }
 
@@ -174,10 +199,10 @@ Item {
                         width: 80
                         height: 40
                         radius: Theme.cornerRadius
-                        color: enabled ? Theme.surface : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
-                        border.color: enabled ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08) : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
+                        color: root.elapsedMilliseconds > 0 ? Theme.surface : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+                        border.color: root.elapsedMilliseconds > 0 ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08) : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
                         border.width: 1
-                        enabled: root.isRunning
+                        visible: root.isRunning
 
                         Text {
                             anchors.centerIn: parent
@@ -189,9 +214,9 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: addLap()
-                            hoverEnabled: enabled
-                            onEntered: if (enabled) cursorShape = Qt.PointingHandCursor
-                            onExited: if (enabled) cursorShape = Qt.ArrowCursor
+                            hoverEnabled: true
+                            onEntered: cursorShape = Qt.PointingHandCursor
+                            onExited: cursorShape = Qt.ArrowCursor
                         }
                     }
                 }
