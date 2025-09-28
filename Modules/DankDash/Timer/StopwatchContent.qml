@@ -269,7 +269,7 @@ Item {
                         property int contentHeightCalc: {
                             var height = 0
                             if (instructionText.visible) height += 50 // estimated height for instruction text
-                            height += lapRepeater.count * 50 // 40 for each lap + 10 for spacing
+                            height += lapRepeater.count * 45 // 45 for each lap
                             return Math.max(height, lapFlickable.height) // ensure minimum height
                         }
 
@@ -294,32 +294,59 @@ Item {
                             Repeater {
                                 id: lapRepeater
                                 model: root.lapTimes
-                                delegate: Rectangle {
+                                delegate: Item {
                                     width: parent.width
-                                    height: 40
-                                    radius: Theme.cornerRadiusSmall
-                                    color: Theme.surface
-                                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                                    border.width: 1
+                                    height: 45
+
+                                    Rectangle {
+                                        width: parent.width
+                                        height: 1
+                                        color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.15)
+                                        anchors.bottom: parent.bottom
+                                        visible: index < root.lapTimes.length - 1
+                                    }
 
                                     Row {
-                                        anchors.centerIn: parent
+                                        anchors.fill: parent
+                                        anchors.leftMargin: Theme.spacingM
+                                        anchors.rightMargin: Theme.spacingM
                                         spacing: Theme.spacingS
-                                        width: parent.width - Theme.spacingM
 
-                                        Text {
-                                            text: "Lap " + (index + 1)
-                                            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
-                                            font.pixelSize: 14
-                                            font.weight: Font.Medium
+                                        Column {
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            spacing: 2
+
+                                            Text {
+                                                text: "Lap " + (index + 1)
+                                                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                                                font.pixelSize: 14
+                                                font.weight: Font.Medium
+                                            }
+
+                                            Text {
+                                                text: modelData.formattedTime
+                                                color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+                                                font.pixelSize: 20
+                                                font.family: Theme.monoFont
+                                                font.weight: Font.Bold
+                                            }
                                         }
 
-                                        Text {
-                                            text: modelData.formattedTime
-                                            color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
-                                            font.pixelSize: 14
-                                            font.family: Theme.monoFont
+                                        Column {
+                                            anchors.top: parent.top
+                                            anchors.topMargin: 2
                                             anchors.right: parent.right
+                                            spacing: 2
+
+                                            Text {
+                                                text: index === 0 ? "First lap" :
+                                                      index === root.lapTimes.length - 1 ? "Latest lap" :
+                                                      "+" + formatTime(modelData.time - root.lapTimes[index - 1].time)
+                                                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.5)
+                                                font.pixelSize: 11
+                                                horizontalAlignment: Text.AlignRight
+                                                width: 80
+                                            }
                                         }
                                     }
                                 }
