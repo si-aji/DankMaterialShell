@@ -9,6 +9,7 @@ Item {
 
     property real widgetHeight: 30
     property bool isAtBottom: false
+    property bool containsMouse: false
 
     width: 120
     height: widgetHeight
@@ -84,13 +85,39 @@ Item {
             }
         }
 
+        // Reset button (only visible when running and hovered)
+        DankIcon {
+            name: "refresh"
+            size: 14
+            color: Theme.error
+            visible: root.isRunning && root.containsMouse
+            opacity: root.containsMouse ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onClicked: {
+                    PomodoroService.resetPomodoro()
+                }
+            }
+        }
+
         // Progress indicator
         Rectangle {
             width: 4
             height: 4
             radius: 2
             color: root.isBreak ? Theme.secondary : Theme.primary
-            visible: root.isRunning
+            visible: root.isRunning && !root.containsMouse
 
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -102,15 +129,8 @@ Item {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
 
-        onClicked: {
-            // Open DankDash to Timer tab when clicked
-            if (typeof dankDashPopout !== 'undefined') {
-                dankDashPopout.dashVisible = true
-                dankDashPopout.currentTabIndex = 2 // Timer tab
-            }
-        }
-
         onEntered: {
+            root.containsMouse = true
             // Show tooltip with status
             let status = root.isRunning ?
                         (root.isBreak ? "Break time" : "Focus time") :
@@ -118,6 +138,18 @@ Item {
             let completed = `${root.completedPomodoros}/4 completed`
 
             // You could show a tooltip here if you have a tooltip system
+        }
+
+        onExited: {
+            root.containsMouse = false
+        }
+
+        onClicked: {
+            // Open DankDash to Timer tab when clicked
+            if (typeof dankDashPopout !== 'undefined') {
+                dankDashPopout.dashVisible = true
+                dankDashPopout.currentTabIndex = 2 // Timer tab
+            }
         }
     }
 

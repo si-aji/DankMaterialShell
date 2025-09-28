@@ -108,12 +108,50 @@ Card {
             }
         }
 
-        // Session info
-        Text {
-            text: `${PomodoroService.completedPomodoros}/${PomodoroService.targetPomodoros} completed`
-            font.pixelSize: 12
-            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+        // Session info and reset button
+        Row {
             anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.spacingM
+
+            Text {
+                text: `${PomodoroService.completedPomodoros}/${PomodoroService.targetPomodoros} completed`
+                font.pixelSize: 12
+                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+            }
+
+            // Reset button
+            Rectangle {
+                width: 24
+                height: 24
+                radius: Theme.cornerRadiusSmall
+                color: Theme.error
+                visible: PomodoroService.isRunning
+                opacity: root.containsMouse ? 1 : 0.7
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+
+                DankIcon {
+                    anchors.centerIn: parent
+                    name: "refresh"
+                    size: 16
+                    color: Theme.onError
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+
+                    onClicked: {
+                        PomodoroService.resetPomodoro()
+                    }
+                }
+            }
         }
     }
 
