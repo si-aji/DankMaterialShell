@@ -521,7 +521,8 @@ PanelWindow {
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
                                                                      "network_speed_monitor": DgopService.dgopAvailable,
-                                                                     "pomodoro": PomodoroService.isRunning
+                                                                     "pomodoro": PomodoroService.isRunning,
+                                                                     "stopwatch": StopwatchService.isRunning || StopwatchService.isPaused
                                                                  })
 
                         function getWidgetVisible(widgetId) {
@@ -556,7 +557,8 @@ PanelWindow {
                                                                  "notepadButton": notepadButtonComponent,
                                                                  "colorPicker": colorPickerComponent,
                                                                  "systemUpdate": systemUpdateComponent,
-                                                                 "pomodoro": pomodoroComponent
+                                                                 "pomodoro": pomodoroComponent,
+                                                                 "stopwatch": stopwatchComponent
                                                              })
 
                         function getWidgetComponent(widgetId) {
@@ -583,6 +585,7 @@ PanelWindow {
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -802,6 +805,7 @@ PanelWindow {
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -851,6 +855,7 @@ PanelWindow {
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
+                                             && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
                                     opacity: topBarContent.getWidgetEnabled(model.enabled) ? 1 : 0
                                     asynchronous: false
@@ -1321,6 +1326,21 @@ PanelWindow {
                             id: pomodoroComponent
 
                             PomodoroIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
+                            }
+                        }
+
+                        Component {
+                            id: stopwatchComponent
+
+                            StopwatchIndicator {
                                 widgetHeight: root.widgetHeight
                                 barHeight: root.effectiveBarHeight
                                 section: topBarContent.getWidgetSection(parent) || "center"
