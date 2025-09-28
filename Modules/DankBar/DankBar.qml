@@ -521,7 +521,7 @@ PanelWindow {
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
                                                                      "network_speed_monitor": DgopService.dgopAvailable,
-                                                                     "timer": TimerService.isRunning || TimerService.isPaused,
+                                                                     "timer": TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion,
                                                                      "pomodoro": PomodoroService.isRunning,
                                                                      "stopwatch": StopwatchService.isRunning || StopwatchService.isPaused
                                                                  })
@@ -586,7 +586,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
-                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
@@ -807,7 +807,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
-                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
@@ -858,7 +858,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
-                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)

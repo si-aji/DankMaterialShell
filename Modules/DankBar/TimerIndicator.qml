@@ -12,10 +12,10 @@ Rectangle {
     property var popupTarget: null
     property var parentScreen: null
 
-    readonly property bool isActive: TimerService.isRunning || TimerService.isPaused
+    readonly property bool isActive: TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion
     readonly property bool isPaused: TimerService.isPaused
     readonly property real horizontalPadding: SettingsData.dankBarNoBackground ? 2 : Theme.spacingXS
-    readonly property string timeText: TimerService.formattedRemaining
+    readonly property string timeText: TimerService.showCompletion ? TimerService.completionMessage : TimerService.formattedRemaining
 
     width: isActive ? contentRow.implicitWidth + horizontalPadding * 2 : 0
     height: widgetHeight
@@ -46,13 +46,13 @@ Rectangle {
             width: Theme.iconSize - 4
             height: Theme.iconSize - 4
             radius: (Theme.iconSize - 4) / 2
-            color: isPaused ? Theme.surfaceVariant : Theme.secondary
+            color: TimerService.showCompletion ? Theme.primary : (isPaused ? Theme.surfaceVariant : Theme.secondary)
 
             DankIcon {
                 anchors.centerIn: parent
-                name: isPaused ? "pause_circle" : "hourglass_top"
+                name: TimerService.showCompletion ? "celebration" : (isPaused ? "pause_circle" : "hourglass_top")
                 size: Theme.iconSize - 10
-                color: isPaused ? Theme.onSurfaceVariant : Theme.onSecondary
+                color: TimerService.showCompletion ? Theme.onPrimary : (isPaused ? Theme.onSurfaceVariant : Theme.onSecondary)
             }
         }
 
@@ -62,7 +62,7 @@ Rectangle {
             isMonospace: true
             font.pixelSize: Theme.fontSizeMedium
             font.weight: Font.DemiBold
-            color: Theme.surfaceText
+            color: TimerService.showCompletion ? Theme.primary : Theme.surfaceText
         }
     }
 
