@@ -17,6 +17,7 @@ Item {
     property int displaySeconds: totalSeconds % 60
     property int completedPomodoros: 0
     property int targetPomodoros: 4
+    property bool showCongratulations: false
 
     Timer {
         id: pomodoroTimer
@@ -34,14 +35,32 @@ Item {
                 if (!root.isBreak) {
                     // Work session completed
                     root.completedPomodoros++
-                    root.isBreak = true
-                    root.totalSeconds = root.breakMinutes * 60
+
+                    // Check if all pomodoros are completed
+                    if (root.completedPomodoros >= root.targetPomodoros) {
+                        root.showCongratulations = true
+                        // Show congratulations for 3 seconds then reset
+                        congratsTimer.start()
+                    } else {
+                        root.isBreak = true
+                        root.totalSeconds = root.breakMinutes * 60
+                    }
                 } else {
                     // Break completed
                     root.isBreak = false
                     root.totalSeconds = root.workMinutes * 60
                 }
             }
+        }
+    }
+
+    Timer {
+        id: congratsTimer
+        interval: 3000
+        repeat: false
+        onTriggered: {
+            root.showCongratulations = false
+            root.resetPomodoro()
         }
     }
 
@@ -90,8 +109,16 @@ Item {
         if (!root.isBreak) {
             // Skip work session, start break
             root.completedPomodoros++
-            root.isBreak = true
-            root.totalSeconds = root.breakMinutes * 60
+
+            // Check if all pomodoros are completed
+            if (root.completedPomodoros >= root.targetPomodoros) {
+                root.showCongratulations = true
+                // Show congratulations for 3 seconds then reset
+                congratsTimer.start()
+            } else {
+                root.isBreak = true
+                root.totalSeconds = root.breakMinutes * 60
+            }
         } else {
             // Skip break, start work
             root.isBreak = false
@@ -156,6 +183,7 @@ Item {
             font.pixelSize: 48
             font.family: Theme.monoFont
             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+            visible: !root.showCongratulations
         }
 
         Text {
@@ -164,12 +192,14 @@ Item {
             font.pixelSize: 18
             font.weight: Font.Medium
             color: root.isBreak ? Theme.secondary : Theme.primary
+            visible: !root.showCongratulations
         }
 
         // Progress Indicator
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingXS
+            visible: !root.showCongratulations
 
             Repeater {
                 model: root.targetPomodoros
@@ -184,11 +214,29 @@ Item {
             }
         }
 
+        // Congratulations Message
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "🎉 Congrats, session finished! 🎉"
+            font.pixelSize: 24
+            font.weight: Font.Bold
+            color: Theme.primary
+            visible: root.showCongratulations
+            opacity: root.showCongratulations ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 500
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
+
         // Time Configuration
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingL
-            visible: !root.isRunning
+            visible: !root.isRunning && !root.showCongratulations
 
             // Work Time Configuration
             Column {
@@ -359,6 +407,7 @@ Item {
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
+            visible: !root.showCongratulations
 
             Rectangle {
                 width: 80
