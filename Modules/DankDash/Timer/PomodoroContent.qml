@@ -18,6 +18,9 @@ Item {
     property int completedPomodoros: 0
     property int targetPomodoros: 4
     property bool showCongratulations: false
+    property bool showConfirmation: false
+    property string confirmationMessage: ""
+    property var confirmationCallback: null
 
     Timer {
         id: pomodoroTimer
@@ -31,25 +34,8 @@ Item {
                 root.isRunning = false
                 root.isPaused = false
 
-                // Switch between work and break
-                if (!root.isBreak) {
-                    // Work session completed
-                    root.completedPomodoros++
-
-                    // Check if all pomodoros are completed
-                    if (root.completedPomodoros >= root.targetPomodoros) {
-                        root.showCongratulations = true
-                        // Show congratulations for 3 seconds then reset
-                        congratsTimer.start()
-                    } else {
-                        root.isBreak = true
-                        root.totalSeconds = root.breakMinutes * 60
-                    }
-                } else {
-                    // Break completed
-                    root.isBreak = false
-                    root.totalSeconds = root.workMinutes * 60
-                }
+                // Show confirmation for switching sessions
+                root.showSessionSwitchConfirmation(false)
             }
         }
     }
@@ -105,25 +91,38 @@ Item {
         root.totalSeconds = root.workMinutes * 60
     }
 
-    function skipSession() {
+    function showSessionSwitchConfirmation(isFromSkip) {
         if (!root.isBreak) {
-            // Skip work session, start break
-            root.completedPomodoros++
+            // Show confirmation for switching to break
+            root.confirmationMessage = "Start break time?"
+            root.confirmationCallback = function() {
+                root.completedPomodoros++
 
-            // Check if all pomodoros are completed
-            if (root.completedPomodoros >= root.targetPomodoros) {
-                root.showCongratulations = true
-                // Show congratulations for 3 seconds then reset
-                congratsTimer.start()
-            } else {
-                root.isBreak = true
-                root.totalSeconds = root.breakMinutes * 60
+                // Check if all pomodoros are completed
+                if (root.completedPomodoros >= root.targetPomodoros) {
+                    root.showCongratulations = true
+                    // Show congratulations for 3 seconds then reset
+                    congratsTimer.start()
+                } else {
+                    root.isBreak = true
+                    root.totalSeconds = root.breakMinutes * 60
+                }
+                root.showConfirmation = false
             }
         } else {
-            // Skip break, start work
-            root.isBreak = false
-            root.totalSeconds = root.workMinutes * 60
+            // Show confirmation for switching to work
+            root.confirmationMessage = "Start focus time?"
+            root.confirmationCallback = function() {
+                root.isBreak = false
+                root.totalSeconds = root.workMinutes * 60
+                root.showConfirmation = false
+            }
         }
+        root.showConfirmation = true
+    }
+
+    function skipSession() {
+        root.showSessionSwitchConfirmation(true)
     }
 
     function incrementTime(unit) {
@@ -183,7 +182,7 @@ Item {
             font.pixelSize: 48
             font.family: Theme.monoFont
             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
-            visible: !root.showCongratulations
+            visible: !root.showCongratulations && !root.showConfirmation
         }
 
         Text {
@@ -192,14 +191,14 @@ Item {
             font.pixelSize: 18
             font.weight: Font.Medium
             color: root.isBreak ? Theme.secondary : Theme.primary
-            visible: !root.showCongratulations
+            visible: !root.showCongratulations && !root.showConfirmation
         }
 
         // Progress Indicator
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingXS
-            visible: !root.showCongratulations
+            visible: !root.showCongratulations && !root.showConfirmation
 
             Repeater {
                 model: root.targetPomodoros
@@ -232,11 +231,109 @@ Item {
             }
         }
 
+        // Confirmation Dialog
+        Rectangle {
+            anchors.centerIn: parent
+            width: 300
+            height: 180
+            radius: Theme.cornerRadius
+            color: Theme.surfaceContainer
+            border.color: Theme.outline
+            border.width: 1
+            visible: root.showConfirmation
+            opacity: root.showConfirmation ? 1 : 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 300
+                    easing.type: Easing.InOutQuad
+                }
+            }
+
+            Column {
+                anchors.centerIn: parent
+                spacing: Theme.spacingL
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.confirmationMessage
+                    font.pixelSize: 18
+                    font.weight: Font.Medium
+                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                    horizontalAlignment: Text.AlignHCenter
+                    width: parent.width - Theme.spacingL * 2
+                    wrapMode: Text.WordWrap
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: Theme.spacingM
+
+                    Rectangle {
+                        width: 80
+                        height: 40
+                        radius: Theme.cornerRadius
+                        color: Theme.primary
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Yes"
+                            color: Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                            font.pixelSize: 14
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                if (root.confirmationCallback) {
+                                    root.confirmationCallback()
+                                }
+                            }
+                            hoverEnabled: true
+                            onEntered: cursorShape = Qt.PointingHandCursor
+                            onExited: cursorShape = Qt.ArrowCursor
+                        }
+                    }
+
+                    Rectangle {
+                        width: 80
+                        height: 40
+                        radius: Theme.cornerRadius
+                        color: Theme.surface
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "No"
+                            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
+                            font.pixelSize: 14
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                root.showConfirmation = false
+                                // Resume the timer if user cancels
+                                root.isRunning = true
+                                pomodoroTimer.start()
+                            }
+                            hoverEnabled: true
+                            onEntered: cursorShape = Qt.PointingHandCursor
+                            onExited: cursorShape = Qt.ArrowCursor
+                        }
+                    }
+                }
+            }
+        }
+
         // Time Configuration
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingL
-            visible: !root.isRunning && !root.showCongratulations
+            visible: !root.isRunning && !root.showCongratulations && !root.showConfirmation
 
             // Work Time Configuration
             Column {
@@ -407,7 +504,7 @@ Item {
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
-            visible: !root.showCongratulations
+            visible: !root.showCongratulations && !root.showConfirmation
 
             Rectangle {
                 width: 80
