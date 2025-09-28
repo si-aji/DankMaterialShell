@@ -24,13 +24,52 @@ Item {
     property string confirmationMessage: PomodoroService.confirmationMessage
     readonly property bool isLastWorkSession: PomodoroService.isLastWorkSession
 
+    property bool showConflictDialog: false
+    property string conflictMessage: ""
+    property string pendingAction: ""
+
+    function activeProcesses() {
+        const processes = []
+        if (TimerService.isRunning || TimerService.isPaused)
+            processes.push("Timer")
+        if (StopwatchService.isRunning || StopwatchService.isPaused)
+            processes.push("Stopwatch")
+        return processes
+    }
+
+    function stopOtherProcesses() {
+        if (TimerService.isRunning || TimerService.isPaused)
+            TimerService.stopTimer()
+        if (StopwatchService.isRunning || StopwatchService.isPaused)
+            StopwatchService.resetStopwatch()
+    }
+
+    function executePendingAction() {
+        if (pendingAction === "start")
+            PomodoroService.startPomodoro()
+        else if (pendingAction === "resume")
+            PomodoroService.resumePomodoro()
+        pendingAction = ""
+    }
+
+    function requestStartOrResume(action) {
+        const conflicts = activeProcesses()
+        if (conflicts.length === 0) {
+            pendingAction = action
+            executePendingAction()
+            return
+        }
+        pendingAction = action
+        conflictMessage = `Starting Pomodoro will stop ${conflicts.join(" and ")}. Continue?`
+        showConflictDialog = true
+    }
 
     function formatTime() {
         return PomodoroService.formatTime()
     }
 
     function startPomodoro() {
-        PomodoroService.startPomodoro()
+        requestStartOrResume("start")
     }
 
     function pausePomodoro() {
@@ -38,7 +77,7 @@ Item {
     }
 
     function resumePomodoro() {
-        PomodoroService.resumePomodoro()
+        requestStartOrResume("resume")
     }
 
     function stopPomodoro() {
@@ -587,6 +626,93 @@ Item {
                     hoverEnabled: true
                     onEntered: cursorShape = Qt.PointingHandCursor
                     onExited: cursorShape = Qt.ArrowCursor
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: conflictDialog
+        visible: showConflictDialog
+        anchors.centerIn: parent
+        width: 280
+        height: 160
+        radius: Theme.cornerRadius
+        color: Theme.surfaceContainer
+        border.color: Theme.outline
+        border.width: 1
+        opacity: showConflictDialog ? 1 : 0
+        z: 180
+
+        Column {
+            anchors.centerIn: parent
+            spacing: Theme.spacingM
+            width: parent.width - Theme.spacingL * 2
+
+            Text {
+                text: conflictMessage
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.surfaceText
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.spacingM
+
+                Rectangle {
+                    width: 100
+                    height: 36
+                    radius: Theme.cornerRadius
+                    color: Theme.primary
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Yes"
+                        color: Theme.onPrimary
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            stopOtherProcesses()
+                            executePendingAction()
+                            pendingAction = ""
+                            showConflictDialog = false
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
+                }
+
+                Rectangle {
+                    width: 100
+                    height: 36
+                    radius: Theme.cornerRadius
+                    color: Theme.surface
+                    border.color: Theme.outline
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Cancel"
+                        color: Theme.surfaceText
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            pendingAction = ""
+                            showConflictDialog = false
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
                 }
             }
         }

@@ -7,6 +7,45 @@ import qs.Widgets
 Item {
     id: root
 
+    property bool showConflictDialog: false
+    property string conflictMessage: ""
+    property string pendingAction: ""
+
+    function activeProcesses() {
+        const processes = []
+        if (PomodoroService.isRunning || PomodoroService.isPaused)
+            processes.push("Pomodoro")
+        if (StopwatchService.isRunning || StopwatchService.isPaused)
+            processes.push("Stopwatch")
+        return processes
+    }
+
+    function stopOtherProcesses() {
+        if (PomodoroService.isRunning || PomodoroService.isPaused)
+            PomodoroService.stopPomodoro()
+        if (StopwatchService.isRunning || StopwatchService.isPaused)
+            StopwatchService.resetStopwatch()
+    }
+
+    function executeAction(action) {
+        if (action === "start")
+            TimerService.startTimer()
+        else if (action === "resume")
+            TimerService.resumeTimer()
+        pendingAction = ""
+    }
+
+    function requestStartOrResume(action) {
+        const conflicts = activeProcesses()
+        if (conflicts.length === 0) {
+            executeAction(action)
+            return
+        }
+        pendingAction = action
+        conflictMessage = `Starting the timer will stop ${conflicts.join(" and ")}. Continue?`
+        showConflictDialog = true
+    }
+
     Column {
         anchors.centerIn: parent
         spacing: Theme.spacingL
@@ -167,12 +206,12 @@ Item {
                     onClicked: {
                         if (TimerService.isRunning) {
                             if (TimerService.isPaused) {
-                                TimerService.resumeTimer()
+                                requestStartOrResume("resume")
                             } else {
                                 TimerService.pauseTimer()
                             }
                         } else {
-                            TimerService.startTimer()
+                            requestStartOrResume("start")
                         }
                     }
                     hoverEnabled: enabled
@@ -233,5 +272,90 @@ Item {
             }
         }
     }
-}
 
+    Rectangle {
+        id: conflictDialog
+        visible: showConflictDialog
+        anchors.centerIn: parent
+        width: 280
+        height: 160
+        radius: Theme.cornerRadius
+        color: Theme.surfaceContainer
+        border.color: Theme.outline
+        border.width: 1
+        z: 200
+
+        Column {
+            anchors.centerIn: parent
+            spacing: Theme.spacingM
+            width: parent.width - Theme.spacingL * 2
+
+            Text {
+                text: conflictMessage
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.surfaceText
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.spacingM
+
+                Rectangle {
+                    width: 100
+                    height: 36
+                    radius: Theme.cornerRadius
+                    color: Theme.primary
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Yes"
+                        color: Theme.onPrimary
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            stopOtherProcesses()
+                            executeAction(pendingAction)
+                            pendingAction = ""
+                            showConflictDialog = false
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
+                }
+
+                Rectangle {
+                    width: 100
+                    height: 36
+                    radius: Theme.cornerRadius
+                    color: Theme.surface
+                    border.color: Theme.outline
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Cancel"
+                        color: Theme.surfaceText
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            pendingAction = ""
+                            showConflictDialog = false
+                        }
+                        hoverEnabled: true
+                        onEntered: cursorShape = Qt.PointingHandCursor
+                        onExited: cursorShape = Qt.ArrowCursor
+                    }
+                }
+            }
+        }
+    }
+}
