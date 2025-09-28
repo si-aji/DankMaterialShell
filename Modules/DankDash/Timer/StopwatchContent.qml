@@ -14,8 +14,8 @@ Item {
     property var pauseTime
     property var pausedElapsed: 0
     property var lapTimes: []
-    property string lapButtonText: "Add Lap"
-    property string lapDebugInfo: "lapTimes: []"
+    property string lapButtonText: "Lap"
+    property var displayLapTimes: []
 
     Timer {
         id: stopwatchTimer
@@ -24,15 +24,6 @@ Item {
         repeat: true
         onTriggered: {
             root.elapsedMilliseconds = root.pausedElapsed + (Date.now() - root.startTime)
-        }
-    }
-
-    Timer {
-        id: resetButtonTextTimer
-        interval: 1000
-        repeat: false
-        onTriggered: {
-            root.lapButtonText = "Add Lap"
         }
     }
 
@@ -74,18 +65,16 @@ Item {
         root.elapsedMilliseconds = 0
         root.pausedElapsed = 0
         root.lapTimes = []
+        root.displayLapTimes = []
     }
 
     function addLap() {
-        root.lapButtonText = "Clicked!"
         var newLap = {
             time: root.elapsedMilliseconds,
             formattedTime: formatTime(root.elapsedMilliseconds)
         }
         root.lapTimes = root.lapTimes.concat([newLap])
-        root.lapDebugInfo = "Added lap #" + (root.lapTimes.length) + ": " + newLap.formattedTime
-        // Reset text after 1 second
-        resetButtonTextTimer.start()
+        root.displayLapTimes = root.lapTimes.slice().reverse()
     }
 
     Row {
@@ -206,27 +195,6 @@ Item {
                         }
                     }
                 }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "Debug: Lap Count = " + root.lapTimes.length
-                    font.pixelSize: 16
-                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.8)
-                }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "Debug: Timer Running = " + root.isRunning + ", Elapsed = " + formatTime(root.elapsedMilliseconds)
-                    font.pixelSize: 12
-                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.6)
-                }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: root.lapDebugInfo
-                    font.pixelSize: 12
-                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.8)
-                }
             }
         }
 
@@ -239,7 +207,7 @@ Item {
                 anchors.centerIn: parent
                 width: parent.width * 0.9
                 height: parent.height * 0.9
-                radius: Theme.radiusMedium
+                radius: Theme.cornerRadius
                 color: Theme.surfaceContainer
                 border.color: Theme.outline
                 border.width: 1
@@ -269,7 +237,7 @@ Item {
                         property int contentHeightCalc: {
                             var height = 0
                             if (instructionText.visible) height += 50 // estimated height for instruction text
-                            height += lapRepeater.count * 45 // 45 for each lap
+                            height += root.displayLapTimes.length * 55 // 55 for each lap
                             return Math.max(height, lapFlickable.height) // ensure minimum height
                         }
 
@@ -282,8 +250,8 @@ Item {
                                 id: instructionText
                                 width: parent.width
                                 text: root.lapTimes.length === 0 ?
-                                      (root.isRunning ? "click on lap button to start tracking lap times" :
-                                       "start stopwatch to start tracking lap time") : ""
+                                      (root.isRunning ? "Click on Lap button to start tracking lap times" :
+                                       "Start stopwatch to enable tracking lap time") : ""
                                 color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
                                 font.pixelSize: 14
                                 horizontalAlignment: Text.AlignHCenter
@@ -293,23 +261,24 @@ Item {
 
                             Repeater {
                                 id: lapRepeater
-                                model: root.lapTimes
+                                model: root.displayLapTimes
                                 delegate: Item {
                                     width: parent.width
-                                    height: 45
+                                    height: 55
 
                                     Rectangle {
                                         width: parent.width
                                         height: 1
                                         color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.15)
                                         anchors.bottom: parent.bottom
-                                        visible: index < root.lapTimes.length - 1
+                                        visible: index < root.displayLapTimes.length - 1
                                     }
 
                                     Row {
                                         anchors.fill: parent
                                         anchors.leftMargin: Theme.spacingM
                                         anchors.rightMargin: Theme.spacingM
+                                        anchors.topMargin: 6
                                         spacing: Theme.spacingS
 
                                         Column {
@@ -317,7 +286,7 @@ Item {
                                             spacing: 2
 
                                             Text {
-                                                text: "Lap " + (index + 1)
+                                                text: "Lap " + (root.lapTimes.length - index)
                                                 color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
                                                 font.pixelSize: 14
                                                 font.weight: Font.Medium
@@ -339,9 +308,9 @@ Item {
                                             spacing: 2
 
                                             Text {
-                                                text: index === 0 ? "First lap" :
-                                                      index === root.lapTimes.length - 1 ? "Latest lap" :
-                                                      "+" + formatTime(modelData.time - root.lapTimes[index - 1].time)
+                                                text: index === 0 ? "Latest lap" :
+                                                      index === root.displayLapTimes.length - 1 ? "First lap" :
+                                                      "+" + formatTime(modelData.time - root.displayLapTimes[index + 1].time)
                                                 color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.5)
                                                 font.pixelSize: 11
                                                 horizontalAlignment: Text.AlignRight
