@@ -521,6 +521,7 @@ PanelWindow {
                                                                      "cpuTemp": DgopService.dgopAvailable,
                                                                      "gpuTemp": DgopService.dgopAvailable,
                                                                      "network_speed_monitor": DgopService.dgopAvailable,
+                                                                     "timer": TimerService.isRunning || TimerService.isPaused,
                                                                      "pomodoro": PomodoroService.isRunning,
                                                                      "stopwatch": StopwatchService.isRunning || StopwatchService.isPaused
                                                                  })
@@ -557,6 +558,7 @@ PanelWindow {
                                                                  "notepadButton": notepadButtonComponent,
                                                                  "colorPicker": colorPickerComponent,
                                                                  "systemUpdate": systemUpdateComponent,
+                                                                 "timer": timerComponent,
                                                                  "pomodoro": pomodoroComponent,
                                                                  "stopwatch": stopwatchComponent
                                                              })
@@ -584,6 +586,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
@@ -804,6 +807,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
@@ -854,6 +858,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                                     active: topBarContent.getWidgetVisible(model.widgetId)
                                              && (model.widgetId !== "music" || MprisController.activePlayer !== null)
+                                             && (model.widgetId !== "timer" || TimerService.isRunning || TimerService.isPaused)
                                              && (model.widgetId !== "pomodoro" || PomodoroService.isRunning)
                                              && (model.widgetId !== "stopwatch" || StopwatchService.isRunning || StopwatchService.isPaused)
                                     sourceComponent: topBarContent.getWidgetComponent(model.widgetId)
@@ -1319,6 +1324,21 @@ PanelWindow {
                                     systemUpdateLoader.active = true
                                     systemUpdateLoader.item?.toggle()
                                 }
+                            }
+                        }
+
+                        Component {
+                            id: timerComponent
+
+                            TimerIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
                             }
                         }
 

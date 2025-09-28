@@ -1,131 +1,11 @@
 import QtQuick
 import QtQuick.Controls
 import qs.Common
+import qs.Services
 import qs.Widgets
 
 Item {
     id: root
-
-    property bool isRunning: false
-    property bool isPaused: false
-    property bool isConfiguring: false
-    property int configHours: 0
-    property int configMinutes: 0
-    property int configSeconds: 0
-    property int totalSeconds: 0
-    property int displayHours: Math.floor(totalSeconds / 3600)
-    property int displayMinutes: Math.floor((totalSeconds % 3600) / 60)
-    property int displaySeconds: totalSeconds % 60
-
-    Timer {
-        id: timer
-        interval: 1000
-        repeat: true
-        onTriggered: {
-            if (root.totalSeconds > 0 && !root.isPaused) {
-                root.totalSeconds--
-            } else if (root.totalSeconds === 0) {
-                timer.stop()
-                root.isRunning = false
-                root.isPaused = false
-            }
-        }
-    }
-
-    function formatTime() {
-        let h, m, s
-
-        if (root.isRunning) {
-            // Show countdown time when running
-            h = String(displayHours).padStart(2, '0')
-            m = String(displayMinutes).padStart(2, '0')
-            s = String(displaySeconds).padStart(2, '0')
-        } else {
-            // Show configuration time when not running
-            h = String(configHours).padStart(2, '0')
-            m = String(configMinutes).padStart(2, '0')
-            s = String(configSeconds).padStart(2, '0')
-        }
-
-        return `${h}:${m}:${s}`
-    }
-
-    function startTimer() {
-        if (!root.isRunning) {
-            if (root.totalSeconds === 0) {
-                applyConfiguration()
-            }
-            root.isRunning = true
-            root.isPaused = false
-            timer.start()
-        }
-    }
-
-    function pauseTimer() {
-        root.isPaused = true
-    }
-
-    function resumeTimer() {
-        root.isPaused = false
-    }
-
-    function stopTimer() {
-        timer.stop()
-        root.isRunning = false
-        root.isPaused = false
-    }
-
-    function resetTimer() {
-        timer.stop()
-        root.isRunning = false
-        root.isPaused = false
-        root.totalSeconds = 0
-
-        // Also reset configuration to 0
-        configHours = 0
-        configMinutes = 0
-        configSeconds = 0
-    }
-
-    function applyConfiguration() {
-        root.totalSeconds = (configHours * 3600) + (configMinutes * 60) + configSeconds
-    }
-
-    function getConfiguredSeconds() {
-        return (configHours * 3600) + (configMinutes * 60) + configSeconds
-    }
-
-    function incrementTime(unit) {
-        if (isRunning) return
-
-        switch (unit) {
-            case "hour":
-                configHours = (configHours + 1) % 24
-                break
-            case "minute":
-                configMinutes = (configMinutes + 1) % 60
-                break
-            case "second":
-                configSeconds = (configSeconds + 1) % 60
-                break
-        }
-    }
-
-    function decrementTime(unit) {
-        if (isRunning) return
-
-        switch (unit) {
-            case "hour":
-                configHours = configHours > 0 ? configHours - 1 : 23
-                break
-            case "minute":
-                configMinutes = configMinutes > 0 ? configMinutes - 1 : 59
-                break
-            case "second":
-                configSeconds = configSeconds > 0 ? configSeconds - 1 : 59
-                break
-        }
-    }
 
     Column {
         anchors.centerIn: parent
@@ -142,17 +22,16 @@ Item {
         Text {
             id: timerDisplay
             anchors.horizontalCenter: parent.horizontalCenter
-            text: formatTime()
+            text: TimerService.displayTime
             font.pixelSize: 48
             font.family: Theme.monoFont
             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
         }
 
-        // Time Configuration
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
-            visible: !root.isRunning
+            visible: !TimerService.isRunning && !TimerService.isPaused
 
             Repeater {
                 model: [
@@ -181,7 +60,7 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: decrementTime(modelData.unit)
+                            onClicked: TimerService.decrementTime(modelData.unit)
                             hoverEnabled: true
                             onEntered: cursorShape = Qt.PointingHandCursor
                             onExited: cursorShape = Qt.ArrowCursor
@@ -198,7 +77,16 @@ Item {
 
                         Text {
                             anchors.centerIn: parent
-                            text: modelData.label
+                            text: {
+                                switch (modelData.unit) {
+                                case "hour":
+                                    return String(TimerService.configHours).padStart(2, "0")
+                                case "minute":
+                                    return String(TimerService.configMinutes).padStart(2, "0")
+                                default:
+                                    return String(TimerService.configSeconds).padStart(2, "0")
+                                }
+                            }
                             font.pixelSize: 14
                             font.weight: Font.Bold
                             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
@@ -222,7 +110,7 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: incrementTime(modelData.unit)
+                            onClicked: TimerService.incrementTime(modelData.unit)
                             hoverEnabled: true
                             onEntered: cursorShape = Qt.PointingHandCursor
                             onExited: cursorShape = Qt.ArrowCursor
@@ -232,7 +120,6 @@ Item {
             }
         }
 
-        // Control Buttons
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
@@ -242,75 +129,58 @@ Item {
                 height: 40
                 radius: Theme.cornerRadius
                 color: {
-                    if (root.isRunning && !root.isPaused) {
+                    if (TimerService.isRunning && !TimerService.isPaused) {
                         return Theme.secondary
-                    } else if (root.isRunning && root.isPaused) {
+                    } else if (TimerService.isRunning && TimerService.isPaused) {
                         return Theme.primary
-                    } else if (getConfiguredSeconds() > 0) {
+                    } else if (TimerService.configuredSeconds > 0) {
                         return Theme.primary
                     } else {
                         return Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.5)
                     }
                 }
-                border.color: {
-                    if (root.isRunning) {
-                        return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                    } else if (getConfiguredSeconds() > 0) {
-                        return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                    } else {
-                        return Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
-                    }
-                }
+                border.color: TimerService.isRunning || TimerService.configuredSeconds > 0
+                              ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                              : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
                 border.width: 1
 
                 Text {
                     anchors.centerIn: parent
-                    text: {
-                        if (root.isRunning && !root.isPaused) {
-                            return "Pause"
-                        } else if (root.isRunning && root.isPaused) {
-                            return "Resume"
-                        } else {
-                            return "Start"
-                        }
-                    }
+                    text: TimerService.isRunning
+                          ? (TimerService.isPaused ? "Resume" : "Pause")
+                          : "Start"
                     color: {
-                        if (root.isRunning) {
-                            if (root.isPaused) {
-                                return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
-                            } else {
-                                return Theme.onSecondary
-                            }
-                        } else if (getConfiguredSeconds() > 0) {
+                        if (TimerService.isRunning) {
+                            return TimerService.isPaused ? Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
+                                                         : Theme.onSecondary
+                        } else if (TimerService.configuredSeconds > 0) {
                             return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 1)
-                        } else {
-                            return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 0.6)
                         }
+                        return Qt.rgba(Theme.onPrimary.r, Theme.onPrimary.g, Theme.onPrimary.b, 0.6)
                     }
                     font.pixelSize: 14
                 }
 
                 MouseArea {
                     anchors.fill: parent
-                    enabled: root.isRunning || getConfiguredSeconds() > 0
+                    enabled: TimerService.isRunning || TimerService.configuredSeconds > 0
                     onClicked: {
-                        if (root.isRunning) {
-                            if (root.isPaused) {
-                                resumeTimer()
+                        if (TimerService.isRunning) {
+                            if (TimerService.isPaused) {
+                                TimerService.resumeTimer()
                             } else {
-                                pauseTimer()
+                                TimerService.pauseTimer()
                             }
                         } else {
-                            startTimer()
+                            TimerService.startTimer()
                         }
                     }
-                    hoverEnabled: root.isRunning || getConfiguredSeconds() > 0
-                    onEntered: if (root.isRunning || getConfiguredSeconds() > 0) cursorShape = Qt.PointingHandCursor
-                    onExited: if (root.isRunning || getConfiguredSeconds() > 0) cursorShape = Qt.ArrowCursor
+                    hoverEnabled: enabled
+                    onEntered: if (enabled) cursorShape = Qt.PointingHandCursor
+                    onExited: if (enabled) cursorShape = Qt.ArrowCursor
                 }
             }
 
-            // Stop button (only visible when timer is running)
             Rectangle {
                 width: 80
                 height: 40
@@ -318,7 +188,7 @@ Item {
                 color: Theme.error
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                 border.width: 1
-                visible: root.isRunning
+                visible: TimerService.isRunning
 
                 Text {
                     anchors.centerIn: parent
@@ -329,22 +199,22 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: stopTimer()
+                    onClicked: TimerService.stopTimer()
                     hoverEnabled: true
                     onEntered: cursorShape = Qt.PointingHandCursor
                     onExited: cursorShape = Qt.ArrowCursor
                 }
             }
 
-            // Reset button (only visible when timer is not running)
             Rectangle {
                 width: 80
                 height: 40
                 radius: Theme.cornerRadius
-                color: root.totalSeconds > 0 ? Theme.surface : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
-                border.color: root.totalSeconds > 0 ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08) : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
+                color: TimerService.totalSeconds > 0 ? Theme.surface : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+                border.color: TimerService.totalSeconds > 0 ? Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                                                           : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.05)
                 border.width: 1
-                visible: !root.isRunning
+                visible: !TimerService.isRunning && !TimerService.isPaused && TimerService.totalSeconds > 0
 
                 Text {
                     anchors.centerIn: parent
@@ -355,7 +225,7 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: resetTimer()
+                    onClicked: TimerService.resetTimer()
                     hoverEnabled: true
                     onEntered: cursorShape = Qt.PointingHandCursor
                     onExited: cursorShape = Qt.ArrowCursor
@@ -364,3 +234,4 @@ Item {
         }
     }
 }
+

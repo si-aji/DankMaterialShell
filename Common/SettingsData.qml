@@ -71,7 +71,7 @@ Singleton {
     property string lockDateFormat: ""
     property int mediaSize: 1
     property var dankBarLeftWidgets: ["launcherButton", "workspaceSwitcher", "focusedWindow"]
-    property var dankBarCenterWidgets: ["music", "clock", "weather", "pomodoro", "stopwatch"]
+    property var dankBarCenterWidgets: ["music", "clock", "weather", "timer", "pomodoro", "stopwatch"]
     property var dankBarRightWidgets: ["systemTray", "clipboard", "cpuUsage", "memUsage", "notificationButton", "battery", "controlCenterButton"]
     property var dankBarWidgetOrder: []
     property alias dankBarLeftWidgetsModel: leftWidgetsModel
@@ -272,8 +272,11 @@ Singleton {
                                                                               return ["launcherButton", "workspaceSwitcher", "focusedWindow"].includes(w)
                                                                           })
                     var filteredCenter = widgetOrder.filter(w => {
-                                                            return ["clock", "music", "weather", "pomodoro", "stopwatch"].includes(w)
+                                                            return ["clock", "music", "weather", "timer", "pomodoro", "stopwatch"].includes(w)
                                                         })
+                    if (!filteredCenter.includes("timer")) {
+                        filteredCenter = filteredCenter.concat(["timer"])
+                    }
                     if (!filteredCenter.includes("pomodoro")) {
                         filteredCenter = filteredCenter.concat(["pomodoro"])
                     }
@@ -289,7 +292,10 @@ Singleton {
                     updateListModel(rightWidgetsModel, dankBarRightWidgets)
                 } else {
                     var leftWidgets = settings.dankBarLeftWidgets !== undefined ? settings.dankBarLeftWidgets : (settings.topBarLeftWidgets !== undefined ? settings.topBarLeftWidgets : ["launcherButton", "workspaceSwitcher", "focusedWindow"])
-                    var centerWidgets = settings.dankBarCenterWidgets !== undefined ? settings.dankBarCenterWidgets : (settings.topBarCenterWidgets !== undefined ? settings.topBarCenterWidgets : ["music", "clock", "weather", "pomodoro", "stopwatch"])
+                    var centerWidgets = settings.dankBarCenterWidgets !== undefined ? settings.dankBarCenterWidgets : (settings.topBarCenterWidgets !== undefined ? settings.topBarCenterWidgets : ["music", "clock", "weather", "timer", "pomodoro", "stopwatch"])
+                    if (!centerWidgets.includes("timer")) {
+                        centerWidgets = centerWidgets.concat(["timer"])
+                    }
                     if (!centerWidgets.includes("pomodoro")) {
                         centerWidgets = centerWidgets.concat(["pomodoro"])
                     }
@@ -801,7 +807,7 @@ Singleton {
 
     function resetDankBarWidgetsToDefault() {
         var defaultLeft = ["launcherButton", "workspaceSwitcher", "focusedWindow"]
-        var defaultCenter = ["music", "clock", "weather", "pomodoro", "stopwatch"]
+        var defaultCenter = ["music", "clock", "weather", "timer", "pomodoro", "stopwatch"]
         var defaultRight = ["systemTray", "clipboard", "notificationButton", "battery", "controlCenterButton"]
         dankBarLeftWidgets = defaultLeft
         dankBarCenterWidgets = defaultCenter
