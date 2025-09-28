@@ -23,6 +23,8 @@ Singleton {
     readonly property string formattedRemaining: formatSeconds(totalSeconds)
     readonly property string formattedConfigured: formatSeconds(configuredSeconds)
     readonly property string displayTime: (isRunning || isPaused) ? formattedRemaining : formattedConfigured
+    property bool showCompletion: false
+    property string completionMessage: "⏰ Time is up! ⏰"
 
     Timer {
         id: countdownTimer
@@ -37,6 +39,8 @@ Singleton {
             if (root.totalSeconds === 0) {
                 root.isRunning = false
                 root.isPaused = false
+                if (!root.showCompletion)
+                    root.showCompletion = true
             }
         }
     }
@@ -64,6 +68,7 @@ Singleton {
 
         root.isRunning = true
         root.isPaused = false
+        root.showCompletion = false
     }
 
     function pauseTimer() {
@@ -76,11 +81,13 @@ Singleton {
         if (!root.isRunning || !root.isPaused)
             return
         root.isPaused = false
+        root.showCompletion = false
     }
 
     function stopTimer() {
         root.isRunning = false
         root.isPaused = false
+        root.showCompletion = false
     }
 
     function resetTimer() {
@@ -89,6 +96,7 @@ Singleton {
         root.configHours = 0
         root.configMinutes = 0
         root.configSeconds = 0
+        root.showCompletion = false
     }
 
     function applyConfiguration() {
@@ -128,5 +136,8 @@ Singleton {
             break
         }
     }
-}
 
+    function dismissCompletion() {
+        root.showCompletion = false
+    }
+}

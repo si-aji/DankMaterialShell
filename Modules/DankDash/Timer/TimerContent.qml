@@ -66,12 +66,50 @@ Continue?`
             font.pixelSize: 48
             font.family: Theme.monoFont
             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
+            visible: !TimerService.showCompletion
+        }
+
+        Column {
+            spacing: Theme.spacingS
+            anchors.horizontalCenter: parent.horizontalCenter
+            visible: TimerService.showCompletion
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: TimerService.completionMessage
+                font.pixelSize: 36
+                font.weight: Font.Bold
+                color: Theme.primary
+            }
+
+            Rectangle {
+                width: 100
+                height: 36
+                radius: Theme.cornerRadius
+                color: Theme.primary
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "OK"
+                    color: Theme.onPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: TimerService.dismissCompletion()
+                    hoverEnabled: true
+                    onEntered: cursorShape = Qt.PointingHandCursor
+                    onExited: cursorShape = Qt.ArrowCursor
+                }
+            }
         }
 
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
-            visible: !TimerService.isRunning && !TimerService.isPaused
+            visible: !TimerService.isRunning && !TimerService.isPaused && !TimerService.showCompletion
 
             Repeater {
                 model: [
@@ -163,6 +201,7 @@ Continue?`
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Theme.spacingM
+            visible: !TimerService.showCompletion
 
             Rectangle {
                 width: 80
