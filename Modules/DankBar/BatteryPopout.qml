@@ -365,6 +365,84 @@ DankPopout {
                     }
                 }
 
+                Row {
+                    width: parent.width
+                    spacing: Theme.spacingM
+                    visible: BatteryService.batteryAvailable
+
+                    // absolute Watts for display (UPower gives W; sign shows direction)
+                    readonly property real rateAbs: Math.abs(BatteryService.device.changeRate)
+
+                    StyledRect {
+                        width: (parent.width - Theme.spacingM) / 2
+                        height: 64
+                        radius: Theme.cornerRadius
+                        color: Theme.surfaceContainerHigh
+                        border.width: 0
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: Theme.spacingXS
+
+                            StyledText {
+                                text: "Charge Rate"
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.primary
+                                font.weight: Font.Medium
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            StyledText {
+                                text: {
+                                    if (BatteryService.isCharging && BatteryService.device.changeRate > 0) {
+                                        return Math.abs(BatteryService.device.changeRate).toFixed(1) + " W";
+                                    }
+                                    return "-";
+                                }
+                                font.pixelSize: Theme.fontSizeLarge
+                                color: Theme.surfaceText
+                                font.weight: Font.Bold
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                    }
+
+                    StyledRect {
+                        width: (parent.width - Theme.spacingM) / 2
+                        height: 64
+                        radius: Theme.cornerRadius
+                        color: Theme.surfaceContainerHigh
+                        border.width: 0
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: Theme.spacingXS
+
+                            StyledText {
+                                text: "Discharge Rate"
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.primary
+                                font.weight: Font.Medium
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            StyledText {
+                                text: {
+                                    if (!BatteryService.isCharging) {
+                                        return Math.abs(BatteryService.device.changeRate).toFixed(1) + " W";
+                                    }
+                                    return "-";
+                                }
+                                font.pixelSize: Theme.fontSizeLarge
+                                color: Theme.surfaceText
+                                font.weight: Font.Bold
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                    }
+
+                }
+		
                 DankButtonGroup {
                     property var profileModel: (typeof PowerProfiles !== "undefined") ? [PowerProfile.PowerSaver, PowerProfile.Balanced].concat(PowerProfiles.hasPerformanceProfile ? [PowerProfile.Performance] : []) : [PowerProfile.PowerSaver, PowerProfile.Balanced, PowerProfile.Performance]
                     property int currentProfileIndex: {
