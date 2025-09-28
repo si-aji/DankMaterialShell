@@ -14,6 +14,8 @@ Item {
     property var pauseTime
     property var pausedElapsed: 0
     property var lapTimes: []
+    property string lapButtonText: "Add Lap"
+    property string lapDebugInfo: "lapTimes: []"
 
     Timer {
         id: stopwatchTimer
@@ -22,6 +24,15 @@ Item {
         repeat: true
         onTriggered: {
             root.elapsedMilliseconds = root.pausedElapsed + (Date.now() - root.startTime)
+        }
+    }
+
+    Timer {
+        id: resetButtonTextTimer
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            root.lapButtonText = "Add Lap"
         }
     }
 
@@ -66,10 +77,15 @@ Item {
     }
 
     function addLap() {
-        root.lapTimes.push({
+        root.lapButtonText = "Clicked!"
+        var newLap = {
             time: root.elapsedMilliseconds,
             formattedTime: formatTime(root.elapsedMilliseconds)
-        })
+        }
+        root.lapTimes = root.lapTimes.concat([newLap])
+        root.lapDebugInfo = "Added lap #" + (root.lapTimes.length) + ": " + newLap.formattedTime
+        // Reset text after 1 second
+        resetButtonTextTimer.start()
     }
 
     Row {
@@ -176,7 +192,7 @@ Item {
 
                         Text {
                             anchors.centerIn: parent
-                            text: "Lap"
+                            text: root.lapButtonText
                             color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1)
                             font.pixelSize: 14
                         }
@@ -189,6 +205,27 @@ Item {
                             onExited: if (enabled) cursorShape = Qt.ArrowCursor
                         }
                     }
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Debug: Lap Count = " + root.lapTimes.length
+                    font.pixelSize: 16
+                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.8)
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Debug: Timer Running = " + root.isRunning + ", Elapsed = " + formatTime(root.elapsedMilliseconds)
+                    font.pixelSize: 12
+                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.6)
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.lapDebugInfo
+                    font.pixelSize: 12
+                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.8)
                 }
             }
         }
@@ -206,6 +243,7 @@ Item {
                 color: Theme.surfaceContainer
                 border.color: Theme.outline
                 border.width: 1
+                clip: true
 
                 Column {
                     anchors.fill: parent
@@ -220,16 +258,28 @@ Item {
                         color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 1)
                     }
 
-                    ScrollView {
+                    DankFlickable {
+                        id: lapFlickable
                         width: parent.width
                         height: parent.height - y - Theme.spacingM
+                        contentHeight: contentHeightCalc
+                        contentWidth: parent.width
                         clip: true
 
+                        property int contentHeightCalc: {
+                            var height = 0
+                            if (instructionText.visible) height += 50 // estimated height for instruction text
+                            height += lapRepeater.count * 50 // 40 for each lap + 10 for spacing
+                            return Math.max(height, lapFlickable.height) // ensure minimum height
+                        }
+
                         Column {
+                            id: lapColumn
                             width: parent.width
                             spacing: Theme.spacingS
 
                             Text {
+                                id: instructionText
                                 width: parent.width
                                 text: root.lapTimes.length === 0 ?
                                       (root.isRunning ? "click on lap button to start tracking lap times" :
@@ -242,6 +292,7 @@ Item {
                             }
 
                             Repeater {
+                                id: lapRepeater
                                 model: root.lapTimes
                                 delegate: Rectangle {
                                     width: parent.width
