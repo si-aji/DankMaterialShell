@@ -13,7 +13,11 @@ Rectangle {
     property var parentScreen: null
 
     readonly property real horizontalPadding: SettingsData.dankBarNoBackground ? 2 : Theme.spacingXS
-    readonly property bool pomodoroActive: PomodoroService.isRunning
+    readonly property bool pomodoroActive: PomodoroService.shouldDisplay
+    readonly property bool awaitingConfirmation: PomodoroService.showConfirmation || (PomodoroService.pendingSessionSwitch && !PomodoroService.showCongratulations)
+    readonly property string fallbackConfirmationText: PomodoroService.pendingTargetIsBreak
+            ? qsTr("Start break time?")
+            : qsTr("Start work time?")
     readonly property string timeText: {
         const hours = PomodoroService.displayHours || 0
         const minutes = String(PomodoroService.displayMinutes || 0).padStart(2, "0")
@@ -23,6 +27,11 @@ Rectangle {
         }
         return `${minutes}:${seconds}`
     }
+    readonly property string displayText: awaitingConfirmation
+            ? (PomodoroService.confirmationMessage && PomodoroService.confirmationMessage.length > 0
+                ? PomodoroService.confirmationMessage
+                : fallbackConfirmationText)
+            : timeText
 
     width: pomodoroActive ? contentRow.implicitWidth + horizontalPadding * 2 : 0
     height: widgetHeight
@@ -53,24 +62,78 @@ Rectangle {
             width: Theme.iconSize - 4
             height: Theme.iconSize - 4
             radius: (Theme.iconSize - 4) / 2
-            color: PomodoroService.isBreak ? Theme.secondary : Theme.primary
+            color: awaitingConfirmation ? Theme.surfaceVariant : (PomodoroService.isBreak ? Theme.secondary : Theme.primary)
 
             DankIcon {
                 anchors.centerIn: parent
-                name: PomodoroService.isBreak ? "self_improvement" : "local_cafe"
+                name: awaitingConfirmation ? "hourglass_empty" : (PomodoroService.isBreak ? "self_improvement" : "local_cafe")
                 size: (Theme.iconSize - 10)
-                color: PomodoroService.isBreak ? Theme.onSecondary : Theme.onPrimary
+                color: awaitingConfirmation ? Theme.surfaceText : (PomodoroService.isBreak ? Theme.onSecondary : Theme.onPrimary)
             }
         }
 
         StyledText {
             anchors.verticalCenter: parent.verticalCenter
-            text: timeText
-            isMonospace: true
-            font.pixelSize: Theme.fontSizeMedium
-            font.weight: Font.DemiBold
+            text: displayText
+            isMonospace: !awaitingConfirmation
+            font.pixelSize: awaitingConfirmation ? Theme.fontSizeMedium : Theme.fontSizeMedium
+            font.weight: awaitingConfirmation ? Font.Medium : Font.DemiBold
             color: Theme.surfaceText
+            elide: Text.ElideRight
+            wrapMode: Text.NoWrap
+            visible: displayText.length > 0
         }
+    }
+
+    function enforcePomodoroMode() {
+        if (!popupTarget) {
+            return
+        }
+
+        const setMode = function() {
+            if (popupTarget && popupTarget.timerTabComponent) {
+                popupTarget.timerTabComponent.currentMode = 2
+            }
+        }
+
+        setMode()
+        Qt.callLater(setMode)
+    }
+
+    function togglePomodoroPopup(forceOpen) {
+        const target = popupTarget
+        if (!target) {
+            Qt.callLater(function() {
+                togglePomodoroPopup(true)
+            })
+            return
+        }
+
+        const timerIndex = SettingsData.weatherEnabled ? 3 : 2
+        const alreadyOnPomodoro = target.dashVisible && target.currentTabIndex === timerIndex
+
+        if (!forceOpen && alreadyOnPomodoro) {
+            target.dashVisible = false
+            return
+        }
+
+        if (PomodoroService.pendingSessionSwitch
+                && !PomodoroService.showConfirmation
+                && !PomodoroService.showCongratulations) {
+            PomodoroService.showSessionSwitchConfirmation(false)
+        }
+
+        if (target.setTriggerPosition) {
+            const globalPos = mapToGlobal(0, 0)
+            const currentScreen = parentScreen || Screen
+            const screenX = currentScreen.x || 0
+            const relativeX = globalPos.x - screenX
+            target.setTriggerPosition(relativeX, SettingsData.getPopupYPosition(barHeight), width, section, currentScreen)
+        }
+
+        target.currentTabIndex = timerIndex
+        target.dashVisible = true
+        enforcePomodoroMode()
     }
 
     MouseArea {
@@ -79,25 +142,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onPressed: {
-            if (popupTarget && popupTarget.setTriggerPosition) {
-                const globalPos = mapToGlobal(0, 0)
-                const currentScreen = parentScreen || Screen
-                const screenX = currentScreen.x || 0
-                const relativeX = globalPos.x - screenX
-                popupTarget.setTriggerPosition(relativeX, SettingsData.getPopupYPosition(barHeight), width, section, currentScreen)
-            }
-
-            const timerIndex = SettingsData.weatherEnabled ? 3 : 2
-            if (popupTarget) {
-                const wasVisible = popupTarget.dashVisible && popupTarget.currentTabIndex === timerIndex
-                popupTarget.currentTabIndex = timerIndex
-                popupTarget.dashVisible = !wasVisible
-                if (popupTarget.timerTabComponent) {
-                    popupTarget.timerTabComponent.currentMode = 2
-                }
-            }
-        }
+        onClicked: togglePomodoroPopup(false)
     }
 
     Behavior on width {
@@ -111,6 +156,13 @@ Rectangle {
         NumberAnimation {
             duration: Theme.shortDuration
             easing.type: Theme.standardEasing
+        }
+    }
+
+    Connections {
+        target: PomodoroService
+        function onSessionSwitchPrompted(fromSkip) {
+            togglePomodoroPopup(true)
         }
     }
 }
