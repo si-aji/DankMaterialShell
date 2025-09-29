@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.Common
 import qs.Widgets
+import qs.Services
 
 Item {
     id: root
@@ -15,6 +16,31 @@ Item {
         { label: "Ongoing", available: true },
         { label: "Finished", available: true }
     ]
+
+    // Connect to TodoService signals
+    Connections {
+        target: TodoService
+        function onTasksUpdated() {
+            // Force UI update by toggling visibility
+            console.log("Tasks updated, doing:", TodoService.doingTasks.length, "finished:", TodoService.finishedTasks.length)
+            forceUpdateTimer.restart()
+        }
+    }
+
+    Timer {
+        id: forceUpdateTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            // Force ListView refresh by reassigning models
+            const doingList = doingListView
+            const finishedList = finishedListView
+            if (doingList) doingList.model = null
+            if (finishedList) finishedList.model = null
+            if (doingList) doingList.model = TodoService.doingTasks
+            if (finishedList) finishedList.model = TodoService.finishedTasks
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -103,7 +129,7 @@ Item {
                     stateColor: Theme.surfaceText
                     cornerRadius: parent.radius
                     onClicked: {
-                        // TODO: Implement clear all functionality
+                        TodoService.clearAllTasks()
                     }
                 }
             }
@@ -129,7 +155,7 @@ Item {
                     stateColor: Theme.surfaceText
                     cornerRadius: parent.radius
                     onClicked: {
-                        // TODO: Implement finish all functionality
+                        TodoService.finishAllTasks()
                     }
                 }
             }
@@ -143,6 +169,7 @@ Item {
             visible: root.currentFilter === 0
 
             DankTextField {
+                id: taskInput
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
                 placeholderText: "Add new task..."
@@ -150,7 +177,7 @@ Item {
 
                 onAccepted: {
                     if (text.trim() !== "") {
-                        // TODO: Add task functionality
+                        TodoService.addTask(text)
                         text = ""
                     }
                 }
@@ -176,7 +203,10 @@ Item {
                     stateColor: Theme.onPrimary
                     cornerRadius: parent.radius
                     onClicked: {
-                        // TODO: Add task functionality
+                        if (taskInput.text.trim() !== "") {
+                            TodoService.addTask(taskInput.text)
+                            taskInput.text = ""
+                        }
                     }
                 }
             }
@@ -191,29 +221,184 @@ Item {
             border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
             border.width: 1
 
-            Item {
+            // Doing tasks list
+            DankListView {
+                id: doingListView
                 anchors.fill: parent
-                anchors.margins: Theme.spacingM
+                anchors.margins: Theme.spacingS
                 visible: root.currentFilter === 0
+                model: TodoService.doingTasks
+                spacing: Theme.spacingXS
 
+                delegate: Rectangle {
+                    width: ListView.view.width
+                    height: 48
+                    radius: Theme.cornerRadiusSmall
+                    color: Theme.surfaceContainer
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingS
+                        spacing: Theme.spacingS
+
+                        Rectangle {
+                            Layout.preferredWidth: 24
+                            Layout.preferredHeight: 24
+                            radius: 4
+                            color: Theme.surface
+                            border.color: Theme.outline
+                            border.width: 2
+
+                            StyledText {
+                                anchors.centerIn: parent
+                                text: "✓"
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.weight: Font.Bold
+                                color: Theme.primary
+                                visible: false
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    TodoService.finishTask(index)
+                                }
+                            }
+                        }
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: modelData.text
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Theme.surfaceText
+                            elide: Text.ElideRight
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Theme.cornerRadiusSmall
+                            color: Theme.errorContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "delete"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onErrorContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    TodoService.removeDoingTask(index)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Show empty state when no tasks
                 StyledText {
-                    text: "Doing tasks will appear here"
+                    anchors.centerIn: parent
+                    text: "No ongoing tasks"
                     font.pixelSize: Theme.fontSizeMedium
                     color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
-                    anchors.centerIn: parent
+                    visible: TodoService.doingTasks.length === 0
                 }
             }
 
-            Item {
+            // Finished tasks list
+            DankListView {
+                id: finishedListView
                 anchors.fill: parent
-                anchors.margins: Theme.spacingM
+                anchors.margins: Theme.spacingS
                 visible: root.currentFilter === 1
+                model: TodoService.finishedTasks
+                spacing: Theme.spacingXS
 
+                delegate: Rectangle {
+                    width: ListView.view.width
+                    height: 48
+                    radius: Theme.cornerRadiusSmall
+                    color: Theme.surfaceContainer
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingS
+                        spacing: Theme.spacingS
+
+                        Rectangle {
+                            Layout.preferredWidth: 24
+                            Layout.preferredHeight: 24
+                            radius: 4
+                            color: Theme.primaryContainer
+                            border.color: Theme.primary
+                            border.width: 2
+
+                            StyledText {
+                                anchors.centerIn: parent
+                                text: "✓"
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.weight: Font.Bold
+                                color: Theme.onPrimaryContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    TodoService.unfinishTask(index)
+                                }
+                            }
+                        }
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: modelData.text
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+                            elide: Text.ElideRight
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Theme.cornerRadiusSmall
+                            color: Theme.errorContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "delete"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onErrorContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    TodoService.removeFinishedTask(index)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Show empty state when no tasks
                 StyledText {
-                    text: "Finished tasks will appear here"
+                    anchors.centerIn: parent
+                    text: "No finished tasks"
                     font.pixelSize: Theme.fontSizeMedium
                     color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
-                    anchors.centerIn: parent
+                    visible: TodoService.finishedTasks.length === 0
                 }
             }
         }

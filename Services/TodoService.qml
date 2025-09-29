@@ -1,0 +1,204 @@
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import qs.Common
+
+pragma Singleton
+pragma ComponentBehavior: Bound
+
+Singleton {
+    id: root
+
+    property string todoFilePath: StandardPaths.writableLocation(StandardPaths.HomeLocation) + "/TODO.md"
+    property var doingTasks: []
+    property var finishedTasks: []
+    property bool featureAvailable: true
+
+    signal tasksUpdated()
+
+    Process {
+        id: readFileProcess
+        command: ["cat", root.todoFilePath]
+        running: false
+
+        onExited: (exitCode) => {
+            if (exitCode === 0) {
+                const parsed = parseTodoFile(readFileProcess.stdout)
+                root.doingTasks = parsed.doing
+                root.finishedTasks = parsed.finished
+            } else {
+                // File doesn't exist, create empty arrays
+                root.doingTasks = []
+                root.finishedTasks = []
+            }
+            root.tasksUpdated()
+        }
+    }
+
+    Process {
+        id: writeFileProcess
+        running: false
+
+        onExited: (exitCode) => {
+            if (exitCode !== 0) {
+                console.warn("Failed to write TODO.md file, exit code:", exitCode)
+            }
+        }
+    }
+
+    function parseTodoFile(content) {
+        const lines = content.split('\n')
+        const doing = []
+        const finished = []
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim()
+            if (line.startsWith('[ ] ')) {
+                doing.push({
+                    text: line.substring(4).trim(),
+                    lineNumber: i
+                })
+            } else if (line.startsWith('[x] ')) {
+                finished.push({
+                    text: line.substring(4).trim(),
+                    lineNumber: i
+                })
+            }
+        }
+
+        return { doing, finished }
+    }
+
+    function formatTasksForFile(doingTasks, finishedTasks) {
+        let content = ""
+
+        // Add doing tasks
+        for (let i = 0; i < doingTasks.length; i++) {
+            content += "[ ] " + doingTasks[i].text + "\n"
+        }
+
+        // Add empty line separator if we have both types
+        if (doingTasks.length > 0 && finishedTasks.length > 0) {
+            content += "\n"
+        }
+
+        // Add finished tasks
+        for (let i = 0; i < finishedTasks.length; i++) {
+            content += "[x] " + finishedTasks[i].text + "\n"
+        }
+
+        return content
+    }
+
+    function loadTasks() {
+        if (!readFileProcess.running) {
+            readFileProcess.running = true
+        }
+    }
+
+    function saveTasks() {
+        const content = formatTasksForFile(root.doingTasks, root.finishedTasks)
+        // Use echo with proper escaping - simpler approach
+        const lines = content.split('\n')
+        const escapedLines = lines.map(line => line.replace(/'/g, "'\\''"))
+        const finalContent = escapedLines.join('\n')
+        writeFileProcess.command = ["sh", "-c", `echo '${finalContent}' > '${root.todoFilePath}'`]
+        writeFileProcess.running = true
+        console.log("Saving tasks to:", root.todoFilePath, "lines:", lines.length)
+        console.log("Content preview:", content.substring(0, 100))
+    }
+
+    function addTask(text) {
+        if (text.trim() === "") return false
+
+        const task = {
+            text: text.trim(),
+            lineNumber: root.doingTasks.length + root.finishedTasks.length,
+            timestamp: Date.now()
+        }
+
+        // Add to beginning of doingTasks (newest first)
+        root.doingTasks.unshift(task)
+
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function finishTask(index) {
+        if (index < 0 || index >= root.doingTasks.length) return false
+
+        const task = root.doingTasks.splice(index, 1)[0]
+        task.finishedTimestamp = Date.now()
+
+        // Add to beginning of finishedTasks (most recently finished first)
+        root.finishedTasks.unshift(task)
+
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function unfinishTask(index) {
+        if (index < 0 || index >= root.finishedTasks.length) return false
+
+        const task = root.finishedTasks.splice(index, 1)[0]
+        delete task.finishedTimestamp
+
+        // Add to beginning of doingTasks (newly restored first)
+        root.doingTasks.unshift(task)
+
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function removeDoingTask(index) {
+        if (index < 0 || index >= root.doingTasks.length) return false
+
+        root.doingTasks.splice(index, 1)
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function removeFinishedTask(index) {
+        if (index < 0 || index >= root.finishedTasks.length) return false
+
+        root.finishedTasks.splice(index, 1)
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function finishAllTasks() {
+        if (root.doingTasks.length === 0) return false
+
+        const tasks = root.doingTasks.splice(0, root.doingTasks.length)
+        const now = Date.now()
+
+        // Add finished timestamp and add to beginning (most recently finished first)
+        tasks.forEach(task => {
+            task.finishedTimestamp = now
+            root.finishedTasks.unshift(task)
+        })
+
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function clearAllTasks() {
+        if (root.finishedTasks.length === 0) return false
+
+        root.finishedTasks = []
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    // Initialize on component creation
+    Component.onCompleted: {
+        loadTasks()
+    }
+}
