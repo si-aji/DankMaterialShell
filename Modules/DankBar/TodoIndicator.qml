@@ -20,10 +20,10 @@ Rectangle {
     readonly property real horizontalPadding: SettingsData.dankBarNoBackground ? 2 : Theme.spacingXS
     readonly property bool shouldDisplay: hasPending || showCompletionMessage
     readonly property string displayText: showCompletionMessage
-                                        ? qsTr("Congrats, all todo are finished")
+                                        ? "Congrats, all todo are finished"
                                         : (pendingCount === 1
-                                           ? qsTr("1 todo")
-                                           : qsTr("%1 todos").arg(pendingCount))
+                                           ? "1 todo left"
+                                           : pendingCount + " todos left")
 
     width: shouldDisplay ? contentRow.implicitWidth + horizontalPadding * 2 : 0
     height: widgetHeight

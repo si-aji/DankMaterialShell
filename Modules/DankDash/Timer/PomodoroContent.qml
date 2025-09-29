@@ -61,8 +61,7 @@ Item {
             return
         }
         pendingAction = action
-        conflictMessage = `Starting Pomodoro will stop ${conflicts.join(" and ")}.
-Continue?`
+        conflictMessage = `Starting Pomodoro will stop ${conflicts.join(" and ")}. Continue?`
         showConflictDialog = true
     }
 
@@ -301,7 +300,6 @@ Continue?`
                 }
             }
         }
-
         
         // Time Configuration
         Row {
@@ -493,6 +491,7 @@ Continue?`
             onResetRequested: resetPomodoro()
             onQuitRequested: resetPomodoro()
         }
+    }
 
     Rectangle {
         id: conflictDialog
