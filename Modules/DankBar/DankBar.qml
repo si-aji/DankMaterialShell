@@ -523,6 +523,7 @@ PanelWindow {
                                                                      "network_speed_monitor": DgopService.dgopAvailable,
                                                                      "timer": TimerService.isRunning || TimerService.isPaused || TimerService.showCompletion,
                                                                      "pomodoro": PomodoroService.shouldDisplay,
+                                                                     "todo": TodoService.doingTasks.length > 0 || TodoService.finishedTasks.length > 0,
                                                                      "stopwatch": StopwatchService.isRunning || StopwatchService.isPaused
                                                                  })
 
@@ -560,6 +561,7 @@ PanelWindow {
                                                                  "systemUpdate": systemUpdateComponent,
                                                                  "timer": timerComponent,
                                                                  "pomodoro": pomodoroComponent,
+                                                                 "todo": todoComponent,
                                                                  "stopwatch": stopwatchComponent
                                                              })
 
@@ -1346,6 +1348,21 @@ PanelWindow {
                             id: pomodoroComponent
 
                             PomodoroIndicator {
+                                widgetHeight: root.widgetHeight
+                                barHeight: root.effectiveBarHeight
+                                section: topBarContent.getWidgetSection(parent) || "center"
+                                popupTarget: {
+                                    dankDashPopoutLoader.active = true
+                                    return dankDashPopoutLoader.item
+                                }
+                                parentScreen: root.screen
+                            }
+                        }
+
+                        Component {
+                            id: todoComponent
+
+                            TodoIndicator {
                                 widgetHeight: root.widgetHeight
                                 barHeight: root.effectiveBarHeight
                                 section: topBarContent.getWidgetSection(parent) || "center"
