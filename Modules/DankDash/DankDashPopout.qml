@@ -17,6 +17,10 @@ DankPopout {
     property var triggerScreen: null
     property int currentTabIndex: 0
     property var timerTabComponent: null
+    property int weatherTabIndex: SettingsData.weatherEnabled ? 2 : -1
+    property int timerTabIndex: SettingsData.weatherEnabled ? 3 : 2
+    property int todoTabIndex: SettingsData.weatherEnabled ? 4 : 3
+    property int settingsTabIndex: SettingsData.weatherEnabled ? 5 : 4
 
     function setTriggerPosition(x, y, width, section, screen) {
         if (section === "center") {
@@ -139,7 +143,7 @@ DankPopout {
 
                         tabs.push({ icon: "timer", text: "Timer" })
                         tabs.push({ icon: "done_all", text: "Todo" })
-                        
+
                         tabs.push({ icon: "settings", text: "Settings", isAction: true })
                         return tabs
                     }
@@ -149,8 +153,7 @@ DankPopout {
                     }
 
                     onActionTriggered: function(index) {
-                        let settingsIndex = SettingsData.weatherEnabled ? 3 : 2
-                        if (index === settingsIndex) {
+                        if (index === root.settingsTabIndex) {
                             dashVisible = false
                             settingsModal.show()
                         }
@@ -167,20 +170,27 @@ DankPopout {
                     id: pages
                     width: parent.width
                     implicitHeight: {
-                        if (currentIndex === 0) return overviewTab.implicitHeight
-                        if (currentIndex === 1) return mediaTab.implicitHeight
-                        if (SettingsData.weatherEnabled && currentIndex === 2) return weatherTab.implicitHeight
+                        if (root.currentTabIndex === 0) return overviewTab.implicitHeight
+                        if (root.currentTabIndex === 1) return mediaTab.implicitHeight
+                        if (SettingsData.weatherEnabled && root.currentTabIndex === root.weatherTabIndex) return weatherTab.implicitHeight
+                        if (root.currentTabIndex === root.timerTabIndex) return timerTab.implicitHeight
+                        if (root.currentTabIndex === root.todoTabIndex) return todoTab.implicitHeight
                         return overviewTab.implicitHeight
                     }
-                    currentIndex: root.currentTabIndex
+                    currentIndex: {
+                        if (!SettingsData.weatherEnabled && root.currentTabIndex >= root.timerTabIndex) {
+                            return root.currentTabIndex + 1
+                        }
+                        return root.currentTabIndex
+                    }
 
                     OverviewTab {
                         id: overviewTab
 
                         onSwitchToWeatherTab: {
-                            if (SettingsData.weatherEnabled) {
-                                tabBar.currentIndex = 2
-                                tabBar.tabClicked(2)
+                            if (root.weatherTabIndex >= 0) {
+                                tabBar.currentIndex = root.weatherTabIndex
+                                tabBar.tabClicked(root.weatherTabIndex)
                             }
                         }
 
@@ -190,9 +200,8 @@ DankPopout {
                         }
 
                         onSwitchToTimerTab: {
-                            let timerIndex = SettingsData.weatherEnabled ? 3 : 2
-                            tabBar.currentIndex = timerIndex
-                            tabBar.tabClicked(timerIndex)
+                            tabBar.currentIndex = root.timerTabIndex
+                            tabBar.tabClicked(root.timerTabIndex)
                         }
                     }
 
@@ -202,7 +211,7 @@ DankPopout {
 
                     WeatherTab {
                         id: weatherTab
-                        visible: SettingsData.weatherEnabled && root.currentTabIndex === 2
+                        visible: SettingsData.weatherEnabled && root.currentTabIndex === root.weatherTabIndex
                     }
 
                     TimerTab {
@@ -215,9 +224,9 @@ DankPopout {
                         }
                     }
 
-                    // TodoTab {
-                    //     id: todoTab
-                    // }
+                    TodoTab {
+                        id: todoTab
+                    }
                 }
             }
         }
