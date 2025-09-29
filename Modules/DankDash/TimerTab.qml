@@ -25,7 +25,7 @@ Item {
             TimerTabButton {
                 width: parent.width
                 height: (parent.height - Theme.spacingS * 2) / 3
-                title: "Timers"
+                title: "Timer"
                 icon: "hourglass_top"
                 active: root.currentMode === 0
                 onClicked: root.currentMode = 0

@@ -102,7 +102,14 @@ Item {
 
             StyledText {
                 Layout.fillWidth: true
-                text: "Tracking: ~/TODO.md"
+                text: {
+                    const path = TodoService.todoFilePath || ""
+                    if (!path)
+                        return "No file loaded"
+                    const shortened = Paths.shortenHome(path)
+                    const displayPath = shortened.length > 0 ? shortened : path
+                    return "Tracking: " + displayPath
+                }
                 font.pixelSize: Theme.fontSizeSmall
                 color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
                 verticalAlignment: Text.AlignVCenter

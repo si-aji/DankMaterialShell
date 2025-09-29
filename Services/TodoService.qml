@@ -9,29 +9,50 @@ pragma ComponentBehavior: Bound
 Singleton {
     id: root
 
-    property string todoFilePath: StandardPaths.writableLocation(StandardPaths.HomeLocation) + "/TODO.md"
+    property string todoFilePath: Paths.strip(Paths.home) + "/TODO.md"
     property var doingTasks: []
     property var finishedTasks: []
     property bool featureAvailable: true
 
     signal tasksUpdated()
 
-    Process {
-        id: readFileProcess
-        command: ["cat", root.todoFilePath]
-        running: false
+    property string _pendingWriteContent: ""
 
-        onExited: (exitCode) => {
-            if (exitCode === 0) {
-                const parsed = parseTodoFile(readFileProcess.stdout)
-                root.doingTasks = parsed.doing
-                root.finishedTasks = parsed.finished
-            } else {
-                // File doesn't exist, create empty arrays
-                root.doingTasks = []
-                root.finishedTasks = []
-            }
+    FileView {
+        id: todoFileView
+        path: root.todoFilePath
+        preload: true
+        watchChanges: true
+        atomicWrites: true
+        blockWrites: true
+        printErrors: true
+
+        function updateTasksFromContent(content) {
+            const parsed = parseTodoFile(content || "")
+            root.doingTasks = parsed.doing
+            root.finishedTasks = parsed.finished
             root.tasksUpdated()
+        }
+
+        onLoaded: {
+            updateTasksFromContent(todoFileView.text())
+        }
+
+        onLoadFailed: (error) => {
+            if (!error || (error.indexOf("ENOENT") === -1 && error.indexOf("No such file") === -1)) {
+                console.warn("Failed to load TODO file:", error)
+            }
+            root.doingTasks = []
+            root.finishedTasks = []
+            root.tasksUpdated()
+        }
+
+        onFileChanged: {
+            todoFileView.reload()
+        }
+
+        onSaveFailed: (error) => {
+            console.warn("Failed to write TODO file:", error)
         }
     }
 
@@ -41,7 +62,15 @@ Singleton {
 
         onExited: (exitCode) => {
             if (exitCode !== 0) {
-                console.warn("Failed to write TODO.md file, exit code:", exitCode)
+                console.warn("Failed to write TODO file, exit code:", exitCode)
+            } else {
+                todoFileView.reload()
+            }
+
+            if (root._pendingWriteContent !== "") {
+                const next = root._pendingWriteContent
+                root._pendingWriteContent = ""
+                Qt.callLater(() => startWriteProcess(next))
             }
         }
     }
@@ -91,21 +120,30 @@ Singleton {
     }
 
     function loadTasks() {
-        if (!readFileProcess.running) {
-            readFileProcess.running = true
-        }
+        todoFileView.reload()
+    }
+
+    function startWriteProcess(content) {
+        writeFileProcess.command = [
+            "python3",
+            "-c",
+            "import pathlib, sys; pathlib.Path(sys.argv[1]).write_text(sys.argv[2], encoding='utf-8')",
+            root.todoFilePath,
+            content
+        ]
+        writeFileProcess.running = true
     }
 
     function saveTasks() {
         const content = formatTasksForFile(root.doingTasks, root.finishedTasks)
-        // Use echo with proper escaping - simpler approach
-        const lines = content.split('\n')
-        const escapedLines = lines.map(line => line.replace(/'/g, "'\\''"))
-        const finalContent = escapedLines.join('\n')
-        writeFileProcess.command = ["sh", "-c", `echo '${finalContent}' > '${root.todoFilePath}'`]
-        writeFileProcess.running = true
-        console.log("Saving tasks to:", root.todoFilePath, "lines:", lines.length)
-        console.log("Content preview:", content.substring(0, 100))
+
+        if (writeFileProcess.running) {
+            root._pendingWriteContent = content
+        } else {
+            startWriteProcess(content)
+        }
+
+        console.log("Saving tasks to:", root.todoFilePath)
     }
 
     function addTask(text) {
@@ -199,6 +237,7 @@ Singleton {
 
     // Initialize on component creation
     Component.onCompleted: {
+        console.log("TodoService tracking file:", root.todoFilePath)
         loadTasks()
     }
 }
