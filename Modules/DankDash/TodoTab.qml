@@ -16,6 +16,13 @@ Item {
         { label: "Ongoing", available: true },
         { label: "Finished", available: true }
     ]
+    property int doingCount: 0
+    property int finishedCount: 0
+
+    function updateCounts() {
+        root.doingCount = TodoService.doingTasks.length
+        root.finishedCount = TodoService.finishedTasks.length
+    }
 
     // Connect to TodoService signals
     Connections {
@@ -23,9 +30,12 @@ Item {
         function onTasksUpdated() {
             // Force UI update by toggling visibility
             console.log("Tasks updated, doing:", TodoService.doingTasks.length, "finished:", TodoService.finishedTasks.length)
+            root.updateCounts()
             forceUpdateTimer.restart()
         }
     }
+
+    Component.onCompleted: root.updateCounts()
 
     Timer {
         id: forceUpdateTimer
@@ -74,7 +84,7 @@ Item {
 
                     StyledText {
                         anchors.centerIn: parent
-                        text: modelData.label
+                        text: modelData.label + " (" + (index === 0 ? root.doingCount : root.finishedCount) + ")"
                         font.pixelSize: Theme.fontSizeMedium
                         font.weight: Font.Medium
                         color: Qt.rgba(Theme.surfaceText.r,
@@ -240,7 +250,7 @@ Item {
                 delegate: Rectangle {
                     width: ListView.view.width
                     height: 48
-                    radius: Theme.cornerRadiusSmall
+                    radius: Theme.cornerRadius
                     color: Theme.surfaceContainer
                     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                     border.width: 1
@@ -253,7 +263,7 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 24
                             Layout.preferredHeight: 24
-                            radius: 4
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.surface
                             border.color: Theme.outline
                             border.width: 2
@@ -288,7 +298,7 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
-                            radius: Theme.cornerRadiusSmall
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.errorContainer
 
                             DankIcon {
@@ -331,7 +341,7 @@ Item {
                 delegate: Rectangle {
                     width: ListView.view.width
                     height: 48
-                    radius: Theme.cornerRadiusSmall
+                    radius: Theme.cornerRadius
                     color: Theme.surfaceContainer
                     border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                     border.width: 1
@@ -344,7 +354,7 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 24
                             Layout.preferredHeight: 24
-                            radius: 4
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.primaryContainer
                             border.color: Theme.primary
                             border.width: 2
@@ -378,7 +388,7 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
-                            radius: Theme.cornerRadiusSmall
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.errorContainer
 
                             DankIcon {
