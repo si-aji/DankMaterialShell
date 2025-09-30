@@ -1,4 +1,6 @@
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import qs.Common
 import qs.Widgets
@@ -52,194 +54,202 @@ Item {
         }
     }
 
-    ColumnLayout {
+    Item {
+        id: contentArea
         anchors.fill: parent
-        spacing: Theme.spacingM
 
-        // Top row: Doing/Finished filter buttons
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.filterButtonHeight
-            spacing: Theme.spacingS
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: Theme.spacingM
 
-            Repeater {
-                id: filterRepeater
-                model: root.filters
+            // Top row: Doing/Finished filter buttons
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: root.filterButtonHeight
+                spacing: Theme.spacingS
 
-                Rectangle {
+                Repeater {
+                    id: filterRepeater
+                    model: root.filters
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: root.filterButtonHeight
+                        radius: Theme.cornerRadius
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b,
+                                               modelData.available ? 0.08 : 0.04)
+                        border.width: 1
+                        color: root.currentFilter === index
+                               ? Theme.primaryContainer
+                               : (modelData.available
+                                  ? Theme.surfaceContainerHigh
+                                  : Qt.rgba(Theme.surfaceContainerHigh.r,
+                                            Theme.surfaceContainerHigh.g,
+                                            Theme.surfaceContainerHigh.b,
+                                            0.6))
+
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: modelData.label + " (" + (index === 0 ? root.doingCount : root.finishedCount) + ")"
+                            font.pixelSize: Theme.fontSizeMedium
+                            font.weight: Font.Medium
+                            color: Qt.rgba(Theme.surfaceText.r,
+                                           Theme.surfaceText.g,
+                                           Theme.surfaceText.b,
+                                           modelData.available ? 1 : 0.6)
+                        }
+
+                        StateLayer {
+                            stateColor: Theme.surfaceText
+                            cornerRadius: parent.radius
+                            disabled: !modelData.available
+                            enabled: modelData.available
+                            onClicked: root.currentFilter = index
+                        }
+                    }
+                }
+            }
+
+            // Second row: Task input and action buttons
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 36
+                spacing: Theme.spacingS
+
+                StyledText {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: root.filterButtonHeight
+                    text: {
+                        const path = TodoService.todoFilePath || ""
+                        if (!path)
+                            return "No file loaded"
+                        const shortened = Paths.shortenHome(path)
+                        const displayPath = shortened.length > 0 ? shortened : path
+                        return "Tracking: " + displayPath
+                    }
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                // Clear All button - only visible for Finished tasks
+                Rectangle {
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 32
                     radius: Theme.cornerRadius
-                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b,
-                                           modelData.available ? 0.08 : 0.04)
+                    color: Theme.surfaceContainer
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                     border.width: 1
-                    color: root.currentFilter === index
-                           ? Theme.primaryContainer
-                           : (modelData.available
-                              ? Theme.surfaceContainerHigh
-                              : Qt.rgba(Theme.surfaceContainerHigh.r,
-                                        Theme.surfaceContainerHigh.g,
-                                        Theme.surfaceContainerHigh.b,
-                                        0.6))
+                    visible: root.currentFilter === 1
 
                     StyledText {
                         anchors.centerIn: parent
-                        text: modelData.label + " (" + (index === 0 ? root.doingCount : root.finishedCount) + ")"
-                        font.pixelSize: Theme.fontSizeMedium
-                        font.weight: Font.Medium
-                        color: Qt.rgba(Theme.surfaceText.r,
-                                       Theme.surfaceText.g,
-                                       Theme.surfaceText.b,
-                                       modelData.available ? 1 : 0.6)
+                        text: "Clear All"
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.surfaceText
                     }
 
                     StateLayer {
                         stateColor: Theme.surfaceText
                         cornerRadius: parent.radius
-                        disabled: !modelData.available
-                        enabled: modelData.available
-                        onClicked: root.currentFilter = index
+                        onClicked: {
+                            TodoService.clearAllTasks()
+                        }
                     }
                 }
-            }
-        }
 
-        // Second row: Task input and action buttons
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 36
-            spacing: Theme.spacingS
+                // Finish All button - only visible for Doing tasks
+                Rectangle {
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 32
+                    radius: Theme.cornerRadius
+                    color: Theme.surfaceContainer
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+                    visible: root.currentFilter === 0
 
-            StyledText {
-                Layout.fillWidth: true
-                text: {
-                    const path = TodoService.todoFilePath || ""
-                    if (!path)
-                        return "No file loaded"
-                    const shortened = Paths.shortenHome(path)
-                    const displayPath = shortened.length > 0 ? shortened : path
-                    return "Tracking: " + displayPath
-                }
-                font.pixelSize: Theme.fontSizeSmall
-                color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            // Clear All button - only visible for Finished tasks
-            Rectangle {
-                Layout.preferredWidth: 80
-                Layout.preferredHeight: 32
-                radius: Theme.cornerRadius
-                color: Theme.surfaceContainer
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-                visible: root.currentFilter === 1
-
-                StyledText {
-                    anchors.centerIn: parent
-                    text: "Clear All"
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.surfaceText
-                }
-
-                StateLayer {
-                    stateColor: Theme.surfaceText
-                    cornerRadius: parent.radius
-                    onClicked: {
-                        TodoService.clearAllTasks()
+                    StyledText {
+                        anchors.centerIn: parent
+                        text: "Finish All"
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.surfaceText
                     }
-                }
-            }
 
-            // Finish All button - only visible for Doing tasks
-            Rectangle {
-                Layout.preferredWidth: 80
-                Layout.preferredHeight: 32
-                radius: Theme.cornerRadius
-                color: Theme.surfaceContainer
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-                visible: root.currentFilter === 0
-
-                StyledText {
-                    anchors.centerIn: parent
-                    text: "Finish All"
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.surfaceText
-                }
-
-                StateLayer {
-                    stateColor: Theme.surfaceText
-                    cornerRadius: parent.radius
-                    onClicked: {
-                        TodoService.finishAllTasks()
-                    }
-                }
-            }
-        }
-
-        // Third row: Task input (only visible for Doing tasks)
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            spacing: Theme.spacingS
-            visible: root.currentFilter === 0
-
-            DankTextField {
-                id: taskInput
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                placeholderText: "Add new task..."
-                font.pixelSize: Theme.fontSizeMedium
-
-                onAccepted: {
-                    if (text.trim() !== "") {
-                        TodoService.addTask(text)
-                        text = ""
-                    }
-                }
-            }
-
-            Rectangle {
-                Layout.preferredWidth: 40
-                Layout.preferredHeight: 40
-                radius: Theme.cornerRadius
-                color: Theme.primary
-                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-                border.width: 1
-
-                StyledText {
-                    anchors.centerIn: parent
-                    text: "+"
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.weight: Font.Bold
-                    color: Theme.onPrimary
-                }
-
-                StateLayer {
-                    stateColor: Theme.onPrimary
-                    cornerRadius: parent.radius
-                    onClicked: {
-                        if (taskInput.text.trim() !== "") {
-                            TodoService.addTask(taskInput.text)
-                            taskInput.text = ""
+                    StateLayer {
+                        stateColor: Theme.surfaceText
+                        cornerRadius: parent.radius
+                        onClicked: {
+                            TodoService.finishAllTasks()
                         }
                     }
                 }
             }
-        }
 
-        // Fourth row: Main content area
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            radius: Theme.cornerRadius
-            color: Theme.surfaceContainerHigh
-            border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-            border.width: 1
+            // Third row: Task input (only visible for Doing tasks)
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                spacing: Theme.spacingS
+                visible: root.currentFilter === 0
 
-            // Doing tasks list
-            DankListView {
+                DankTextField {
+                    id: taskInput
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 40
+                    placeholderText: "Add new task..."
+                    font.pixelSize: Theme.fontSizeMedium
+
+                    onAccepted: {
+                        if (text.trim() !== "") {
+                            TodoService.addTask(text)
+                            text = ""
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
+                    radius: Theme.cornerRadius
+                    color: Theme.primary
+                    border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                    border.width: 1
+
+                    StyledText {
+                        anchors.centerIn: parent
+                        text: "+"
+                        font.pixelSize: Theme.fontSizeLarge
+                        font.weight: Font.Bold
+                        color: Theme.onPrimary
+                    }
+
+                    StateLayer {
+                        stateColor: Theme.onPrimary
+                        cornerRadius: parent.radius
+                        onClicked: {
+                            if (taskInput.text.trim() !== "") {
+                                TodoService.addTask(taskInput.text)
+                                taskInput.text = ""
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Fourth row: Main content area
+            Rectangle {
+                id: tasksCard
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: Theme.cornerRadius
+                color: Theme.surfaceContainerHigh
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                border.width: 1
+                clip: true
+                onWidthChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
+                onHeightChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
+
+                // Doing tasks list
+                DankListView {
                 id: doingListView
                 anchors.fill: parent
                 anchors.margins: Theme.spacingS
@@ -293,6 +303,28 @@ Item {
                             color: Theme.surfaceText
                             elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Math.max(4, Theme.cornerRadius / 2)
+                            color: Theme.secondaryContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "edit"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onSecondaryContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    editOverlay.showEditTask(false, index, modelData.text)
+                                }
+                            }
                         }
 
                         Rectangle {
@@ -389,6 +421,28 @@ Item {
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
                             radius: Math.max(4, Theme.cornerRadius / 2)
+                            color: Theme.secondaryContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "edit"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onSecondaryContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    editOverlay.showEditTask(true, index, modelData.text)
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.errorContainer
 
                             DankIcon {
@@ -417,6 +471,227 @@ Item {
                     color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
                     visible: TodoService.finishedTasks.length === 0
                 }
+            }
+            }
+
+        }
+    }
+
+    Item {
+        id: editOverlay
+        anchors.fill: parent
+        visible: false
+        z: 500
+        focus: visible
+
+        property bool isEditingFinishedTask: false
+        property int editingIndex: -1
+        property string originalText: ""
+        property real dialogCenterX: 0
+        property real dialogCenterY: 0
+
+        function updateDialogCenter() {
+            if (tasksCard) {
+                const center = tasksCard.mapToItem(editOverlay, tasksCard.width / 2, tasksCard.height / 2)
+                editOverlay.dialogCenterX = center.x
+                editOverlay.dialogCenterY = center.y
+            } else {
+                editOverlay.dialogCenterX = width / 2
+                editOverlay.dialogCenterY = height / 2
+            }
+        }
+
+        onVisibleChanged: if (visible) Qt.callLater(updateDialogCenter)
+
+        function showEditTask(isFinished, index, taskText) {
+            editOverlay.isEditingFinishedTask = isFinished
+            editOverlay.editingIndex = index
+            editOverlay.originalText = taskText
+            editField.text = taskText
+            editOverlay.updateDialogCenter()
+            editOverlay.visible = true
+            Qt.callLater(() => editField.forceActiveFocus())
+            Qt.callLater(() => editField.selectAll())
+        }
+
+        function hideEditOverlay() {
+            editOverlay.visible = false
+            editOverlay.editingIndex = -1
+            editOverlay.originalText = ""
+            editField.text = ""
+        }
+
+        function saveEdit() {
+            if (editOverlay.editingIndex < 0) return
+
+            const newText = editField.text.trim()
+            if (newText === "") return
+
+            if (editOverlay.isEditingFinishedTask) {
+                TodoService.editFinishedTask(editOverlay.editingIndex, newText)
+            } else {
+                TodoService.editDoingTask(editOverlay.editingIndex, newText)
+            }
+
+            hideEditOverlay()
+        }
+
+        ShaderEffectSource {
+            id: overlaySource
+            sourceItem: contentArea
+            live: editOverlay.visible
+            recursive: false
+            hideSource: false
+        }
+
+        MultiEffect {
+            id: blurLayer
+            anchors.fill: parent
+            source: overlaySource
+            visible: editOverlay.visible
+            blurEnabled: true
+            blurMax: 32
+            blur: editOverlay.visible ? 1.0 : 0.0
+            z: 0
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.45)
+            z: 1
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.ArrowCursor
+                onClicked: editOverlay.hideEditOverlay()
+            }
+        }
+
+        Rectangle {
+            id: editDialog
+            width: Math.max(Math.min(tasksCard.width - Theme.spacingL * 2, 500), 320)
+            height: editColumn.implicitHeight + Theme.spacingL * 2
+            radius: Theme.cornerRadius
+            color: Theme.surfaceContainerHigh
+            border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+            border.width: 1
+            x: editOverlay.dialogCenterX - width / 2
+            y: editOverlay.dialogCenterY - height / 2
+            z: 2
+            visible: editOverlay.visible
+
+            Column {
+                id: editColumn
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Theme.spacingL
+                spacing: Theme.spacingL * 2
+
+                StyledText {
+                    text: editOverlay.isEditingFinishedTask ? "Edit Finished Task" : "Edit Task"
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.weight: Font.Medium
+                    color: Theme.surfaceText
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 80
+                    radius: Theme.cornerRadius
+                    color: Theme.surfaceContainer
+                    border.color: editField.activeFocus ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+                    border.width: editField.activeFocus ? 2 : 1
+
+                    ScrollView {
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingS
+                        clip: true
+
+                        TextArea {
+                            id: editField
+                            width: ScrollView.view.width - Theme.spacingS * 2
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Theme.surfaceText
+                            placeholderText: "Enter task description..."
+                            background: null
+                            selectByMouse: true
+                            wrapMode: TextArea.Wrap
+                            verticalAlignment: TextArea.AlignVCenter
+
+                            Keys.onPressed: function(event) {
+                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        editOverlay.saveEdit()
+                                        event.accepted = true
+                                    }
+                                } else if (event.key === Qt.Key_Escape) {
+                                    editOverlay.hideEditOverlay()
+                                    event.accepted = true
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Row {
+                    anchors.right: parent.right
+                    spacing: Theme.spacingS
+
+                    Rectangle {
+                        width: 80
+                        height: 36
+                        radius: Theme.cornerRadius
+                        color: Theme.surfaceContainer
+                        border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                        border.width: 1
+
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: "Cancel"
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Theme.surfaceText
+                        }
+
+                        StateLayer {
+                            anchors.fill: parent
+                            cornerRadius: parent.radius
+                            onClicked: editOverlay.hideEditOverlay()
+                        }
+                    }
+
+                    Rectangle {
+                        width: 80
+                        height: 36
+                        radius: Theme.cornerRadius
+                        color: Theme.primary
+
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: "Save"
+                            font.pixelSize: Theme.fontSizeMedium
+                            font.weight: Font.Medium
+                            color: Theme.onPrimary
+                        }
+
+                        StateLayer {
+                            anchors.fill: parent
+                            cornerRadius: parent.radius
+                            stateColor: Theme.onPrimary
+                            onClicked: editOverlay.saveEdit()
+                        }
+                    }
+                }
+            }
+        }
+
+        Keys.onPressed: function(event) {
+            if (event.key === Qt.Key_Escape) {
+                editOverlay.hideEditOverlay()
+                event.accepted = true
             }
         }
     }
