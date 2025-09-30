@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Common
 import qs.Widgets
@@ -299,6 +300,28 @@ Item {
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
                             radius: Math.max(4, Theme.cornerRadius / 2)
+                            color: Theme.secondaryContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "edit"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onSecondaryContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    editOverlay.showEditTask(false, index, modelData.text)
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.errorContainer
 
                             DankIcon {
@@ -389,6 +412,28 @@ Item {
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
                             radius: Math.max(4, Theme.cornerRadius / 2)
+                            color: Theme.secondaryContainer
+
+                            DankIcon {
+                                anchors.centerIn: parent
+                                name: "edit"
+                                size: Theme.iconSizeSmall
+                                color: Theme.onSecondaryContainer
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: {
+                                    editOverlay.showEditTask(true, index, modelData.text)
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: Math.max(4, Theme.cornerRadius / 2)
                             color: Theme.errorContainer
 
                             DankIcon {
@@ -416,6 +461,173 @@ Item {
                     font.pixelSize: Theme.fontSizeMedium
                     color: Qt.rgba(Theme.surfaceText.r, Theme.surfaceText.g, Theme.surfaceText.b, 0.7)
                     visible: TodoService.finishedTasks.length === 0
+                }
+            }
+        }
+
+        // Edit Overlay Component
+        Rectangle {
+            id: editOverlay
+            anchors.fill: parent
+            color: Qt.rgba(0, 0, 0, 0.3)
+            visible: false
+            z: 1000
+
+            property bool isEditingFinishedTask: false
+            property int editingIndex: -1
+            property string originalText: ""
+
+            function showEditTask(isFinished, index, taskText) {
+                editOverlay.isEditingFinishedTask = isFinished
+                editOverlay.editingIndex = index
+                editOverlay.originalText = taskText
+                editField.text = taskText
+                editOverlay.visible = true
+                Qt.callLater(() => editField.forceActiveFocus())
+                Qt.callLater(() => editField.selectAll())
+            }
+
+            function hideEditOverlay() {
+                editOverlay.visible = false
+                editOverlay.editingIndex = -1
+                editOverlay.originalText = ""
+                editField.text = ""
+            }
+
+            function saveEdit() {
+                if (editOverlay.editingIndex < 0) return
+
+                const newText = editField.text.trim()
+                if (newText === "") return
+
+                if (editOverlay.isEditingFinishedTask) {
+                    TodoService.editFinishedTask(editOverlay.editingIndex, newText)
+                } else {
+                    TodoService.editDoingTask(editOverlay.editingIndex, newText)
+                }
+
+                hideEditOverlay()
+            }
+
+            // Click outside to close
+            MouseArea {
+                anchors.fill: parent
+                onClicked: editOverlay.hideEditOverlay()
+            }
+
+            Rectangle {
+                id: editDialog
+                width: Math.min(parent.width - Theme.spacingXL * 2, 500)
+                height: editColumn.implicitHeight + Theme.spacingL * 2
+                anchors.centerIn: parent
+                radius: Theme.cornerRadius
+                color: Theme.surfaceContainer
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+                border.width: 1
+
+                Column {
+                    id: editColumn
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: Theme.spacingL
+                    spacing: Theme.spacingM
+
+                    StyledText {
+                        text: editOverlay.isEditingFinishedTask ? "Edit Finished Task" : "Edit Task"
+                        font.pixelSize: Theme.fontSizeLarge
+                        font.weight: Font.Medium
+                        color: Theme.surfaceText
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 80
+                        radius: Theme.cornerRadius
+                        color: Theme.surfaceContainer
+                        border.color: editField.activeFocus ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+                        border.width: editField.activeFocus ? 2 : 1
+
+                        TextArea {
+                            id: editField
+                            anchors.fill: parent
+                            anchors.margins: Theme.spacingS
+                            font.pixelSize: Theme.fontSizeMedium
+                            color: Theme.surfaceText
+                            placeholderText: "Enter task description..."
+                            background: null
+                            selectByMouse: true
+
+                            Keys.onPressed: function(event) {
+                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        editOverlay.saveEdit()
+                                        event.accepted = true
+                                    }
+                                } else if (event.key === Qt.Key_Escape) {
+                                    editOverlay.hideEditOverlay()
+                                    event.accepted = true
+                                }
+                            }
+                        }
+                    }
+
+                    Row {
+                        anchors.right: parent.right
+                        spacing: Theme.spacingS
+
+                        Rectangle {
+                            width: 80
+                            height: 36
+                            radius: Theme.cornerRadius
+                            color: Theme.surfaceContainer
+                            border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                            border.width: 1
+
+                            StyledText {
+                                anchors.centerIn: parent
+                                text: "Cancel"
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.surfaceText
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                onClicked: editOverlay.hideEditOverlay()
+                            }
+                        }
+
+                        Rectangle {
+                            width: 80
+                            height: 36
+                            radius: Theme.cornerRadius
+                            color: Theme.primary
+
+                            StyledText {
+                                anchors.centerIn: parent
+                                text: "Save"
+                                font.pixelSize: Theme.fontSizeMedium
+                                font.weight: Font.Medium
+                                color: Theme.onPrimary
+                            }
+
+                            StateLayer {
+                                anchors.fill: parent
+                                cornerRadius: parent.radius
+                                stateColor: Theme.onPrimary
+                                onClicked: editOverlay.saveEdit()
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Keyboard shortcuts
+            Keys.onPressed: function(event) {
+                if (event.key === Qt.Key_Escape) {
+                    editOverlay.hideEditOverlay()
+                    event.accepted = true
                 }
             }
         }

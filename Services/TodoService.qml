@@ -235,6 +235,26 @@ Singleton {
         return true
     }
 
+    function editDoingTask(index, newText) {
+        if (index < 0 || index >= root.doingTasks.length) return false
+        if (newText.trim() === "") return false
+
+        root.doingTasks[index].text = newText.trim()
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
+    function editFinishedTask(index, newText) {
+        if (index < 0 || index >= root.finishedTasks.length) return false
+        if (newText.trim() === "") return false
+
+        root.finishedTasks[index].text = newText.trim()
+        saveTasks()
+        root.tasksUpdated()
+        return true
+    }
+
     // Initialize on component creation
     Component.onCompleted: {
         console.log("TodoService tracking file:", root.todoFilePath)
