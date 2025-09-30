@@ -466,10 +466,9 @@ Item {
         }
 
         // Edit Overlay Component
-        Rectangle {
+        Item {
             id: editOverlay
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, 0.3)
             visible: false
             z: 1000
 
@@ -509,6 +508,7 @@ Item {
                 hideEditOverlay()
             }
 
+    
             // Click outside to close
             MouseArea {
                 anchors.fill: parent
@@ -524,6 +524,7 @@ Item {
                 color: Theme.surfaceContainer
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
                 border.width: 1
+                z: 1001
 
                 Column {
                     id: editColumn
@@ -531,7 +532,7 @@ Item {
                     anchors.right: parent.right
                     anchors.top: parent.top
                     anchors.margins: Theme.spacingL
-                    spacing: Theme.spacingM
+                    spacing: Theme.spacingL * 2
 
                     StyledText {
                         text: editOverlay.isEditingFinishedTask ? "Edit Finished Task" : "Edit Task"
@@ -548,25 +549,34 @@ Item {
                         border.color: editField.activeFocus ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
                         border.width: editField.activeFocus ? 2 : 1
 
-                        TextArea {
-                            id: editField
+                        ScrollView {
                             anchors.fill: parent
                             anchors.margins: Theme.spacingS
-                            font.pixelSize: Theme.fontSizeMedium
-                            color: Theme.surfaceText
-                            placeholderText: "Enter task description..."
-                            background: null
-                            selectByMouse: true
+                            clip: true
 
-                            Keys.onPressed: function(event) {
-                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    if (event.modifiers & Qt.ControlModifier) {
-                                        editOverlay.saveEdit()
+                            TextArea {
+                                id: editField
+                                width: ScrollView.view.width - Theme.spacingS * 2
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.surfaceText
+                                placeholderText: "Enter task description..."
+                                background: null
+                                selectByMouse: true
+                                wrapMode: TextArea.Wrap
+                                verticalAlignment: TextArea.AlignVCenter
+
+                                Keys.onPressed: function(event) {
+                                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                        if (event.modifiers & Qt.ControlModifier) {
+                                            editOverlay.saveEdit()
+                                            event.accepted = true
+                                        }
+                                    } else if (event.key === Qt.Key_Escape) {
+                                        editOverlay.hideEditOverlay()
                                         event.accepted = true
                                     }
-                                } else if (event.key === Qt.Key_Escape) {
-                                    editOverlay.hideEditOverlay()
-                                    event.accepted = true
                                 }
                             }
                         }
