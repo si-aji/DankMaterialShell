@@ -244,6 +244,7 @@ Item {
                 color: Theme.surfaceContainerHigh
                 border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
                 border.width: 1
+                clip: true
                 onWidthChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
                 onHeightChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
 
