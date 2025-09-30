@@ -237,16 +237,18 @@ Item {
 
             // Fourth row: Main content area
             Rectangle {
-            id: tasksCard
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            radius: Theme.cornerRadius
-            color: Theme.surfaceContainerHigh
-            border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
-            border.width: 1
+                id: tasksCard
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: Theme.cornerRadius
+                color: Theme.surfaceContainerHigh
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+                border.width: 1
+                onWidthChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
+                onHeightChanged: if (editOverlay.visible) editOverlay.updateDialogCenter()
 
-            // Doing tasks list
-            DankListView {
+                // Doing tasks list
+                DankListView {
                 id: doingListView
                 anchors.fill: parent
                 anchors.margins: Theme.spacingS
@@ -484,15 +486,28 @@ Item {
         property bool isEditingFinishedTask: false
         property int editingIndex: -1
         property string originalText: ""
-        property point dialogCenter: tasksCard
-            ? tasksCard.mapToItem(root, tasksCard.width / 2, tasksCard.height / 2)
-            : Qt.point(root.width / 2, root.height / 2)
+        property real dialogCenterX: 0
+        property real dialogCenterY: 0
+
+        function updateDialogCenter() {
+            if (tasksCard) {
+                const center = tasksCard.mapToItem(editOverlay, tasksCard.width / 2, tasksCard.height / 2)
+                editOverlay.dialogCenterX = center.x
+                editOverlay.dialogCenterY = center.y
+            } else {
+                editOverlay.dialogCenterX = width / 2
+                editOverlay.dialogCenterY = height / 2
+            }
+        }
+
+        onVisibleChanged: if (visible) Qt.callLater(updateDialogCenter)
 
         function showEditTask(isFinished, index, taskText) {
             editOverlay.isEditingFinishedTask = isFinished
             editOverlay.editingIndex = index
             editOverlay.originalText = taskText
             editField.text = taskText
+            editOverlay.updateDialogCenter()
             editOverlay.visible = true
             Qt.callLater(() => editField.forceActiveFocus())
             Qt.callLater(() => editField.selectAll())
@@ -560,8 +575,8 @@ Item {
             color: Theme.surfaceContainerHigh
             border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
             border.width: 1
-            x: editOverlay.dialogCenter.x - width / 2
-            y: editOverlay.dialogCenter.y - height / 2
+            x: editOverlay.dialogCenterX - width / 2
+            y: editOverlay.dialogCenterY - height / 2
             z: 2
             visible: editOverlay.visible
 
